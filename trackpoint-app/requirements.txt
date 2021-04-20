@@ -1,0 +1,5 @@
+numpy-stl
+matplotlib
+PyQt6
+gmsh
+pygmsh
