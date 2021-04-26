@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(osgExample)
 
-FIND_PACKAGE(OpenSceneGraph REQUIRED COMPONENTS osgViewer osgDB osgGA osgText)
+FIND_PACKAGE(OpenSceneGraph REQUIRED COMPONENTS osgViewer osgDB osgGA osgText osgUtil)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
