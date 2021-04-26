@@ -12,18 +12,27 @@
 
 class PickHandler: public osgGA::GUIEventHandler {
 public:
-  osg::Node* getOrCreateSelectionPoint();
+  osg::Node* getOrCreateSelectionCylinder();
   virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
 
 protected:
-  osg::ref_ptr<osg::MatrixTransform> _selectionPoint;
+  osg::ref_ptr<osg::MatrixTransform> _selectionCylinder;
 };
 
-osg::Node* PickHandler::getOrCreateSelectionPoint() {
-  if (!_selectionPoint) {
-    printf("Got here\n");
+osg::Node* PickHandler::getOrCreateSelectionCylinder() {
+  if (!_selectionCylinder) {
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    geode->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f)));
+
+    _selectionCylinder = new osg::MatrixTransform;
+    _selectionCylinder->setNodeMask(0.1);
+    _selectionCylinder->addChild(geode.get());
+
+    osg::StateSet* ss = _selectionCylinder->getOrCreateStateSet();
+    ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    ss->setAttributeAndModes(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
   }
-  return _selectionPoint.get();
+  return _selectionCylinder.get();
 }
 
 bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
@@ -45,8 +54,7 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
   return false;
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
     // Root node of the scene
     osg::ref_ptr<osg::Group> root = new osg::Group;
 
@@ -66,8 +74,7 @@ int main(int argc, char** argv)
 
     // Add axesNode under root
     osg::ref_ptr<osg::Node> axesNode = osgDB::readNodeFile("../../testdata/zPlate_0.stl");
-    if (!axesNode)
-    {
+    if (!axesNode) {
         printf("Origin node not loaded, model not found\n");
         return 1;
     }
@@ -78,6 +85,8 @@ int main(int argc, char** argv)
     viewer.setCameraManipulator(tm);
 
     osg::ref_ptr<PickHandler> picker = new PickHandler();
+    root->addChild(picker->getOrCreateSelectionCylinder());
+
     viewer.addEventHandler(picker.get());
 
     return viewer.run();
