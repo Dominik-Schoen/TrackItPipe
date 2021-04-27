@@ -9,6 +9,65 @@
 #include <osgUtil/LineSegmentIntersector>
 #include <osgUtil/IntersectionVisitor>
 #include <osg/PolygonMode>
+#include <vector>
+
+class TrackPoint {
+public:
+  TrackPoint(osg::Vec3 point, osg::Vec3 normal);
+  osg::ref_ptr<osg::MatrixTransform> getUppermostRoot();
+
+protected:
+  osg::ref_ptr<osg::MatrixTransform> _translationGroup;
+  osg::ref_ptr<osg::MatrixTransform> _rotationGroup;
+
+private:
+  osg::Vec3 point;
+  osg::Vec3 normal;
+};
+
+TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
+  osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> cylinder = new osg::ShapeDrawable();
+  cylinder->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f));
+  cylinder->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
+  geode->addDrawable(cylinder.get());
+
+  _rotationGroup = new osg::MatrixTransform;
+  _rotationGroup->addChild(geode.get());
+  _rotationGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
+
+  _translationGroup = new osg::MatrixTransform;
+  _translationGroup->addChild(_rotationGroup.get());
+  _translationGroup->setMatrix(osg::Matrix::translate(point));
+}
+
+osg::ref_ptr<osg::MatrixTransform> TrackPoint::getUppermostRoot() {
+  return _translationGroup.get();
+}
+
+class StoreHandler {
+public:
+  void addTrackingPoint(osg::Vec3 point, osg::Vec3 normal);
+  StoreHandler(osg::ref_ptr<osg::Group> root);
+
+protected:
+  std::vector<TrackPoint*> points;
+
+private:
+  osg::ref_ptr<osg::Group> _root;
+};
+
+void StoreHandler::addTrackingPoint(osg::Vec3 point, osg::Vec3 normal) {
+  TrackPoint* trackPoint = new TrackPoint(point, normal);
+  points.push_back(trackPoint);
+  _root->addChild(trackPoint->getUppermostRoot());
+}
+
+StoreHandler::StoreHandler(osg::ref_ptr<osg::Group> root) {
+  _root = root;
+}
+
+StoreHandler* storeHandler;
 
 class PickHandler: public osgGA::GUIEventHandler {
 public:
@@ -20,23 +79,21 @@ public:
 protected:
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
-  //osg::ref_ptr<osg::> _selectionTransformation;
 };
 
 osg::Node* PickHandler::getOrCreateSelectionCylinder() {
   if (!_selectionTranslateGroup) {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-    geode->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f)));
+    osg::ref_ptr<osg::ShapeDrawable> cylinder = new osg::ShapeDrawable();
+    cylinder->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f));
+    cylinder->setColor(osg::Vec4(1.0f, 0.0f, 0.0f, 0.2f));
+    geode->addDrawable(cylinder.get());
 
     _selectionRotateGroup = new osg::MatrixTransform;
     _selectionRotateGroup->addChild(geode.get());
 
     _selectionTranslateGroup = new osg::MatrixTransform;
     _selectionTranslateGroup->addChild(_selectionRotateGroup.get());
-
-    osg::StateSet* ss = _selectionTranslateGroup->getOrCreateStateSet();
-    ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-    ss->setAttributeAndModes(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
   }
   return _selectionTranslateGroup.get();
 }
@@ -55,6 +112,7 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
       osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
       moveTo(result.localIntersectionPoint);
       rotateToNormalVector(result.localIntersectionNormal);
+      storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
     }
   }
   return false;
@@ -88,6 +146,8 @@ int main(int argc, char** argv) {
     // Attach a manipulator (it's usually done for us when we use viewer.run())
     osg::ref_ptr<osgGA::TrackballManipulator> tm = new osgGA::TrackballManipulator;
     viewer.setCameraManipulator(tm);
+
+    storeHandler = new StoreHandler(root);
 
     osg::ref_ptr<PickHandler> picker = new PickHandler();
     root->addChild(picker->getOrCreateSelectionCylinder());
