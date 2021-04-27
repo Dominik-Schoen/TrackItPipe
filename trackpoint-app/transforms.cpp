@@ -14,25 +14,31 @@ class PickHandler: public osgGA::GUIEventHandler {
 public:
   osg::Node* getOrCreateSelectionCylinder();
   virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
+  void moveTo(osg::Vec3f position);
+  void rotateToNormalVector(osg::Vec3f normal);
 
 protected:
-  osg::ref_ptr<osg::MatrixTransform> _selectionCylinder;
+  osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
+  osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
+  //osg::ref_ptr<osg::> _selectionTransformation;
 };
 
 osg::Node* PickHandler::getOrCreateSelectionCylinder() {
-  if (!_selectionCylinder) {
+  if (!_selectionTranslateGroup) {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
     geode->addDrawable(new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f)));
 
-    _selectionCylinder = new osg::MatrixTransform;
-    _selectionCylinder->setNodeMask(0.1);
-    _selectionCylinder->addChild(geode.get());
+    _selectionRotateGroup = new osg::MatrixTransform;
+    _selectionRotateGroup->addChild(geode.get());
 
-    osg::StateSet* ss = _selectionCylinder->getOrCreateStateSet();
+    _selectionTranslateGroup = new osg::MatrixTransform;
+    _selectionTranslateGroup->addChild(_selectionRotateGroup.get());
+
+    osg::StateSet* ss = _selectionTranslateGroup->getOrCreateStateSet();
     ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     ss->setAttributeAndModes(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
   }
-  return _selectionCylinder.get();
+  return _selectionTranslateGroup.get();
 }
 
 bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
@@ -47,11 +53,19 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
     viewer->getCamera()->accept(iv);
     if (intersector->containsIntersections()) {
       osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
-      printf("Found intersection at: %lf, %lf, %lf\n", result.localIntersectionPoint.x(), result.localIntersectionPoint.y(), result.localIntersectionPoint.z());
-      printf("Intersection normals: %lf, %lf, %lf\n", result.localIntersectionNormal.x(), result.localIntersectionNormal.y(), result.localIntersectionNormal.z());
+      moveTo(result.localIntersectionPoint);
+      rotateToNormalVector(result.localIntersectionNormal);
     }
   }
   return false;
+}
+
+void PickHandler::moveTo(osg::Vec3f position) {
+  _selectionTranslateGroup->setMatrix(osg::Matrix::translate(position));
+}
+
+void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
+  _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
 }
 
 int main(int argc, char** argv) {
@@ -62,15 +76,6 @@ int main(int argc, char** argv) {
     osgViewer::Viewer viewer;
     viewer.setSceneData(root);
     viewer.realize();
-
-    // Add a small sphere
-    osg::ref_ptr<osg::ShapeDrawable> mouseSphere = new osg::ShapeDrawable;
-    mouseSphere->setShape(new osg::Sphere(osg::Vec3(3.0f, 0.0f, 0.0f), 1.0f));
-    mouseSphere->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-    osg::ref_ptr<osg::Geode> mouseParent = new osg::Geode;
-    mouseParent->addDrawable(mouseSphere.get());
-    root->addChild(mouseParent);
 
     // Add axesNode under root
     osg::ref_ptr<osg::Node> axesNode = osgDB::readNodeFile("../../testdata/zPlate_0.stl");
