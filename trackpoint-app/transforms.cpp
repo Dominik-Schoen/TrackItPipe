@@ -10,19 +10,31 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osg/PolygonMode>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <math.h>
+
+const char* openScadBase =
+  "$fn = 100;\n"
+  "module optiTrackPointBase(translation, rotation) {\n"
+  "translate(translation) rotate(rotation) cylinder(10, 1, 1, false);\n"
+  "}\n";
 
 class TrackPoint {
 public:
   TrackPoint(osg::Vec3 point, osg::Vec3 normal);
   osg::ref_ptr<osg::MatrixTransform> getUppermostRoot();
+  osg::Vec3 getTranslation();
+  osg::Vec3 getRotation();
 
 protected:
   osg::ref_ptr<osg::MatrixTransform> _translationGroup;
   osg::ref_ptr<osg::MatrixTransform> _rotationGroup;
 
 private:
-  osg::Vec3 point;
-  osg::Vec3 normal;
+  osg::Vec3 _point;
+  osg::Vec3 _normal;
 };
 
 TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
@@ -39,16 +51,71 @@ TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
   _translationGroup = new osg::MatrixTransform;
   _translationGroup->addChild(_rotationGroup.get());
   _translationGroup->setMatrix(osg::Matrix::translate(point));
+
+  _point = point;
+  _normal = normal;
 }
 
 osg::ref_ptr<osg::MatrixTransform> TrackPoint::getUppermostRoot() {
   return _translationGroup.get();
 }
 
+osg::Vec3 TrackPoint::getTranslation() {
+  return _point;
+}
+
+osg::Vec3 TrackPoint::getRotation() {
+  printf("YNorm: %lf %lf %lf\n", _normal.x(), _normal.y(), _normal.z());
+
+  osg::Vec3 start = osg::Vec3(0.0f, 0.0f, 1.0f);
+
+  // From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  osg::Quat quat = osg::Quat(0.0f, 0.0f, 0.0f, 0.0f);
+  quat.makeRotate(start, _normal);
+
+  float sinr_cosp = 2 * (quat.w() * quat.x() + quat.y() * quat.z());
+  float cosr_cosp = 1 - 2 * (quat.x() * quat.x() + quat.y() * quat.y());
+  float xRotation = std::atan2(sinr_cosp, cosr_cosp) * 180.0 / M_PI;
+
+  float sinp = 2 * (quat.w() * quat.y() - quat.z() * quat.x());
+  float yRotation;
+  if (std::abs(sinp) >= 1) {
+    yRotation = std::copysign(M_PI / 2, sinp) * 180.0 / M_PI;
+  } else {
+    yRotation = std::asin(sinp) * 180.0 / M_PI;
+  }
+
+  float siny_cosp = 2 * (quat.w() * quat.z() + quat.x() * quat.y());
+  float cosy_cosp = 1 - 2 * (quat.y() * quat.y() + quat.z() * quat.z());
+  float zRotation = std::atan2(siny_cosp, cosy_cosp) * 180.0 / M_PI;
+
+  return osg::Vec3(xRotation, yRotation, zRotation);
+}
+
+class OpenScadRenderer {
+public:
+  void render(std::vector<TrackPoint*> points);
+};
+
+void OpenScadRenderer::render(std::vector<TrackPoint*> points) {
+  std::ofstream scadFile;
+  scadFile.open("/tmp/output.scad");
+  scadFile << openScadBase;
+  scadFile << "import(\"testbutton.stl\");\n";
+  for (TrackPoint* point: points) {
+    osg::Vec3 translation = point->getTranslation();
+    osg::Vec3 rotation = point->getRotation();
+    scadFile << "optiTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "]);\n";
+  }
+  scadFile.close();
+  system("openscad -o /tmp/output.stl /tmp/output.scad");
+}
+
 class StoreHandler {
 public:
   void addTrackingPoint(osg::Vec3 point, osg::Vec3 normal);
   StoreHandler(osg::ref_ptr<osg::Group> root);
+  std::vector<TrackPoint*> getPoints();
 
 protected:
   std::vector<TrackPoint*> points;
@@ -67,7 +134,12 @@ StoreHandler::StoreHandler(osg::ref_ptr<osg::Group> root) {
   _root = root;
 }
 
+std::vector<TrackPoint*> StoreHandler::getPoints() {
+  return points;
+}
+
 StoreHandler* storeHandler;
+OpenScadRenderer* openScadRenderer;
 
 class PickHandler: public osgGA::GUIEventHandler {
 public:
@@ -113,6 +185,7 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
       moveTo(result.localIntersectionPoint);
       rotateToNormalVector(result.localIntersectionNormal);
       storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
+      openScadRenderer->render(storeHandler->getPoints());
     }
   }
   return false;
@@ -136,7 +209,7 @@ int main(int argc, char** argv) {
     viewer.realize();
 
     // Add axesNode under root
-    osg::ref_ptr<osg::Node> axesNode = osgDB::readNodeFile("../../testdata/zPlate_0.stl");
+    osg::ref_ptr<osg::Node> axesNode = osgDB::readNodeFile("../../testdata/testbutton.stl");
     if (!axesNode) {
         printf("Origin node not loaded, model not found\n");
         return 1;
@@ -148,6 +221,7 @@ int main(int argc, char** argv) {
     viewer.setCameraManipulator(tm);
 
     storeHandler = new StoreHandler(root);
+    openScadRenderer = new OpenScadRenderer();
 
     osg::ref_ptr<PickHandler> picker = new PickHandler();
     root->addChild(picker->getOrCreateSelectionCylinder());
