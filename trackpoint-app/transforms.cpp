@@ -3,6 +3,7 @@
 #include <osg/Geode>
 #include <osgDB/ReadFile>
 #include <osg/Group>
+#include <osg/Switch>
 #include <osg/MatrixTransform>
 #include <osg/Matrix>
 #include <osgGA/TrackballManipulator>
@@ -147,10 +148,13 @@ public:
   virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
   void moveTo(osg::Vec3f position);
   void rotateToNormalVector(osg::Vec3f normal);
+  void setVisibility(bool mode);
 
 protected:
+  osg::ref_ptr<osg::Switch> _selectionSwitch;
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
+  bool isSelection = false;
 };
 
 osg::Node* PickHandler::getOrCreateSelectionCylinder() {
@@ -166,26 +170,49 @@ osg::Node* PickHandler::getOrCreateSelectionCylinder() {
 
     _selectionTranslateGroup = new osg::MatrixTransform;
     _selectionTranslateGroup->addChild(_selectionRotateGroup.get());
+
+    _selectionSwitch = new osg::Switch;
+    _selectionSwitch->addChild(_selectionTranslateGroup.get());
   }
-  return _selectionTranslateGroup.get();
+  return _selectionSwitch.get();
 }
 
 bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
-  if (ea.getEventType() != osgGA::GUIEventAdapter::RELEASE || ea.getButton() != osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON || !(ea.getModKeyMask()&osgGA::GUIEventAdapter::MODKEY_CTRL)) {
-    return false;
+  if (ea.getModKeyMask()&osgGA::GUIEventAdapter::MODKEY_CTRL) {
+    isSelection = !isSelection;
+    setVisibility(false);
   }
-  osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
-  if (viewer) {
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(osgUtil::Intersector::WINDOW, ea.getX(), ea.getY());
-    osgUtil::IntersectionVisitor iv(intersector.get());
-    iv.setTraversalMask(~0x1);
-    viewer->getCamera()->accept(iv);
-    if (intersector->containsIntersections()) {
-      osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
-      moveTo(result.localIntersectionPoint);
-      rotateToNormalVector(result.localIntersectionNormal);
-      storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
-      openScadRenderer->render(storeHandler->getPoints());
+  if (ea.getEventType() == osgGA::GUIEventAdapter::RELEASE && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON && isSelection) {
+    osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
+    if (viewer) {
+      osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(osgUtil::Intersector::WINDOW, ea.getX(), ea.getY());
+      osgUtil::IntersectionVisitor iv(intersector.get());
+      iv.setTraversalMask(~0x1);
+      viewer->getCamera()->accept(iv);
+      if (intersector->containsIntersections()) {
+        osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
+        moveTo(result.localIntersectionPoint);
+        rotateToNormalVector(result.localIntersectionNormal);
+        storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
+        openScadRenderer->render(storeHandler->getPoints());
+      }
+    }
+  }
+  if (ea.getEventType() == osgGA::GUIEventAdapter::MOVE && isSelection) {
+    osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
+    if (viewer) {
+      osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(osgUtil::Intersector::WINDOW, ea.getX(), ea.getY());
+      osgUtil::IntersectionVisitor iv(intersector.get());
+      iv.setTraversalMask(~0x1);
+      viewer->getCamera()->accept(iv);
+      if (intersector->containsIntersections()) {
+        osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
+        moveTo(result.localIntersectionPoint);
+        rotateToNormalVector(result.localIntersectionNormal);
+        setVisibility(true);
+      } else {
+        setVisibility(false);
+      }
     }
   }
   return false;
@@ -197,6 +224,10 @@ void PickHandler::moveTo(osg::Vec3f position) {
 
 void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
   _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
+}
+
+void PickHandler::setVisibility(bool mode) {
+  _selectionSwitch->setValue(0, mode);
 }
 
 int main(int argc, char** argv) {
