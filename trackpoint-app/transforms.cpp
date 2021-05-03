@@ -141,6 +141,7 @@ std::vector<TrackPoint*> StoreHandler::getPoints() {
 
 StoreHandler* storeHandler;
 OpenScadRenderer* openScadRenderer;
+osg::ref_ptr<osg::Node> axesNode;
 
 class PickHandler: public osgGA::GUIEventHandler {
 public:
@@ -190,11 +191,15 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
       iv.setTraversalMask(~0x1);
       viewer->getCamera()->accept(iv);
       if (intersector->containsIntersections()) {
-        osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
-        moveTo(result.localIntersectionPoint);
-        rotateToNormalVector(result.localIntersectionNormal);
-        storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
-        openScadRenderer->render(storeHandler->getPoints());
+        for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
+          if (std::find(result.nodePath.begin(), result.nodePath.end(), axesNode) != result.nodePath.end()) {
+            moveTo(result.localIntersectionPoint);
+            rotateToNormalVector(result.localIntersectionNormal);
+            storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
+            openScadRenderer->render(storeHandler->getPoints());
+            break;
+          }
+        }
       }
     }
   }
@@ -206,10 +211,14 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
       iv.setTraversalMask(~0x1);
       viewer->getCamera()->accept(iv);
       if (intersector->containsIntersections()) {
-        osgUtil::LineSegmentIntersector::Intersection result = *(intersector->getIntersections().begin());
-        moveTo(result.localIntersectionPoint);
-        rotateToNormalVector(result.localIntersectionNormal);
-        setVisibility(true);
+        for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
+          if (std::find(result.nodePath.begin(), result.nodePath.end(), axesNode) != result.nodePath.end()) {
+            moveTo(result.localIntersectionPoint);
+            rotateToNormalVector(result.localIntersectionNormal);
+            setVisibility(true);
+            break;
+          }
+        }
       } else {
         setVisibility(false);
       }
@@ -240,7 +249,7 @@ int main(int argc, char** argv) {
     viewer.realize();
 
     // Add axesNode under root
-    osg::ref_ptr<osg::Node> axesNode = osgDB::readNodeFile("../../testdata/testbutton.stl");
+    axesNode = osgDB::readNodeFile("../../testdata/testbutton.stl");
     if (!axesNode) {
         printf("Origin node not loaded, model not found\n");
         return 1;
