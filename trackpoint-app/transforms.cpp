@@ -32,10 +32,12 @@ public:
 protected:
   osg::ref_ptr<osg::MatrixTransform> _translationGroup;
   osg::ref_ptr<osg::MatrixTransform> _rotationGroup;
+  osg::ref_ptr<osg::MatrixTransform> _originFixGroup;
 
 private:
-  osg::Vec3 _point;
+  osg::Vec3 _origin;
   osg::Vec3 _normal;
+  osg::Vec3 _trackOrigin;
 };
 
 TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
@@ -49,12 +51,21 @@ TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
   _rotationGroup->addChild(geode.get());
   _rotationGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
 
+  _originFixGroup = new osg::MatrixTransform;
+  _originFixGroup->addChild(_rotationGroup.get());
+  osg::Vec3f movementVector = normal.operator*(5.0f);
+  _originFixGroup->setMatrix(osg::Matrix::translate(movementVector));
+
   _translationGroup = new osg::MatrixTransform;
-  _translationGroup->addChild(_rotationGroup.get());
+  _translationGroup->addChild(_originFixGroup.get());
   _translationGroup->setMatrix(osg::Matrix::translate(point));
 
-  _point = point;
+  _origin = point;
   _normal = normal;
+
+  osg::Vec3 shift = normal.operator*(10.0f);
+  _trackOrigin = shift.operator+(point);
+  printf("TrackPoint is at %lf %lf %lf\n", _trackOrigin.x(), _trackOrigin.y(), _trackOrigin.z());
 }
 
 osg::ref_ptr<osg::MatrixTransform> TrackPoint::getUppermostRoot() {
@@ -62,7 +73,7 @@ osg::ref_ptr<osg::MatrixTransform> TrackPoint::getUppermostRoot() {
 }
 
 osg::Vec3 TrackPoint::getTranslation() {
-  return _point;
+  return _origin;
 }
 
 osg::Vec3 TrackPoint::getRotation() {
