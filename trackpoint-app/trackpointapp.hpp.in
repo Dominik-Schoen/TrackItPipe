@@ -1,0 +1,3 @@
+// the configured options and settings for TrackpointApp
+#define TrackpointApp_VERSION_MAJOR @TrackpointApp_VERSION_MAJOR_VERSION_MAJOR@
+#define TrackpointApp_VERSION_MAJOR_VERSION_MINOR @TrackpointApp_VERSION_MAJOR_VERSION_MINOR@
