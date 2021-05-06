@@ -155,6 +155,7 @@ protected:
   osg::ref_ptr<osg::Switch> _selectionSwitch;
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
+  osg::ref_ptr<osg::MatrixTransform> _selectionMoveToEndGroup;
   bool isSelection = false;
 };
 
@@ -169,8 +170,11 @@ osg::Node* PickHandler::getOrCreateSelectionCylinder() {
     _selectionRotateGroup = new osg::MatrixTransform;
     _selectionRotateGroup->addChild(geode.get());
 
+    _selectionMoveToEndGroup = new osg::MatrixTransform;
+    _selectionMoveToEndGroup->addChild(_selectionRotateGroup.get());
+
     _selectionTranslateGroup = new osg::MatrixTransform;
-    _selectionTranslateGroup->addChild(_selectionRotateGroup.get());
+    _selectionTranslateGroup->addChild(_selectionMoveToEndGroup.get());
 
     _selectionSwitch = new osg::Switch;
     _selectionSwitch->addChild(_selectionTranslateGroup.get());
@@ -233,6 +237,8 @@ void PickHandler::moveTo(osg::Vec3f position) {
 
 void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
   _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
+  osg::Vec3f movementVector = normal.operator*(5.0f);
+  _selectionMoveToEndGroup->setMatrix(osg::Matrix::translate(movementVector));
 }
 
 void PickHandler::setVisibility(bool mode) {
