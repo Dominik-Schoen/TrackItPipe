@@ -15,6 +15,7 @@
 #include <fstream>
 #include <string>
 #include <math.h>
+#include "lib3mf_implicit.hpp"
 
 const char* openScadBase =
   "$fn = 100;\n"
@@ -104,6 +105,32 @@ osg::Vec3 TrackPoint::getRotation() {
   return osg::Vec3(xRotation, yRotation, zRotation);
 }
 
+class ThreeMFWriter {
+public:
+  ThreeMFWriter();
+  void writeTrackPoints(std::vector<TrackPoint*> points, std::string path);
+
+private:
+  Lib3MF::PWrapper _wrapper;
+};
+
+ThreeMFWriter::ThreeMFWriter() {
+  _wrapper = Lib3MF::CWrapper::loadLibrary();
+}
+
+void ThreeMFWriter::writeTrackPoints(std::vector<TrackPoint*> points, std::string path) {
+  // Load the file created by OpenSCAD
+  Lib3MF::PModel model = _wrapper->CreateModel();
+  Lib3MF::PReader reader = model->QueryReader("3mf");
+  reader->ReadFromFile("/tmp/output.3mf");
+
+  Lib3MF::PMetaDataGroup metaData = model->GetMetaDataGroup();
+  printf("Having %d MetaData entries\n", metaData->GetMetaDataCount());
+
+  Lib3MF::PWriter writer = model->QueryWriter("3mf");
+  writer->WriteToFile(path);
+}
+
 class OpenScadRenderer {
 public:
   void render(std::vector<TrackPoint*> points);
@@ -120,7 +147,7 @@ void OpenScadRenderer::render(std::vector<TrackPoint*> points) {
     scadFile << "optiTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "]);\n";
   }
   scadFile.close();
-  system("openscad -o /tmp/output.stl /tmp/output.scad");
+  system("openscad -o /tmp/output.3mf /tmp/output.scad");
 }
 
 class StoreHandler {
@@ -152,6 +179,7 @@ std::vector<TrackPoint*> StoreHandler::getPoints() {
 
 StoreHandler* storeHandler;
 OpenScadRenderer* openScadRenderer;
+ThreeMFWriter* threeMFWriter;
 osg::ref_ptr<osg::Node> axesNode;
 
 class PickHandler: public osgGA::GUIEventHandler {
@@ -212,6 +240,7 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
             rotateToNormalVector(result.localIntersectionNormal);
             storeHandler->addTrackingPoint(result.localIntersectionPoint, result.localIntersectionNormal);
             openScadRenderer->render(storeHandler->getPoints());
+            threeMFWriter->writeTrackPoints(storeHandler->getPoints(), "/tmp/export.3mf");
             break;
           }
         }
@@ -279,6 +308,7 @@ int main(int argc, char** argv) {
 
     storeHandler = new StoreHandler(root);
     openScadRenderer = new OpenScadRenderer();
+    threeMFWriter = new ThreeMFWriter();
 
     osg::ref_ptr<PickHandler> picker = new PickHandler();
     root->addChild(picker->getOrCreateSelectionCylinder());
