@@ -1,23 +1,35 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
-PROJECT(TrackpointApp VERSION 0.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.19)
+PROJECT(TrackpointApp)
 
-CONFIGURE_FILE(trackpointapp.hpp.in trackpointapp.hpp)
+# Include modules
+INCLUDE(FetchContent)
 
-set(CMAKE_CXX_STANDARD 17)
+# Build TrackpointApp
+# Set C++ mode
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-FIND_PACKAGE(OpenSceneGraph REQUIRED COMPONENTS osgViewer osgDB osgGA osgText osgUtil)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
+# OpenSceneGraph
+INCLUDE(thirdparty/openscenegraph.cmake)
+
+# lib3mf
+INCLUDE(thirdparty/lib3mf.cmake)
+
+# The executable we want to build
+ADD_EXECUTABLE(TrackpointApp src/main.cpp)
 
 INCLUDE_DIRECTORIES(
-    ${OPENSCENEGRAPH_INCLUDE_DIRS}
+  ${${OPENSCENEGRAPH_PREFIX}_SOURCE_DIR}/include
+  ${${LIB3MF_PREFIX}_SOURCE_DIR}/include
 )
-
-ADD_EXECUTABLE(TrackpointApp main.cpp)
 
 TARGET_LINK_LIBRARIES(TrackpointApp
-    ${OPENSCENEGRAPH_LIBRARIES}
+  osg osgViewer osgDB osgGA osgText osgUtil
+  lib3mf
 )
 
-TARGET_INCLUDE_DIRECTORIES(TrackpointApp PUBLIC
-    "${PROJECT_BINARY_DIR}"
-)
+# Header to have version number available in the code
+CONFIGURE_FILE(src/trackpointapp.hpp.in src/trackpointapp.hpp)
