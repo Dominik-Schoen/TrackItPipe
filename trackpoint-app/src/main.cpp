@@ -16,6 +16,9 @@
 #include <string>
 #include <math.h>
 #include "lib3mf_implicit.hpp"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 const char* openScadBase =
   "$fn = 100;\n"
@@ -29,6 +32,7 @@ public:
   osg::ref_ptr<osg::MatrixTransform> getUppermostRoot();
   osg::Vec3 getTranslation();
   osg::Vec3 getRotation();
+  osg::Vec3 getTrackPoint();
 
 protected:
   osg::ref_ptr<osg::MatrixTransform> _translationGroup;
@@ -105,6 +109,10 @@ osg::Vec3 TrackPoint::getRotation() {
   return osg::Vec3(xRotation, yRotation, zRotation);
 }
 
+osg::Vec3 TrackPoint::getTrackPoint() {
+  return _trackOrigin;
+}
+
 class ThreeMFWriter {
 public:
   ThreeMFWriter();
@@ -125,7 +133,22 @@ void ThreeMFWriter::writeTrackPoints(std::vector<TrackPoint*> points, std::strin
   reader->ReadFromFile("/tmp/output.3mf");
 
   Lib3MF::PMetaDataGroup metaData = model->GetMetaDataGroup();
-  printf("Having %d MetaData entries\n", metaData->GetMetaDataCount());
+
+  json trackpointData;
+  std::vector<std::vector<float>> pointsList;
+  for (TrackPoint* point: points) {
+    std::vector<float> pointData;
+    osg::Vec3 trackPoint = point->getTrackPoint();
+    pointData.push_back(trackPoint.x());
+    pointData.push_back(trackPoint.y());
+    pointData.push_back(trackPoint.z());
+    pointsList.push_back(pointData);
+  }
+  trackpointData["trackpoints"] = {
+    {"tracking-system", "optitrack"},
+    {"trackpoints", pointsList}
+  };
+  metaData->AddMetaData("tk-ar-tracking", "trackpoints", trackpointData.dump(), "string", true);
 
   Lib3MF::PWriter writer = model->QueryWriter("3mf");
   writer->WriteToFile(path);
