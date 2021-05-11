@@ -1,4 +1,4 @@
-#include <osgViewer/Viewer>
+/*#include <osgViewer/Viewer>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 #include <osgDB/ReadFile>
@@ -16,9 +16,14 @@
 #include <string>
 #include <math.h>
 #include "lib3mf_implicit.hpp"
-#include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp>*/
 
-using json = nlohmann::json;
+#include <QApplication>
+#include <QSurfaceFormat>
+
+#include "MainWindow.hpp"
+
+/*using json = nlohmann::json;
 
 const char* openScadBase =
   "$fn = 100;\n"
@@ -306,10 +311,10 @@ void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
 
 void PickHandler::setVisibility(bool mode) {
   _selectionSwitch->setValue(0, mode);
-}
+}*/
 
 int main(int argc, char** argv) {
-    // Root node of the scene
+    /*// Root node of the scene
     osg::ref_ptr<osg::Group> root = new osg::Group;
 
     // Create the viewer
@@ -338,5 +343,18 @@ int main(int argc, char** argv) {
 
     viewer.addEventHandler(picker.get());
 
-    return viewer.run();
+    return viewer.run();*/
+
+    QApplication application( argc, argv );
+
+    QSurfaceFormat format;
+    format.setVersion(2, 1);
+    format.setProfile( QSurfaceFormat::CompatibilityProfile );
+
+    QSurfaceFormat::setDefaultFormat(format);
+
+    MainWindow mainWindow;
+    mainWindow.show();
+
+    return( application.exec() );
 }
