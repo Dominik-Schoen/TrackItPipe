@@ -1,5 +1,8 @@
-#ifndef OSGWidget_h__
-#define OSGWidget_h__
+#pragma once
+
+#include "StoreHandler.hpp"
+#include "OpenScadRenderer.hpp"
+#include "ThreeMFWriter.hpp"
 
 #include <QPoint>
 #include <QOpenGLWidget>
@@ -9,33 +12,27 @@
 #include <osgViewer/GraphicsWindow>
 #include <osgViewer/CompositeViewer>
 
-namespace osgWidget
-{
+namespace osgWidget {
   //! The subclass of osgViewer::CompositeViewer we use
   /*!
    * This subclassing allows us to remove the annoying automatic
    * setting of the CPU affinity to core 0 by osgViewer::ViewerBase,
    * osgViewer::CompositeViewer's base class.
    */
-  class Viewer : public osgViewer::CompositeViewer
-  {
+  class Viewer: public osgViewer::CompositeViewer {
     public:
 	    virtual void setupThreading();
   };
 }
 
-class OSGWidget : public QOpenGLWidget
-{
+class OSGWidget : public QOpenGLWidget {
   Q_OBJECT
 
 public:
-  OSGWidget( QWidget* parent = 0,
-             Qt::WindowFlags f = {} );
-
+  OSGWidget(QWidget* parent = nullptr);
   virtual ~OSGWidget();
 
 protected:
-
   virtual void paintEvent( QPaintEvent* paintEvent );
   virtual void paintGL();
   virtual void resizeGL( int width, int height );
@@ -51,14 +48,16 @@ protected:
   virtual bool event( QEvent* event );
 
 private:
-
   virtual void onHome();
   virtual void onResize( int width, int height );
 
   osgGA::EventQueue* getEventQueue() const;
 
   osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
-  osg::ref_ptr<osgWidget::Viewer> viewer_;
+  osg::ref_ptr<osgWidget::Viewer> _viewer;
+  osgViewer::View* _view;
+  osg::ref_ptr<osg::Group> _root;
+  osg::ref_ptr<osg::Node> _axesNode;
 
   QPoint selectionStart_;
   QPoint selectionEnd_;
@@ -66,7 +65,7 @@ private:
   bool selectionActive_;
   bool selectionFinished_;
 
-  void processSelection();
+  StoreHandler* _storeHandler;
+  OpenScadRenderer* _openScadRenderer;
+  ThreeMFWriter* _threeMFWriter;
 };
-
-#endif

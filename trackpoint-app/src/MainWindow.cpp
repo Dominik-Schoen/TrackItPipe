@@ -1,30 +1,14 @@
 #include "MainWindow.hpp"
-#include "OSGWidget.hpp"
+#include "../gui/ui_MainWindow.h"
 
-#include <QDebug>
-#include <QMdiSubWindow>
-#include <QMenuBar>
+MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWindow) {
+  ui->setupUi(this);
 
-MainWindow::MainWindow( QWidget* parent, Qt::WindowFlags flags )
-  : QMainWindow( parent, flags ),
-    mdiArea_( new QMdiArea( this ) )
-{
-  QMenuBar* menuBar = this->menuBar();
-
-  QMenu* menu = menuBar->addMenu( "Test" );
-  menu->addAction( "Create view", this, SLOT( onCreateView() ) );
-
-  this->setCentralWidget( mdiArea_ );
+  osgWidget = new OSGWidget(nullptr);
+  ui->sceneWidget->layout()->addWidget(osgWidget);
 }
 
 MainWindow::~MainWindow()
 {
-}
-
-void MainWindow::onCreateView()
-{
-  OSGWidget* osgWidget     = new OSGWidget( this );
-  QMdiSubWindow* subWindow = mdiArea_->addSubWindow( osgWidget );
-
-  subWindow->show();
+  delete ui;
 }
