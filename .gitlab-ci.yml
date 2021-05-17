@@ -4,9 +4,11 @@ stages:
 build_release_linux:
   image: ubuntu:hirsute
   stage: release
-  script:
+  when: manual
+  before_script:
     - ./build-dependencies-first.sh release
     - mkdir build
+  script:
     - cd build
     - cmake ..
     - cmake --build . --parallel
