@@ -41,7 +41,6 @@ pushd "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX"
 
 ./configure $OPTIONS -ltcg -optimize-size -no-pch -prefix $DEPLOYDIR -release -opensource -confirm-license \
     -nomake examples -nomake tests -nomake tools \
-    -journald \
     -skip qtscxml -skip qtwayland -skip qtdatavis3d -skip qtcharts \
     -skip qtquickcontrols2 -skip qtvirtualkeyboard -skip qtshadertools \
     -skip qttranslations -skip qtdoc -skip qt3d -skip qtnetworkauth \
