@@ -1,0 +1,16 @@
+stages:
+  - release
+
+build_release_linux:
+  image: ubuntu:hirsute
+  stage: release
+  script:
+    - ./build-dependencies-first.sh release
+    - mkdir build
+    - cd build
+    - cmake ..
+    - cmake --build . --parallel
+  artifacts:
+    expire_in: 2 weeks
+    paths:
+      - trackpoint-app/build/TrackpointApp
