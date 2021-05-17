@@ -11,6 +11,9 @@ else
   OPTIONS=""
 fi
 
+CORES=$(getconf _NPROCESSORS_ONLN)
+JOBS=$(($CORES-1))
+
 DEPLOYDIR=$BASEDIR/install
 
 OPENSCENEGRAPH_TAG="OpenSceneGraph-3.6.5"
@@ -36,7 +39,7 @@ git clone --depth 1 --branch $OPENSCENEGRAPH_TAG $OPENSCENEGRAPH_REPO
 pushd OpenSceneGraph
 
 cmake . -DCMAKE_INSTALL_PREFIX=$DEPLOYDIR $CONFIG $OPTIONS
-cmake --build . --parallel
+cmake --build . --parallel $JOBS
 cmake --install .
 
 popd
