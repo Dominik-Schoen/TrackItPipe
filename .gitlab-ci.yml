@@ -6,7 +6,7 @@ build_release_linux:
   stage: release
   when: manual
   before_script:
-    - apt update && apt install build-essential
+    - apt update && apt -y install build-essential
     - cd trackpoint-app
     - ./build-dependencies-first.sh release
     - mkdir build
