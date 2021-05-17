@@ -6,7 +6,7 @@ build_release_linux:
   stage: release
   when: manual
   before_script:
-    - apt update && apt -y install build-essential wget cmake libsystemd-dev freeglut3 freeglut3-dev libglew1.5 libglew1.5-dev libglu1-mesa libglu1-mesa-dev libgl1-mesa-glx libgl1-mesa-dev vulkan-utils libvulkan-dev
+    - apt-get update && apt-get -y install build-essential wget cmake libsystemd-dev freeglut3 freeglut3-dev libglew1.5-dev libglu1-mesa libglu1-mesa-dev libgl1-mesa-glx libgl1-mesa-dev libvulkan-dev
     - cd trackpoint-app
     - ./build-dependencies-first.sh release
     - mkdir build
