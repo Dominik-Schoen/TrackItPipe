@@ -28,11 +28,11 @@ INCLUDE(thirdparty/lib3mf.cmake)
 INCLUDE(thirdparty/json.cmake)
 
 # Qt
-#INCLUDE(thirdparty/qt.cmake)
-find_package(Qt6 COMPONENTS Widgets OpenGLWidgets REQUIRED)
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/qt/install")
+FIND_PACKAGE(Qt6 COMPONENTS Widgets OpenGLWidgets REQUIRED NO_CMAKE_SYSTEM_PATH)
 
 # The executable we want to build
-ADD_EXECUTABLE(TrackpointApp
+QT_ADD_EXECUTABLE(TrackpointApp
   src/main.cpp
   src/MainWindow.cpp
   include/MainWindow.hpp
@@ -54,11 +54,10 @@ INCLUDE_DIRECTORIES(
   gui
 )
 
-TARGET_LINK_LIBRARIES(TrackpointApp
+TARGET_LINK_LIBRARIES(TrackpointApp PRIVATE
   osg osgViewer osgDB osgGA osgText osgUtil
   lib3mf
   nlohmann_json::nlohmann_json
-  Qt6::Core
   Qt6::Widgets
   Qt6::OpenGLWidgets
 )
