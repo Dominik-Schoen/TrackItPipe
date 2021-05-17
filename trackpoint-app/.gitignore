@@ -280,3 +280,6 @@ CMakeLists.txt.user*
 # Flags for Clang Code Model
 *.cxxflags
 *.cflags
+
+
+!build-dependencies-first.sh
