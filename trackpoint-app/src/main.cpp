@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
+//#include <QtPlugin>
+
 #include "MainWindow.hpp"
 
 int main(int argc, char** argv) {

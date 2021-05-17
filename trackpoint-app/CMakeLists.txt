@@ -18,17 +18,24 @@ SET(CMAKE_AUTORCC ON)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# Set dependency directory
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/openscenegraph/install")
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/lib3mf/install")
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/json/install")
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/qt/install")
+
 # OpenSceneGraph
 INCLUDE(thirdparty/openscenegraph.cmake)
+#FIND_PACKAGE(OpenSceneGraph REQUIRED COMPONENTS osgViewer osgDB osgGA osgText osgUtil NO_CMAKE_SYSTEM_PATH)
 
 # lib3mf
 INCLUDE(thirdparty/lib3mf.cmake)
+#FIND_PACKAGE(lib3mf REQUIRED NO_CMAKE_SYSTEM_PATH)
 
 # Json
-INCLUDE(thirdparty/json.cmake)
+FIND_PACKAGE(nlohmann_json REQUIRED NO_CMAKE_SYSTEM_PATH)
 
 # Qt
-LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/qt/install")
 FIND_PACKAGE(Qt6 COMPONENTS Widgets OpenGLWidgets REQUIRED NO_CMAKE_SYSTEM_PATH)
 
 # The executable we want to build

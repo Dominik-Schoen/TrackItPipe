@@ -1,2 +1,8 @@
 qt/
 qt-static/
+lib3mf/
+lib3mf-static/
+openscenegraph/
+openscenegraph-static/
+json/
+json-static/

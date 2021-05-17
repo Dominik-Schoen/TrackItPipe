@@ -8,3 +8,6 @@ else
 fi
 
 thirdparty/qt.sh $OPTIONS
+thirdparty/openscenegraph.sh $OPTIONS
+thirdparty/lib3mf.sh $OPTIONS
+thirdparty/json.sh $OPTIONS
