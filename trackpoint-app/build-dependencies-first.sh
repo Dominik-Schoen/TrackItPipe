@@ -8,6 +8,9 @@ else
 fi
 
 thirdparty/qt.sh $OPTIONS
-thirdparty/openscenegraph.sh $OPTIONS
-thirdparty/lib3mf.sh $OPTIONS
-thirdparty/json.sh $OPTIONS
+
+if [ $OPTIONS == "release" ]; then
+  thirdparty/openscenegraph.sh release
+  thirdparty/lib3mf.sh release
+  thirdparty/json.sh release
+fi
