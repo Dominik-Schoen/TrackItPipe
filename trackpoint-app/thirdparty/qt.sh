@@ -41,7 +41,7 @@ fi
 tar -xf "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz"
 pushd "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX"
 
-./configure $OPTIONS -ltcg -optimize-size -no-pch -prefix "$DEPLOYDIR" -release -opensource -confirm-license \
+./configure $OPTIONS -ltcg -optimize-size -no-pch -xcb -prefix "$DEPLOYDIR" -release -opensource -confirm-license \
     -nomake examples -nomake tests -nomake tools \
     -skip qtscxml -skip qtwayland -skip qtdatavis3d -skip qtcharts \
     -skip qtquickcontrols2 -skip qtvirtualkeyboard -skip qtshadertools \
