@@ -21,14 +21,14 @@ LIB3MF_REPO="https://github.com/3MFConsortium/lib3mf"
 
 CONFIG="-DLIB3MF_TESTS:BOOL=OFF"
 
-mkdir -p $BASEDIR
+mkdir -p "$BASEDIR"
 
-if [ -d $DEPLOYDIR ]; then
-  rm -rf $DEPLOYDIR
+if [ -d "$DEPLOYDIR" ]; then
+  rm -rf "$DEPLOYDIR"
 fi
-mkdir -p $DEPLOYDIR
+mkdir -p "$DEPLOYDIR"
 
-pushd $BASEDIR
+pushd "$BASEDIR"
 
 if [ -d "lib3mf" ]; then
   rm -rf "lib3mf"
@@ -37,7 +37,7 @@ fi
 git clone --depth 1 --branch $LIB3MF_TAG $LIB3MF_REPO
 pushd lib3mf
 
-cmake . -DCMAKE_INSTALL_PREFIX=$DEPLOYDIR $CONFIG $OPTIONS
+cmake . -DCMAKE_INSTALL_PREFIX="$DEPLOYDIR" $CONFIG $OPTIONS
 cmake --build . --parallel $JOBS
 cmake --install .
 

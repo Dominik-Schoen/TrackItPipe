@@ -21,14 +21,14 @@ OPENSCENEGRAPH_REPO="https://github.com/openscenegraph/OpenSceneGraph"
 
 CONFIG="-DBUILD_OSG_EXAMPLES:BOOL=OFF -DBUILD_OSG_APPLICATIONS:BOOL=OFF -DOSG_TEXT_USE_FONTCONFIG:BOOL=OFF"
 
-mkdir -p $BASEDIR
+mkdir -p "$BASEDIR"
 
-if [ -d $DEPLOYDIR ]; then
-  rm -rf $DEPLOYDIR
+if [ -d "$DEPLOYDIR" ]; then
+  rm -rf "$DEPLOYDIR"
 fi
-mkdir -p $DEPLOYDIR
+mkdir -p "$DEPLOYDIR"
 
-pushd $BASEDIR
+pushd "$BASEDIR"
 
 if [ -d "OpenSceneGraph" ]; then
   rm -rf "OpenSceneGraph"
@@ -37,7 +37,7 @@ fi
 git clone --depth 1 --branch $OPENSCENEGRAPH_TAG $OPENSCENEGRAPH_REPO
 pushd OpenSceneGraph
 
-cmake . -DCMAKE_INSTALL_PREFIX=$DEPLOYDIR $CONFIG $OPTIONS
+cmake . -DCMAKE_INSTALL_PREFIX="$DEPLOYDIR" $CONFIG $OPTIONS
 cmake --build . --parallel $JOBS
 cmake --install .
 

@@ -21,14 +21,14 @@ QT_BUGFIX=0
 
 URL="https://download.qt.io/official_releases/qt/$QT_MAJOR.$QT_MINOR/$QT_MAJOR.$QT_MINOR.$QT_BUGFIX/single/qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz"
 
-mkdir -p $BASEDIR
+mkdir -p "$BASEDIR"
 
-if [ -d $DEPLOYDIR ]; then
-  rm -rf $DEPLOYDIR
+if [ -d "$DEPLOYDIR" ]; then
+  rm -rf "$DEPLOYDIR"
 fi
-mkdir -p $DEPLOYDIR
+mkdir -p "$DEPLOYDIR"
 
-pushd $BASEDIR
+pushd "$BASEDIR"
 
 if [ ! -f qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz ]; then
   wget $URL
@@ -41,7 +41,7 @@ fi
 tar -xf "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz"
 pushd "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX"
 
-./configure $OPTIONS -ltcg -optimize-size -no-pch -prefix $DEPLOYDIR -release -opensource -confirm-license \
+./configure $OPTIONS -ltcg -optimize-size -no-pch -prefix "$DEPLOYDIR" -release -opensource -confirm-license \
     -nomake examples -nomake tests -nomake tools \
     -skip qtscxml -skip qtwayland -skip qtdatavis3d -skip qtcharts \
     -skip qtquickcontrols2 -skip qtvirtualkeyboard -skip qtshadertools \
