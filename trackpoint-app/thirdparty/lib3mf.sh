@@ -37,6 +37,10 @@ fi
 git clone --depth 1 --branch $LIB3MF_TAG $LIB3MF_REPO
 pushd lib3mf
 
+if [ $1 == "release" ]; then
+  sed -i "s|SHARED|STATIC|g" CMakeLists.txt
+fi
+
 cmake . -DCMAKE_INSTALL_PREFIX="$DEPLOYDIR" $CONFIG $OPTIONS
 cmake --build . --parallel $JOBS
 cmake --install .
