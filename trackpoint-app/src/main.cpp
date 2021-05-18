@@ -1,7 +1,10 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-//#include <QtPlugin>
+#ifdef INCLUDE_PLUGINS
+#include <QtPlugin>
+Q_IMPORT_PLUGIN (QXcbIntegrationPlugin);
+#endif
 
 #include "MainWindow.hpp"
 
