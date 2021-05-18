@@ -4,13 +4,12 @@
 set -e
 
 if [ $1 == "release" ]; then
-  BASEDIR=$PWD/thirdparty/qt-static
   OPTIONS="-static"
 else
-  BASEDIR=$PWD/thirdparty/qt
   OPTIONS=""
 fi
 
+BASEDIR=$PWD/thirdparty/qt
 DEPLOYDIR=$BASEDIR/install
 
 QT_MAJOR=6

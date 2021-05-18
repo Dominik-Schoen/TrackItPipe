@@ -12,5 +12,4 @@ thirdparty/qt.sh $OPTIONS
 if [ $OPTIONS == "release" ]; then
   thirdparty/openscenegraph.sh release
   thirdparty/lib3mf.sh release
-  thirdparty/json.sh release
 fi

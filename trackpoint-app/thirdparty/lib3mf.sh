@@ -4,13 +4,12 @@
 set -e
 
 if [ $1 == "release" ]; then
-  BASEDIR=$PWD/thirdparty/lib3mf-static
   OPTIONS="-DBUILD_SHARED_LIBS:BOOL=OFF"
 else
-  BASEDIR=$PWD/thirdparty/lib3mf
   OPTIONS=""
 fi
 
+BASEDIR=$PWD/thirdparty/lib3mf
 DEPLOYDIR=$BASEDIR/install
 
 LIB3MF_TAG="v2.1.1"

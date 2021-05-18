@@ -4,16 +4,15 @@
 set -e
 
 if [ $1 == "release" ]; then
-  BASEDIR=$PWD/thirdparty/openscenegraph-static
   OPTIONS="-DDYNAMIC_OPENSCENEGRAPH:BOOL=OFF -DDYNAMIC_OPENTHREADS:BOOL=OFF -DOSG_GL_LIBRARY_STATIC:BOOL=ON"
 else
-  BASEDIR=$PWD/thirdparty/openscenegraph
   OPTIONS=""
 fi
 
 CORES=$(getconf _NPROCESSORS_ONLN)
 JOBS=$(($CORES-1))
 
+BASEDIR=$PWD/thirdparty/openscenegraph
 DEPLOYDIR=$BASEDIR/install
 
 OPENSCENEGRAPH_TAG="OpenSceneGraph-3.6.5"
