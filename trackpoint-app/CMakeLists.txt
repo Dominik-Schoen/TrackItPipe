@@ -36,6 +36,8 @@ ENDIF()
 
 # Release build: static link
 if(BUILD_STATIC_RELEASE)
+  ADD_DEFINITIONS(-DINCLUDE_PLUGINS)
+
   # OpenSceneGraph
   LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/openscenegraph/install")
   FIND_PACKAGE(OpenSceneGraph REQUIRED COMPONENTS osgViewer osgDB osgGA osgText osgUtil)
