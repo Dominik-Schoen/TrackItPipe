@@ -9,6 +9,9 @@ else
   OPTIONS=""
 fi
 
+CORES=$(getconf _NPROCESSORS_ONLN)
+JOBS=$(($CORES-1))
+
 BASEDIR=$PWD/thirdparty/lib3mf
 DEPLOYDIR=$BASEDIR/install
 
@@ -35,7 +38,7 @@ git clone --depth 1 --branch $LIB3MF_TAG $LIB3MF_REPO
 pushd lib3mf
 
 cmake . -DCMAKE_INSTALL_PREFIX=$DEPLOYDIR $CONFIG $OPTIONS
-cmake --build . --parallel
+cmake --build . --parallel $JOBS
 cmake --install .
 
 popd

@@ -9,6 +9,9 @@ else
   OPTIONS=""
 fi
 
+CORES=$(getconf _NPROCESSORS_ONLN)
+JOBS=$(($CORES-1))
+
 BASEDIR=$PWD/thirdparty/qt
 DEPLOYDIR=$BASEDIR/install
 
@@ -47,7 +50,7 @@ pushd "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX"
     -skip qtopcua -skip qtquick3d -skip qtquicktimeline -skip qttools \
     -skip qtdeclarative -skip qtactiveqt
 
-cmake --build . --parallel
+cmake --build . --parallel $JOBS
 cmake --install .
 
 popd
