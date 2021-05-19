@@ -53,8 +53,15 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/MainWindow.cpp
   include/MainWindow.hpp
   gui/MainWindow.ui
+  src/NoMeshWidget.cpp
+  include/NoMeshWidget.hpp
+  gui/NoMeshWidget.ui
+  src/EditWidget.cpp
+  include/EditWidget.hpp
+  gui/EditWidget.ui
   include/OSGWidget.hpp
   src/OSGWidget.cpp
+  src/ProjectStore.cpp
   src/PickHandler.cpp
   src/StoreHandler.cpp
   src/TrackPoint.cpp
