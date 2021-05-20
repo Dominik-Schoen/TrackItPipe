@@ -3,6 +3,7 @@
 #include "OSGWidget.hpp"
 #include "NoMeshWidget.hpp"
 #include "EditWidget.hpp"
+#include "ProjectStore.hpp"
 
 #include <QMainWindow>
 
@@ -22,10 +23,13 @@ public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
   void renderView(GuiView view);
+  ProjectStore* getProjectStorePointer();
+  OSGWidget* getOsgWidget();
 
 private:
   void openFile();
   Ui::MainWindow* ui;
+  ProjectStore* projectStore;
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;
   EditWidget* editWidget;

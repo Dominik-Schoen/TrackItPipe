@@ -13,6 +13,9 @@ public:
   NoMeshWidget(QWidget* parent = nullptr);
   ~NoMeshWidget();
 
+private slots:
+  void loadMeshFile();
+
 private:
   Ui::NoMeshWidget* ui;
 };

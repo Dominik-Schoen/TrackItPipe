@@ -1,3 +1,4 @@
+// Include own headers
 #include "EditWidget.hpp"
 #include "../gui/ui_EditWidget.h"
 

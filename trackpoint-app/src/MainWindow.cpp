@@ -1,6 +1,8 @@
+// Include own headers
 #include "MainWindow.hpp"
 #include "../gui/ui_MainWindow.h"
 
+// Include dependencies
 #include <QFileDialog>
 
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -9,12 +11,22 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
   osgWidget = new OSGWidget(this);
   ui->sceneWidget->layout()->addWidget(osgWidget);
 
-  renderView(Edit);
+  // TODO: Add option for opening a project via double click
+  projectStore = new ProjectStore();
+  renderView(NoMesh);
 }
 
 MainWindow::~MainWindow() {
   delete ui;
   delete osgWidget;
+}
+
+ProjectStore* MainWindow::getProjectStorePointer() {
+  return projectStore;
+}
+
+OSGWidget* MainWindow::getOsgWidget() {
+  return osgWidget;
 }
 
 void MainWindow::renderView(GuiView view) {

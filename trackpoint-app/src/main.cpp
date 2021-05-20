@@ -1,3 +1,4 @@
+// Include dependencies
 #include <QApplication>
 #include <QSurfaceFormat>
 

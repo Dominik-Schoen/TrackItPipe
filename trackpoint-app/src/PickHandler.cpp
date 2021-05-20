@@ -1,5 +1,7 @@
+// Include own headers
 #include "PickHandler.hpp"
 
+// Include dependencies
 #include <osg/io_utils>
 
 #include <osgUtil/IntersectionVisitor>

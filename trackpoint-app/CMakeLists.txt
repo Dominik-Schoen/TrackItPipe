@@ -67,6 +67,7 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/TrackPoint.cpp
   src/ThreeMFWriter.cpp
   src/OpenScadRenderer.cpp
+  src/StringBasics.cpp
 )
 
 if(NOT BUILD_STATIC_RELEASE)
@@ -108,4 +109,4 @@ TARGET_LINK_LIBRARIES(TrackpointApp PRIVATE
 )
 
 # Header to have version number available in the code
-CONFIGURE_FILE(src/trackpointapp.hpp.in src/trackpointapp.hpp)
+CONFIGURE_FILE(include/trackpointapp.hpp.in include/trackpointapp.hpp)

@@ -1,6 +1,8 @@
+// Include own headers
 #include "OSGWidget.hpp"
 #include "PickHandler.hpp"
 
+// Include dependencies
 #include <osgViewer/Viewer>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
@@ -144,84 +146,34 @@ void OSGWidget::resizeGL(int width, int height) {
   this->onResize(width, height);
 }
 
-void OSGWidget::keyPressEvent( QKeyEvent* event )
-{
-  QString keyString   = event->text();
+void OSGWidget::keyPressEvent(QKeyEvent* event) {
+  QString keyString = event->text();
   const char* keyData = keyString.toLocal8Bit().data();
 
-  if( event->key() == Qt::Key_S )
-  {
-
-    // Further processing is required for the statistics handler here, so we do
-    // not return right away.
-  }
-  else if( event->key() == Qt::Key_D )
-  {
-    osgDB::writeNodeFile( *_viewer->getView(0)->getSceneData(),
-                          "/tmp/sceneGraph.osg" );
-
-    return;
-  }
-  else if( event->key() == Qt::Key_H )
-  {
+  if (event->key() == Qt::Key_H) {
     this->onHome();
     return;
   }
 
-  this->getEventQueue()->keyPress( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
+  this->getEventQueue()->keyPress(osgGA::GUIEventAdapter::KeySymbol(*keyData));
 }
 
-void OSGWidget::keyReleaseEvent( QKeyEvent* event )
-{
-  QString keyString   = event->text();
+void OSGWidget::keyReleaseEvent(QKeyEvent* event) {
+  QString keyString = event->text();
   const char* keyData = keyString.toLocal8Bit().data();
 
-  this->getEventQueue()->keyRelease( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
+  this->getEventQueue()->keyRelease(osgGA::GUIEventAdapter::KeySymbol(*keyData));
 }
 
-void OSGWidget::mouseMoveEvent( QMouseEvent* event )
-{
-  // Note that we have to check the buttons mask in order to see whether the
-  // left button has been pressed. A call to `button()` will only result in
-  // `Qt::NoButton` for mouse move events.
-  /*if( selectionActive_ && event->buttons() & Qt::LeftButton )
-  {
-    selectionEnd_ = event->pos();
-
-    // Ensures that new paint events are created while the user moves the
-    // mouse.
-    this->update();
-  }
-  else
-  {*/
-    auto pixelRatio = this->devicePixelRatio();
-
-    this->getEventQueue()->mouseMotion( static_cast<float>( event->x() * pixelRatio ),
-                                        static_cast<float>( event->y() * pixelRatio ) );
-  //}
+void OSGWidget::mouseMoveEvent(QMouseEvent* event) {
+  auto pixelRatio = this->devicePixelRatio();
+  this->getEventQueue()->mouseMotion(static_cast<float>(event->position().x() * pixelRatio), static_cast<float>(event->position().y() * pixelRatio));
 }
 
-void OSGWidget::mousePressEvent( QMouseEvent* event )
-{
-  // Selection processing
-  /*if( selectionActive_ && event->button() == Qt::LeftButton )
-  {
-    selectionStart_    = event->pos();
-    selectionEnd_      = selectionStart_; // Deletes the old selection
-    selectionFinished_ = false;           // As long as this is set, the rectangle will be drawn
-  }
+void OSGWidget::mousePressEvent(QMouseEvent* event) {
+  unsigned int button = 0;
 
-  // Normal processing
-  else
-  {*/
-    // 1 = left mouse button
-    // 2 = middle mouse button
-    // 3 = right mouse button
-
-    unsigned int button = 0;
-
-    switch( event->button() )
-    {
+  switch(event->button()) {
     case Qt::LeftButton:
       button = 1;
       break;
@@ -236,38 +188,17 @@ void OSGWidget::mousePressEvent( QMouseEvent* event )
 
     default:
       break;
-    }
-
-    auto pixelRatio = this->devicePixelRatio();
-
-    this->getEventQueue()->mouseButtonPress( static_cast<float>( event->x() * pixelRatio ),
-                                             static_cast<float>( event->y() * pixelRatio ),
-                                             button );
-    //}
-}
-
-void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
-{
-  // Selection processing: Store end position and obtain selected objects
-  // through polytope intersection.
-  /*if( selectionActive_ && event->button() == Qt::LeftButton )
-  {
-    selectionEnd_      = event->pos();
-    selectionFinished_ = true; // Will force the painter to stop drawing the
-                               // selection rectangle
   }
 
-  // Normal processing
-  else
-  {*/
-    // 1 = left mouse button
-    // 2 = middle mouse button
-    // 3 = right mouse button
+  auto pixelRatio = this->devicePixelRatio();
 
-    unsigned int button = 0;
+  this->getEventQueue()->mouseButtonPress(static_cast<float>(event->position().x() * pixelRatio), static_cast<float>(event->position().y() * pixelRatio), button);
+}
 
-    switch( event->button() )
-    {
+void OSGWidget::mouseReleaseEvent(QMouseEvent* event) {
+  unsigned int button = 0;
+
+  switch(event->button()) {
     case Qt::LeftButton:
       button = 1;
       break;
@@ -282,29 +213,20 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
 
     default:
       break;
-    }
+  }
 
-    auto pixelRatio = this->devicePixelRatio();
+  auto pixelRatio = this->devicePixelRatio();
 
-    this->getEventQueue()->mouseButtonRelease( static_cast<float>( pixelRatio * event->x() ),
-                                               static_cast<float>( pixelRatio * event->y() ),
-                                               button );
-  //}
+  this->getEventQueue()->mouseButtonRelease(static_cast<float>(pixelRatio * event->position().x()), static_cast<float>(pixelRatio * event->position().y()), button);
 }
 
-void OSGWidget::wheelEvent( QWheelEvent* event )
-{
-  // Ignore wheel events as long as the selection is active.
-  if( selectionActive_ )
-    return;
-
+void OSGWidget::wheelEvent(QWheelEvent* event) {
   event->accept();
   int delta = event->angleDelta().y();
 
-  osgGA::GUIEventAdapter::ScrollingMotion motion = delta > 0 ?   osgGA::GUIEventAdapter::SCROLL_UP
-                                                               : osgGA::GUIEventAdapter::SCROLL_DOWN;
+  osgGA::GUIEventAdapter::ScrollingMotion motion = delta > 0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
 
-  this->getEventQueue()->mouseScroll( motion );
+  this->getEventQueue()->mouseScroll(motion);
 }
 
 bool OSGWidget::event(QEvent* event) {
@@ -358,7 +280,6 @@ void OSGWidget::onResize(int width, int height) {
 
 osgGA::EventQueue* OSGWidget::getEventQueue() const {
   osgGA::EventQueue* eventQueue = graphicsWindow_->getEventQueue();
-
   if (eventQueue) {
     return eventQueue;
   } else {

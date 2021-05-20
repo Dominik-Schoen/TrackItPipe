@@ -1,3 +1,4 @@
+// Include own headers
 #include "ThreeMFWriter.hpp"
 
 ThreeMFWriter::ThreeMFWriter() {

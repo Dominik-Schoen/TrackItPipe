@@ -1,5 +1,7 @@
+// Include own headers
 #include "TrackPoint.hpp"
 
+// Include dependencies
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Material>

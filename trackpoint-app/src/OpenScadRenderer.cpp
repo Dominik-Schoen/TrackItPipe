@@ -1,5 +1,7 @@
+// Include own headers
 #include "OpenScadRenderer.hpp"
 
+// Include dependencies
 #include <iostream>
 #include <fstream>
 
