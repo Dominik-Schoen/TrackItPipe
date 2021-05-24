@@ -19,6 +19,6 @@ NoMeshWidget::~NoMeshWidget() {
 
 void NoMeshWidget::loadMeshFile() {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open a 3D-Object"), "", tr("3D Objects (*.3mf *.stl)"));
-  MainWindow* parent = ((MainWindow*)this->parentWidget());
-  parent->getProjectStorePointer()->loadMesh(fileName);
+  std::string meshFile = fileName.toUtf8().constData();
+  MainWindow::getInstance()->getStore()->loadMesh(meshFile);
 }

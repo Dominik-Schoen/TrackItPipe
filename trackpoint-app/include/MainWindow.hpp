@@ -20,17 +20,18 @@ class MainWindow: public QMainWindow {
   Q_OBJECT
 
 public:
+  static MainWindow* getInstance();
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
   void renderView(GuiView view);
-  ProjectStore* getProjectStorePointer();
   OSGWidget* getOsgWidget();
+  ProjectStore* getStore();
 
 private:
   void openFile();
   Ui::MainWindow* ui;
-  ProjectStore* projectStore;
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;
   EditWidget* editWidget;
+  ProjectStore projectStore;
 };

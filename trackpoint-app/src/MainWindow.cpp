@@ -5,15 +5,24 @@
 // Include dependencies
 #include <QFileDialog>
 
+MainWindow* globalPointer;
+
+MainWindow* MainWindow::getInstance() {
+  return globalPointer;
+}
+
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWindow) {
+  globalPointer = this;
+
   ui->setupUi(this);
 
   osgWidget = new OSGWidget(this);
   ui->sceneWidget->layout()->addWidget(osgWidget);
 
   // TODO: Add option for opening a project via double click
-  projectStore = new ProjectStore();
+  //projectStore = new ProjectStore();
   renderView(NoMesh);
+  projectStore.loadMesh("/home/johannes/Documents/GitLab/bachelorthesis/testdata/testbutton.3mf");
 }
 
 MainWindow::~MainWindow() {
@@ -21,12 +30,12 @@ MainWindow::~MainWindow() {
   delete osgWidget;
 }
 
-ProjectStore* MainWindow::getProjectStorePointer() {
-  return projectStore;
-}
-
 OSGWidget* MainWindow::getOsgWidget() {
   return osgWidget;
+}
+
+ProjectStore* MainWindow::getStore() {
+  return &projectStore;
 }
 
 void MainWindow::renderView(GuiView view) {
