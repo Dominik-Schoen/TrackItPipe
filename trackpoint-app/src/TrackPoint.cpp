@@ -1,6 +1,9 @@
 // Include own headers
 #include "TrackPoint.hpp"
 
+// Include modules
+#include "OSGWidget.hpp"
+
 // Include dependencies
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
@@ -14,15 +17,7 @@ TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
   cylinder->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
   geode->addDrawable(cylinder.get());
 
-  {
-    osg::StateSet* stateSet = geode->getOrCreateStateSet();
-    osg::Material* material = new osg::Material;
-
-    material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-
-    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
-    stateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-  }
+  OSGWidget::fixMaterialState(geode);
 
   _rotationGroup = new osg::MatrixTransform;
   _rotationGroup->addChild(geode.get());

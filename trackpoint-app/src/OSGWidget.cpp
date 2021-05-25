@@ -14,7 +14,7 @@
 #include <osgGA/TrackballManipulator>
 #include <osgUtil/LineSegmentIntersector>
 #include <osgUtil/IntersectionVisitor>
-#include <osgUtil/SmoothingVisitor>
+#include <osgUtil/MeshOptimizers>
 #include <osg/PolygonMode>
 
 #include <osgDB/WriteFile>
@@ -43,6 +43,16 @@ namespace osgWidget {
       }
     }
   }
+}
+
+void OSGWidget::fixMaterialState(osg::ref_ptr<osg::Node> node) {
+  osg::StateSet* stateSet = node->getOrCreateStateSet();
+  osg::Material* material = new osg::Material;
+
+  material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+
+  stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
+  stateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 }
 
 OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
@@ -77,15 +87,7 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   zAxis->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
   _coordinateAxes->addDrawable(zAxis.get());
 
-  {
-    osg::StateSet* stateSet = _coordinateAxes->getOrCreateStateSet();
-    osg::Material* material = new osg::Material;
-
-    material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-
-    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
-    stateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-  }
+  OSGWidget::fixMaterialState(_coordinateAxes);
 
   _root->addChild(_coordinateAxes);
 
@@ -124,36 +126,17 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
 OSGWidget::~OSGWidget() {
 }
 
-void OSGWidget::renderBaseMesh(const std::vector<Lib3MF::sPosition> &verticesBuffer, const std::vector<Lib3MF::sTriangle> &triangleBuffer) {
+void OSGWidget::renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals) {
   _root->removeChild(_axesNode);
 
   osg::ref_ptr<osg::Geometry> meshGeometry = new osg::Geometry;
-  osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
-  for (const Lib3MF::sPosition vertex: verticesBuffer) {
-    vertices->push_back(osg::Vec3(vertex.m_Coordinates[0], vertex.m_Coordinates[1], vertex.m_Coordinates[2]));
-  }
   meshGeometry->setVertexArray(vertices.get());
-  osg::ref_ptr<osg::DrawElementsUInt> primitiveSet = new osg::DrawElementsUInt(GL_TRIANGLES);
-  for (const Lib3MF::sTriangle triangle: triangleBuffer) {
-    for (unsigned char i = 0; i < 3; i++) {
-      primitiveSet->push_back(triangle.m_Indices[i]);
-    }
-  }
-  meshGeometry->addPrimitiveSet(primitiveSet);
-  osgUtil::SmoothingVisitor::smooth(*meshGeometry);
+  meshGeometry->setNormalArray(normals.get(), osg::Array::BIND_PER_VERTEX);
+  meshGeometry->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, vertices->getNumElements()));
+  osgUtil::optimizeMesh(meshGeometry.get());
   _axesNode->addDrawable(meshGeometry.get());
 
-  // Set material for basic lighting and enable depth tests. Else, the sphere
-  // will suffer from rendering errors.
-  {
-    osg::StateSet* stateSet = _axesNode->getOrCreateStateSet();
-    osg::Material* material = new osg::Material;
-
-    material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-
-    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
-    stateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-  }
+  OSGWidget::fixMaterialState(_axesNode);
 
   _root->addChild(_axesNode);
 }

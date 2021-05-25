@@ -20,9 +20,8 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
   ui->sceneWidget->layout()->addWidget(osgWidget);
 
   // TODO: Add option for opening a project via double click
-  //projectStore = new ProjectStore();
+  projectStore = new ProjectStore();
   renderView(NoMesh);
-  projectStore.loadMesh("/home/johannes/Documents/GitLab/bachelorthesis/testdata/testbutton.3mf");
 }
 
 MainWindow::~MainWindow() {
@@ -35,7 +34,7 @@ OSGWidget* MainWindow::getOsgWidget() {
 }
 
 ProjectStore* MainWindow::getStore() {
-  return &projectStore;
+  return projectStore;
 }
 
 void MainWindow::renderView(GuiView view) {

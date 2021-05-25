@@ -31,7 +31,8 @@ class OSGWidget : public QOpenGLWidget {
 public:
   OSGWidget(QWidget* parent = nullptr);
   virtual ~OSGWidget();
-  void renderBaseMesh(const std::vector<Lib3MF::sPosition> &verticesBuffer, const std::vector<Lib3MF::sTriangle> &triangleBuffer);
+  void renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals);
+  static void fixMaterialState(osg::ref_ptr<osg::Node> node);
 
 protected:
   virtual void paintEvent(QPaintEvent* paintEvent);

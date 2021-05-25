@@ -1,6 +1,9 @@
 // Include own headers
 #include "PickHandler.hpp"
 
+// Include modules
+#include "OSGWidget.hpp"
+
 // Include dependencies
 #include <osg/io_utils>
 
@@ -28,15 +31,7 @@ osg::Node* PickHandler::getOrCreateSelectionCylinder() {
     cylinder->setColor(osg::Vec4(1.0f, 0.0f, 0.0f, 0.2f));
     geode->addDrawable(cylinder.get());
 
-    {
-      osg::StateSet* stateSet = geode->getOrCreateStateSet();
-      osg::Material* material = new osg::Material;
-
-      material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-
-      stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
-      stateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-    }
+    OSGWidget::fixMaterialState(geode);
 
     _selectionRotateGroup = new osg::MatrixTransform;
     _selectionRotateGroup->addChild(geode.get());

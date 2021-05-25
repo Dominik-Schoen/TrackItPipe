@@ -33,5 +33,5 @@ private:
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;
   EditWidget* editWidget;
-  ProjectStore projectStore;
+  ProjectStore* projectStore;
 };

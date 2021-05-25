@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib3mf_implicit.hpp"
+
 #include <string>
 
 class ProjectStore {
@@ -15,7 +17,8 @@ public:
 
 private:
   bool projectLoaded;
-  //Lib3MF::PWrapper _wrapper;
-  //Lib3MF::PModel _project;
+  Lib3MF::PWrapper _wrapper;
+  Lib3MF::PModel _project;
   void load3mfLib();
+  void render3MFMesh(const std::vector<Lib3MF::sPosition> verticesBuffer, const std::vector<Lib3MF::sTriangle> triangleBuffer);
 };
