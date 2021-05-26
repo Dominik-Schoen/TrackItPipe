@@ -15,7 +15,6 @@ ProjectStore::ProjectStore() {
 }
 
 ProjectStore::~ProjectStore() {
-
 }
 
 void ProjectStore::loadMesh(std::string meshFile) {

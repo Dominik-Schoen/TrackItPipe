@@ -1,5 +1,8 @@
 #pragma once
 
+// Include modules
+#include "TrackPointRenderer.hpp"
+
 // Include dependencies
 #include <QPoint>
 #include <QOpenGLWidget>
