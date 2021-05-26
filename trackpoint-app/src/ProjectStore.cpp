@@ -13,10 +13,6 @@ ProjectStore::ProjectStore() {
   load3mfLib();
 }
 
-ProjectStore::ProjectStore(std::string projectFile) {
-
-}
-
 ProjectStore::~ProjectStore() {
 
 }
@@ -25,8 +21,7 @@ void ProjectStore::loadMesh(std::string meshFile) {
   if (StringBasics::endsWithCaseInsensitive(meshFile, ".STL")) {
     printf("Currently unsupported.\n");
   } else if (StringBasics::endsWithCaseInsensitive(meshFile, ".3MF")) {
-    // Create new project model (because we don't have one if we load a mesh)
-    _project = _wrapper->CreateModel();
+    projectLoaded = true;
     // Read 3MF file
     Lib3MF::PReader reader = _project->QueryReader("3mf");
     reader->ReadFromFile(meshFile);
@@ -52,8 +47,38 @@ void ProjectStore::loadMesh(std::string meshFile) {
   }
 }
 
+bool ProjectStore::loadProject(std::string projectFile) {
+  if (!projectLoaded) {
+    Lib3MF::PReader reader = _project->QueryReader("3mf");
+    reader->ReadFromFile(projectFile);
+    projectLoaded = true;
+    return true;
+  }
+  return false;
+}
+
+bool ProjectStore::saveProject() {
+  if (_projectFile != "") {
+    Lib3MF::PWriter writer = _project->QueryWriter("3mf");
+    writer->WriteToFile(_projectFile);
+    return true;
+  }
+  return false;
+}
+
+bool ProjectStore::saveProject(std::string path) {
+  Lib3MF::PWriter writer = _project->QueryWriter("3mf");
+  writer->WriteToFile(path);
+  return true;
+}
+
+bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
+  return false; // TODO
+}
+
 void ProjectStore::load3mfLib() {
   _wrapper = Lib3MF::CWrapper::loadLibrary();
+  _project = _wrapper->CreateModel();
 }
 
 void ProjectStore::render3MFMesh(const std::vector<Lib3MF::sPosition> verticesBuffer, const std::vector<Lib3MF::sTriangle> triangleBuffer) {
@@ -74,7 +99,6 @@ void ProjectStore::render3MFMesh(const std::vector<Lib3MF::sPosition> verticesBu
     normal.normalize();
     // Store them
     for (int i = 0; i < 3; i++) {
-      printf("%f %f %f\n", vertex[i].x(), vertex[i].y(), vertex[i].z());
       vertices->push_back(vertex[i]);
       normals->push_back(normal);
     }
@@ -82,4 +106,8 @@ void ProjectStore::render3MFMesh(const std::vector<Lib3MF::sPosition> verticesBu
   // Call renderer
   MainWindow* mainWindow = MainWindow::getInstance();
   mainWindow->getOsgWidget()->renderBaseMesh(vertices, normals);
+}
+
+void ProjectStore::exportMetaData() {
+
 }

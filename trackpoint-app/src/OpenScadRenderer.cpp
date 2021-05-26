@@ -4,12 +4,21 @@
 // Include dependencies
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 const char* openScadBase =
   "$fn = 100;\n"
   "module optiTrackPointBase(translation, rotation) {\n"
   "translate(translation) rotate(rotation) cylinder(10, 1, 1, false);\n"
   "}\n";
+
+#if __APPLE__
+  std::string openScadPath = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD";
+#elif __unix__
+  std::string openScadPath = "openscad";
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
+  // Currently unsupported
+#endif
 
 void OpenScadRenderer::render(std::vector<TrackPoint*> points) {
   std::ofstream scadFile;
@@ -22,5 +31,6 @@ void OpenScadRenderer::render(std::vector<TrackPoint*> points) {
     scadFile << "optiTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "]);\n";
   }
   scadFile.close();
-  system("openscad -o /tmp/output.3mf /tmp/output.scad");
+  //std::string command = openScadPath + " -o " + std::filesystem::temp_directory_path() + "/output.3mf " + std::filesystem::temp_directory_path() + "/output.scad";
+  //system(command);
 }
