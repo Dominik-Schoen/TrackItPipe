@@ -1,7 +1,7 @@
 // Include own headers
 #include "OptiTrackPoint.hpp"
 
-OptiTrackPoint::OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const double length, const double radius): TrackPoint(point, normal) {
+OptiTrackPoint::OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double length, const double radius): TrackPoint(point, normal, normalModifier) {
   _length = length;
   _radius = radius;
 

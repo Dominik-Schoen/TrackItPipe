@@ -1,9 +1,6 @@
 #pragma once
 
-#include "StoreHandler.hpp"
-#include "OpenScadRenderer.hpp"
-#include "ThreeMFWriter.hpp"
-
+// Include dependencies
 #include <QPoint>
 #include <QOpenGLWidget>
 
@@ -25,14 +22,18 @@ namespace osgWidget {
   };
 }
 
+class PickHandler; // Forward declaration
+
 class OSGWidget : public QOpenGLWidget {
   Q_OBJECT
 
 public:
+  static void fixMaterialState(osg::ref_ptr<osg::Node> node);
   OSGWidget(QWidget* parent = nullptr);
   virtual ~OSGWidget();
   void renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals);
-  static void fixMaterialState(osg::ref_ptr<osg::Node> node);
+  osg::ref_ptr<osg::Geode> getMesh();
+  PickHandler* getPicker();
 
 protected:
   virtual void paintEvent(QPaintEvent* paintEvent);
@@ -54,21 +55,18 @@ private:
   virtual void onResize(int width, int height);
 
   osgGA::EventQueue* getEventQueue() const;
+  PickHandler* _picker;
 
   osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
   osg::ref_ptr<osgWidget::Viewer> _viewer;
   osgViewer::View* _view;
   osg::ref_ptr<osg::Group> _root;
   osg::ref_ptr<osg::Geode> _coordinateAxes;
-  osg::ref_ptr<osg::Geode> _axesNode;
+  osg::ref_ptr<osg::Geode> _mesh;
 
   QPoint selectionStart_;
   QPoint selectionEnd_;
 
   bool selectionActive_;
   bool selectionFinished_;
-
-  StoreHandler* _storeHandler;
-  OpenScadRenderer* _openScadRenderer;
-  ThreeMFWriter* _threeMFWriter;
 };

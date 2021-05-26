@@ -6,11 +6,12 @@
 
 class TrackPoint {
 public:
-  TrackPoint(osg::Vec3 point, osg::Vec3 normal);
-  osg::ref_ptr<osg::MatrixTransform> getUppermostRoot();
+  TrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier);
   osg::Vec3 getTranslation();
   osg::Vec3 getRotation();
   osg::Vec3 getTrackPoint();
+  osg::Vec3 getNormal();
+  osg::Vec3 getNormalModifier();
 
 protected:
   osg::ref_ptr<osg::MatrixTransform> _translationGroup;
@@ -21,4 +22,5 @@ protected:
 private:
   osg::Vec3 _origin;
   osg::Vec3 _normal;
+  osg::Vec3 _normalModifier;
 };

@@ -4,40 +4,10 @@
 // Include modules
 #include "OSGWidget.hpp"
 
-// Include dependencies
-#include <osg/Geode>
-#include <osg/ShapeDrawable>
-#include <osg/Material>
-#include <osg/StateSet>
-
-TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
-  /*osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-  osg::ref_ptr<osg::ShapeDrawable> cylinder = new osg::ShapeDrawable();
-  cylinder->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f));
-  cylinder->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
-  geode->addDrawable(cylinder.get());
-
-  OSGWidget::fixMaterialState(geode);
-
-  _rotationGroup = new osg::MatrixTransform;
-  _rotationGroup->addChild(geode.get());
-  _rotationGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
-
-  _originFixGroup = new osg::MatrixTransform;
-  _originFixGroup->addChild(_rotationGroup.get());
-  osg::Vec3f movementVector = normal.operator*(5.0f);
-  _originFixGroup->setMatrix(osg::Matrix::translate(movementVector));
-
-  _translationGroup = new osg::MatrixTransform;
-  _translationGroup->addChild(_originFixGroup.get());
-  _translationGroup->setMatrix(osg::Matrix::translate(point));*/
-
+TrackPoint::TrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier) {
   _origin = point;
   _normal = normal;
-}
-
-osg::ref_ptr<osg::MatrixTransform> TrackPoint::getUppermostRoot() {
-  return _translationGroup.get();
+  _normalModifier = normalModifier;
 }
 
 osg::Vec3 TrackPoint::getTranslation() {
@@ -70,6 +40,10 @@ osg::Vec3 TrackPoint::getRotation() {
   return osg::Vec3(xRotation, yRotation, zRotation);
 }
 
-osg::Vec3 TrackPoint::getTrackPoint() {
-  return _trackOrigin;
+osg::Vec3 TrackPoint::getNormal() {
+  return _normal;
+}
+
+osg::Vec3 TrackPoint::getNormalModifier() {
+  return _normalModifier;
 }

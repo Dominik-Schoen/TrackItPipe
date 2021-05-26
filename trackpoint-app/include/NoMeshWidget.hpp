@@ -15,6 +15,7 @@ public:
 
 private slots:
   void loadMeshFile();
+  void loadProjectFile();
 
 private:
   Ui::NoMeshWidget* ui;

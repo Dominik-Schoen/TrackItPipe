@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
   osgWidget = new OSGWidget(this);
   ui->sceneWidget->layout()->addWidget(osgWidget);
 
+  noMeshWidget = new NoMeshWidget();
+  editWidget = new EditWidget();
+
   // TODO: Add option for opening a project via double click
   projectStore = new ProjectStore();
   renderView(NoMesh);
@@ -37,15 +40,19 @@ ProjectStore* MainWindow::getStore() {
   return projectStore;
 }
 
+EditWidget* MainWindow::getEditWiget() {
+  return editWidget;
+}
+
 void MainWindow::renderView(GuiView view) {
   switch(view) {
     case NoMesh: {
-      noMeshWidget = new NoMeshWidget(this);
+      editWidget->setParent(nullptr);
       ui->controlWidget->layout()->addWidget(noMeshWidget);
       break;
     }
     case Edit: {
-      editWidget = new EditWidget(this);
+      noMeshWidget->setParent(nullptr);
       ui->controlWidget->layout()->addWidget(editWidget);
       break;
     }

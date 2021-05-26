@@ -5,6 +5,7 @@
 #include "MainWindow.hpp"
 #include "StringBasics.hpp"
 
+// Include dependencies
 #include <typeinfo>
 #include <iostream>
 
@@ -41,6 +42,8 @@ void ProjectStore::loadMesh(std::string meshFile) {
     std::vector<Lib3MF::sTriangle> triangleBuffer;
     mesh->GetTriangleIndices(triangleBuffer);
     render3MFMesh(verticesBuffer, triangleBuffer);
+    MainWindow* mainWindow = MainWindow::getInstance();
+    mainWindow->renderView(Edit);
   } else {
     // TODO: Show error popup
     printf("Unsupported file type.\n");
@@ -74,6 +77,35 @@ bool ProjectStore::saveProject(std::string path) {
 
 bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
   return false; // TODO
+}
+
+void ProjectStore::updateNormalModifier(osg::Vec3 modifier) {
+  _normalModifier = modifier;
+}
+
+osg::Vec3 ProjectStore::getNormalModifier() {
+  return _normalModifier;
+}
+
+std::vector<OptiTrackPoint*> ProjectStore::getOptiTrackPoints() {
+  return _optiTrackPoints;
+}
+
+void ProjectStore::addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal) {
+  OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _optiTrackSettings.length, _optiTrackSettings.radius);
+  _optiTrackPoints.push_back(optiTrackPoint);
+}
+
+void ProjectStore::removeOptiTrackPoint() {
+  // TODO
+}
+
+void ProjectStore::updateOptiTrackSettings(OptiTrackSettings optiTrackSettings) {
+  _optiTrackSettings = optiTrackSettings;
+}
+
+OptiTrackSettings ProjectStore::getOptiTrackSettings() {
+  return _optiTrackSettings;
 }
 
 void ProjectStore::load3mfLib() {

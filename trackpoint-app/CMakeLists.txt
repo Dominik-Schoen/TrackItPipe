@@ -65,10 +65,8 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/OSGWidget.cpp
   src/ProjectStore.cpp
   src/PickHandler.cpp
-  src/StoreHandler.cpp
   src/TrackPoint.cpp
   src/OptiTrackPoint.cpp
-  src/ThreeMFWriter.cpp
   src/OpenScadRenderer.cpp
   src/StringBasics.cpp
 )

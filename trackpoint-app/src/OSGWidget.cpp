@@ -1,5 +1,7 @@
 // Include own headers
 #include "OSGWidget.hpp"
+
+// Include modules
 #include "PickHandler.hpp"
 
 // Include dependencies
@@ -91,7 +93,7 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
 
   _root->addChild(_coordinateAxes);
 
-  _axesNode = new osg::Geode;
+  _mesh = new osg::Geode;
 
   // Attach a manipulator (it's usually done for us when we use viewer.run())
   osg::ref_ptr<osgGA::TrackballManipulator> tm = new osgGA::TrackballManipulator;
@@ -102,14 +104,10 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   _viewer->setThreadingModel(osgViewer::CompositeViewer::SingleThreaded);
   _viewer->realize();
 
-  _storeHandler = new StoreHandler(_root);
-  _openScadRenderer = new OpenScadRenderer();
-  _threeMFWriter = new ThreeMFWriter();
+  _picker = new PickHandler(this, _root);
+  _root->addChild(_picker->getPickerRoot());
 
-  osg::ref_ptr<PickHandler> picker = new PickHandler(_storeHandler, _openScadRenderer, _threeMFWriter, _axesNode);
-  _root->addChild(picker->getOrCreateSelectionCylinder());
-
-  _view->addEventHandler(picker.get());
+  _view->addEventHandler(_picker);
 
   // This ensures that the widget will receive keyboard events. This focus
   // policy is not set by default. The default, Qt::NoFocus, will result in
@@ -127,18 +125,28 @@ OSGWidget::~OSGWidget() {
 }
 
 void OSGWidget::renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals) {
-  _root->removeChild(_axesNode);
+  _root->removeChild(_mesh);
 
   osg::ref_ptr<osg::Geometry> meshGeometry = new osg::Geometry;
   meshGeometry->setVertexArray(vertices.get());
   meshGeometry->setNormalArray(normals.get(), osg::Array::BIND_PER_VERTEX);
   meshGeometry->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, vertices->getNumElements()));
   osgUtil::optimizeMesh(meshGeometry.get());
-  _axesNode->addDrawable(meshGeometry.get());
+  _mesh->addDrawable(meshGeometry.get());
 
-  OSGWidget::fixMaterialState(_axesNode);
+  OSGWidget::fixMaterialState(_mesh);
 
-  _root->addChild(_axesNode);
+  _root->addChild(_mesh);
+
+  _picker->updateRenderer();
+}
+
+osg::ref_ptr<osg::Geode> OSGWidget::getMesh() {
+  return _mesh;
+}
+
+PickHandler* OSGWidget::getPicker() {
+  return _picker;
 }
 
 void OSGWidget::paintEvent(QPaintEvent*) {

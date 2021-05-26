@@ -5,7 +5,7 @@
 
 class OptiTrackPoint: TrackPoint {
 public:
-  OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const double length = OPTITRACK_DEFAULT_LENGTH, const double radius = OPTITRACK_DEFAULT_RADIUS);
+  OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double length = OPTITRACK_DEFAULT_LENGTH, const double radius = OPTITRACK_DEFAULT_RADIUS);
   double getLength();
   double getRadius();
 

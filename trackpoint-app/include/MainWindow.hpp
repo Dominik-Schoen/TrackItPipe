@@ -4,17 +4,13 @@
 #include "NoMeshWidget.hpp"
 #include "EditWidget.hpp"
 #include "ProjectStore.hpp"
+#include "enums.hpp"
 
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
-enum GuiView {
-  NoMesh,
-  Edit,
-};
 
 class MainWindow: public QMainWindow {
   Q_OBJECT
@@ -26,6 +22,7 @@ public:
   void renderView(GuiView view);
   OSGWidget* getOsgWidget();
   ProjectStore* getStore();
+  EditWidget* getEditWiget();
 
 private:
   void openFile();
