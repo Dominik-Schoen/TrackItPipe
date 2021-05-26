@@ -40,10 +40,13 @@
       </font>
      </property>
      <property name="text">
-      <string>No Mesh loaded.</string>
+      <string>Nothing loaded.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="margin">
+      <number>5</number>
      </property>
     </widget>
    </item>
@@ -51,11 +54,11 @@
     <widget class="QLabel" name="noMeshExplanation">
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
      <property name="text">
-      <string>You can load a .3mf or a .stl file to use the mesh as basis for this trackpoint project.</string>
+      <string>You can load an existing project or start a new one by opening a mesh file (.3mf or .stl).</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -65,7 +68,14 @@
    <item>
     <widget class="QPushButton" name="noMeshButton">
      <property name="text">
-      <string>Load Mesh file</string>
+      <string>Start new project</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="loadProjectButton">
+     <property name="text">
+      <string>Load existing project</string>
      </property>
     </widget>
    </item>
