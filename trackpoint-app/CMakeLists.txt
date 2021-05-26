@@ -70,6 +70,7 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/OpenScadRenderer.cpp
   src/StringBasics.cpp
   src/TrackPointRenderer.cpp
+  src/PointShape.cpp
 )
 
 if(NOT BUILD_STATIC_RELEASE)

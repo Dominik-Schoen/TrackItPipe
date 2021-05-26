@@ -1,6 +1,9 @@
 // Include own headers
 #include "PickHandler.hpp"
 
+// Include modules
+#include "TrackPointRenderer.hpp"
+
 // Include dependencies
 #include <osg/io_utils>
 
@@ -171,6 +174,7 @@ void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
   switch(_activeTrackingSystem) {
     case OptiTrack: {
       MainWindow::getInstance()->getStore()->addOptiTrackPoint(point, normal);
+      _osgWidget->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
       break;
     }
     case EMFTrack: {

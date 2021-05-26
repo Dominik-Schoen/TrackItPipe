@@ -20,6 +20,7 @@ public:
   void updatePositions(osg::Vec3 point);
   void updateNormals(osg::Vec3 normal);
   void invalidatePositions();
+  ActiveTrackingSystem getSelectedTrackingSystem();
 
 protected:
   virtual void showEvent(QShowEvent* event);

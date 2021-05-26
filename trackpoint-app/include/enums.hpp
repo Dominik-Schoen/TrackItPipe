@@ -9,6 +9,7 @@ enum ActiveTrackingSystem {
   OptiTrack,
   EMFTrack,
   SteamVRTrack,
+  ActionPoints,
 };
 
 enum Tool {

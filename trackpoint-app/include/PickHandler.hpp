@@ -3,6 +3,7 @@
 // Include modules
 #include "MainWindow.hpp"
 #include "OSGWidget.hpp"
+#include "PointShape.hpp"
 
 // Include dependencies
 #include <osgGA/GUIEventHandler>

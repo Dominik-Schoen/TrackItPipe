@@ -3,6 +3,7 @@
 
 // Include modules
 #include "PickHandler.hpp"
+#include "TrackPointRenderer.hpp"
 
 // Include dependencies
 #include <osgViewer/Viewer>
@@ -119,6 +120,10 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   // mouse button has been pressed. We require this in order to let the
   // graphics window switch viewports properly.
   this->setMouseTracking(true);
+
+  _pointRoot = new osg::Group;
+  _root->addChild(_pointRoot.get());
+  _pointRenderer = new TrackPointRenderer(this, _pointRoot);
 }
 
 OSGWidget::~OSGWidget() {
@@ -147,6 +152,10 @@ osg::ref_ptr<osg::Geode> OSGWidget::getMesh() {
 
 PickHandler* OSGWidget::getPicker() {
   return _picker;
+}
+
+TrackPointRenderer* OSGWidget::getPointRenderer() {
+  return _pointRenderer;
 }
 
 void OSGWidget::paintEvent(QPaintEvent*) {

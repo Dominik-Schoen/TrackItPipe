@@ -1,8 +1,5 @@
 #pragma once
 
-// Include modules
-#include "TrackPointRenderer.hpp"
-
 // Include dependencies
 #include <QPoint>
 #include <QOpenGLWidget>
@@ -26,6 +23,7 @@ namespace osgWidget {
 }
 
 class PickHandler; // Forward declaration
+class TrackPointRenderer; // Forward declaration
 
 class OSGWidget : public QOpenGLWidget {
   Q_OBJECT
@@ -37,6 +35,7 @@ public:
   void renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals);
   osg::ref_ptr<osg::Geode> getMesh();
   PickHandler* getPicker();
+  TrackPointRenderer* getPointRenderer();
 
 protected:
   virtual void paintEvent(QPaintEvent* paintEvent);
@@ -59,11 +58,13 @@ private:
 
   osgGA::EventQueue* getEventQueue() const;
   PickHandler* _picker;
+  TrackPointRenderer* _pointRenderer;
 
   osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
   osg::ref_ptr<osgWidget::Viewer> _viewer;
   osgViewer::View* _view;
   osg::ref_ptr<osg::Group> _root;
+  osg::ref_ptr<osg::Group> _pointRoot;
   osg::ref_ptr<osg::Geode> _coordinateAxes;
   osg::ref_ptr<osg::Geode> _mesh;
 

@@ -49,6 +49,23 @@ void EditWidget::invalidatePositions() {
   ui->normalZ->setText("-");
 }
 
+ActiveTrackingSystem EditWidget::getSelectedTrackingSystem() {
+  switch(ui->tabWidget->currentIndex()) {
+    case 0: {
+      return OptiTrack;
+    }
+    case 1: {
+      return EMFTrack;
+    }
+    case 2: {
+      return SteamVRTrack;
+    }
+    default: {
+      return ActionPoints;
+    }
+  }
+}
+
 void EditWidget::showEvent(QShowEvent* event) {
   QWidget::showEvent(event);
   resetOptiTrackSettings();
