@@ -1,0 +1,4 @@
+#pragma once
+
+#define OPTITRACK_DEFAULT_LENGTH 10.0
+#define OPTITRACK_DEFAULT_RADIUS 0.5
