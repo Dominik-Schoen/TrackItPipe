@@ -11,7 +11,7 @@
 #include <osg/StateSet>
 
 TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
-  osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+  /*osg::ref_ptr<osg::Geode> geode = new osg::Geode;
   osg::ref_ptr<osg::ShapeDrawable> cylinder = new osg::ShapeDrawable();
   cylinder->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, 10.0f));
   cylinder->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -30,14 +30,10 @@ TrackPoint::TrackPoint(osg::Vec3 point, osg::Vec3 normal) {
 
   _translationGroup = new osg::MatrixTransform;
   _translationGroup->addChild(_originFixGroup.get());
-  _translationGroup->setMatrix(osg::Matrix::translate(point));
+  _translationGroup->setMatrix(osg::Matrix::translate(point));*/
 
   _origin = point;
   _normal = normal;
-
-  osg::Vec3 shift = normal.operator*(10.0f);
-  _trackOrigin = shift.operator+(point);
-  printf("TrackPoint is at %lf %lf %lf\n", _trackOrigin.x(), _trackOrigin.y(), _trackOrigin.z());
 }
 
 osg::ref_ptr<osg::MatrixTransform> TrackPoint::getUppermostRoot() {
@@ -49,8 +45,6 @@ osg::Vec3 TrackPoint::getTranslation() {
 }
 
 osg::Vec3 TrackPoint::getRotation() {
-  printf("YNorm: %lf %lf %lf\n", _normal.x(), _normal.y(), _normal.z());
-
   osg::Vec3 start = osg::Vec3(0.0f, 0.0f, 1.0f);
 
   // From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles

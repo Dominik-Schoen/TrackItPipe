@@ -18,6 +18,8 @@ SET(CMAKE_AUTORCC ON)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+ADD_COMPILE_DEFINITIONS(GL_SILENCE_DEPRECATION)
+
 # Qt
 LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty/qt/install")
 FIND_PACKAGE(Qt6 COMPONENTS Core Gui Widgets OpenGLWidgets REQUIRED NO_CMAKE_SYSTEM_PATH)
@@ -65,6 +67,7 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/PickHandler.cpp
   src/StoreHandler.cpp
   src/TrackPoint.cpp
+  src/OptiTrackPoint.cpp
   src/ThreeMFWriter.cpp
   src/OpenScadRenderer.cpp
   src/StringBasics.cpp
