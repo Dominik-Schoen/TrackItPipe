@@ -2,7 +2,8 @@
 #include "TrackPointRenderer.hpp"
 
 // Include modules
-
+#include "OptiTrackPoint.hpp"
+#include "MainWindow.hpp"
 
 // Include dependencies
 

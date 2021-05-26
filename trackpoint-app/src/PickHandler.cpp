@@ -125,12 +125,13 @@ void PickHandler::moveTo(osg::Vec3f position) {
 }
 
 void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
+  MainWindow::getInstance()->getEditWiget()->updateNormals(normal);
   osg::Vec3 modifier = MainWindow::getInstance()->getStore()->getNormalModifier();
   normal = normal.operator+(modifier);
+  normal.normalize();
   _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
   osg::Vec3f movementVector = normal.operator*(_optiTrackSteamVRLength / 2);
   _selectionMoveToEndGroup->setMatrix(osg::Matrix::translate(movementVector));
-  MainWindow::getInstance()->getEditWiget()->updateNormals(normal);
 }
 
 void PickHandler::updateRenderer() {
