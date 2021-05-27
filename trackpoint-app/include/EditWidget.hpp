@@ -31,6 +31,7 @@ private slots:
   void resetNormalModifier();
   void updateOptiTrackSettings();
   void resetOptiTrackSettings();
+  void exportProject();
 
 private:
   Ui::EditWidget* ui;

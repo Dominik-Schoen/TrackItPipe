@@ -1,10 +1,12 @@
 #pragma once
 
-#include "TrackPoint.hpp"
+// Include modules
+#include "OptiTrackPoint.hpp"
 
+// Include dependencies
 #include <vector>
 
 class OpenScadRenderer {
 public:
-  void render(std::vector<TrackPoint*> points);
+  void renderOptiTrack(std::vector<OptiTrackPoint*> points);
 };

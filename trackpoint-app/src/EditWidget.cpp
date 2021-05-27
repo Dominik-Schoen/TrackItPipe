@@ -6,6 +6,9 @@
 #include "OSGWidget.hpp"
 #include "PickHandler.hpp"
 
+// Include dependencies
+#include <QFileDialog>
+
 EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget) {
   ui->setupUi(this);
   ui->insertionToolButton->setCheckable(true);
@@ -22,6 +25,8 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetOptiTrackSettings);
+  // Export button
+  QObject::connect(ui->exportButton, &QPushButton::clicked, this, &EditWidget::exportProject);
 }
 
 EditWidget::~EditWidget() {
@@ -115,4 +120,14 @@ void EditWidget::resetOptiTrackSettings() {
   ui->optiTrackRadius->setValue(OPTITRACK_DEFAULT_RADIUS);
   MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
   MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+}
+
+void EditWidget::exportProject() {
+  Qt::CheckState optiTrackSelected = ui->optiTrackCkeckbox->checkState();
+  Qt::CheckState emfTrackSelected = ui->emfTrackCheckbox->checkState();
+  Qt::CheckState steamVrTrackSelected = ui->steamVrCheckbox->checkState();
+  ExportSettings settings = {optiTrackSelected == Qt::Checked, emfTrackSelected == Qt::Checked, steamVrTrackSelected == Qt::Checked};
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Export your TrackpointApp Project"), "", tr("3MF Files (*.3mf)"));
+  std::string exportFile = fileName.toUtf8().constData();
+  MainWindow::getInstance()->getStore()->exportProject(exportFile, settings);
 }

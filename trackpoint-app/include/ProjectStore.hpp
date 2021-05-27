@@ -4,6 +4,7 @@
 #include "lib3mf_implicit.hpp"
 #include "OptiTrackPoint.hpp"
 #include "TrackSystemSettingsStructs.hpp"
+#include "OpenScadRenderer.hpp"
 
 // Include dependencies
 #include <string>

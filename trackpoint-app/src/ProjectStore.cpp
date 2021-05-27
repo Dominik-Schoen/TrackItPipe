@@ -5,10 +5,12 @@
 #include "MainWindow.hpp"
 #include "StringBasics.hpp"
 #include "TrackPointRenderer.hpp"
+#include "PlatformSupport.hpp"
 
 // Include dependencies
 #include <typeinfo>
 #include <iostream>
+#include <filesystem>
 
 #define META_NAMESPACE "tk-ar-tracking"
 
@@ -65,7 +67,52 @@ bool ProjectStore::saveProject(std::string path) {
 }
 
 bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
-  return false; // TODO
+  OpenScadRenderer* renderer = new OpenScadRenderer();
+  // Base for rendering mesh
+  Lib3MF::PWriter writer = _project->QueryWriter("3mf");
+  writer->WriteToFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_export.3mf");
+  // Export file
+  Lib3MF::PModel exportModel = _wrapper->CreateModel();
+  Lib3MF::PMetaDataGroup metaData = exportModel->GetMetaDataGroup();
+  if (settings.OptiTrack) {
+    renderer->renderOptiTrack(_optiTrackPoints);
+    Lib3MF::PModel optiTrackModel = _wrapper->CreateModel();
+    Lib3MF::PReader reader = optiTrackModel->QueryReader("3mf");
+    reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_optitrack.3mf");
+    Lib3MF::PMeshObjectIterator meshIterator = optiTrackModel->GetMeshObjects();
+    if (meshIterator->Count() != 1) {
+      return false;
+    }
+    meshIterator->MoveNext();
+    Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
+    Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+    std::vector<Lib3MF::sPosition> verticesBuffer;
+    std::vector<Lib3MF::sTriangle> triangleBuffer;
+    renderedMesh->GetVertices(verticesBuffer);
+    renderedMesh->GetTriangleIndices(triangleBuffer);
+    exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
+    std::vector<std::vector<float>> pointsList;
+    for (OptiTrackPoint* point: _optiTrackPoints) {
+      std::vector<float> pointData;
+      osg::Vec3 trackPoint = point->getTrackPoint();
+      pointData.push_back(trackPoint.x());
+      pointData.push_back(trackPoint.y());
+      pointData.push_back(trackPoint.z());
+      pointsList.push_back(pointData);
+    }
+    json trackpointData = pointsList;
+    metaData->AddMetaData("tk-ar-tracking", "trackpoints-optitrack", trackpointData.dump(), "string", true);
+  }
+  if (settings.EMFTrack) {
+
+  }
+  if (settings.SteamVRTrack) {
+
+  }
+  delete renderer;
+  Lib3MF::PWriter exportWriter = exportModel->QueryWriter("3mf");
+  exportWriter->WriteToFile(path);
+  return true;
 }
 
 void ProjectStore::updateNormalModifier(osg::Vec3 modifier) {
