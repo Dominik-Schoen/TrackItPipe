@@ -75,6 +75,9 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
               addPoint(result.localIntersectionPoint, result.localIntersectionNormal);
               break;
             }
+            /*for () {
+
+            }*/
           }
         }
       }
@@ -88,6 +91,7 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
       osgUtil::IntersectionVisitor iv(intersector.get());
       iv.setTraversalMask(~0x1);
       viewer->getCamera()->accept(iv);
+      invalidateTrackPointColors();
       if (intersector->containsIntersections()) {
         if (_addNewPoints) {
           for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
@@ -99,8 +103,16 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
             }
           }
         } else {
+          bool found = false;
           for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
-            // TODO
+            if (found) break;
+            for (PointShape* shape: _osgWidget->getPointRenderer()->getShapes()) {
+              if (std::find(result.nodePath.begin(), result.nodePath.end(), shape->getMesh()) != result.nodePath.end()) {
+                shape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
+                found = true;
+                break;
+              }
+            }
           }
         }
       } else {
@@ -183,5 +195,11 @@ void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
     case SteamVRTrack: {
       break;
     }
+  }
+}
+
+void PickHandler::invalidateTrackPointColors() {
+  for (PointShape* shape: _osgWidget->getPointRenderer()->getShapes()) {
+    shape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
   }
 }

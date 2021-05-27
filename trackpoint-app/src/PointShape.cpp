@@ -57,12 +57,16 @@ void PointShape::setColor(osg::Vec4 color) {
 void PointShape::setupOptiTrack(OptiTrackSettings optiTrackSettings) {
   if (_activeTrackingSystem == OptiTrack) {
     _optiTrackSteamVRLength = optiTrackSettings.length;
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    _geode = new osg::Geode;
     _shape = new osg::ShapeDrawable();
     _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), optiTrackSettings.radius, optiTrackSettings.length));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
-    geode->addDrawable(_shape.get());
-    OSGWidget::fixMaterialState(geode);
-    _selectionRotateGroup->addChild(geode.get());
+    _geode->addDrawable(_shape.get());
+    OSGWidget::fixMaterialState(_geode);
+    _selectionRotateGroup->addChild(_geode.get());
   }
+}
+
+osg::ref_ptr<osg::Geode> PointShape::getMesh() {
+  return _geode;
 }

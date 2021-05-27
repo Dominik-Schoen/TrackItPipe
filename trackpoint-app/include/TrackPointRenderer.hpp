@@ -13,6 +13,7 @@ public:
   TrackPointRenderer(OSGWidget* osgWidget, osg::ref_ptr<osg::Group> renderRoot);
   ~TrackPointRenderer();
   void render(ActiveTrackingSystem activeTrackingSystem);
+  std::vector<PointShape*> getShapes();
 
 private:
   OSGWidget* _osgWidget;

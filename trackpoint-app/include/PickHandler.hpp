@@ -34,4 +34,5 @@ private:
   void removeAllShapes();
   void setVisibility(bool mode);
   void addPoint(osg::Vec3 point, osg::Vec3 normal);
+  void invalidateTrackPointColors();
 };

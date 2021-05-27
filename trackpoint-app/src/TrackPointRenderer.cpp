@@ -38,3 +38,7 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
     }
   }
 }
+
+std::vector<PointShape*> TrackPointRenderer::getShapes() {
+  return _shapes;
+}
