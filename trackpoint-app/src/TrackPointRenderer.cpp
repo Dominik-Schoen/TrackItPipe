@@ -46,6 +46,7 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       break;
     }
   }
+  _osgWidget->update();
 }
 
 std::vector<PointShape*> TrackPointRenderer::getShapes() {
