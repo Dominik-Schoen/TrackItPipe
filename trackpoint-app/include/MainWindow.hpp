@@ -25,10 +25,18 @@ public:
   EditWidget* getEditWiget();
 
 private:
-  void openFile();
+  void load();
+  void save();
+  void saveAs();
   Ui::MainWindow* ui;
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;
   EditWidget* editWidget;
   ProjectStore* projectStore;
+  QMenu* fileMenu;
+  QAction* newAct;
+  QAction* loadAct;
+  QAction* saveAct;
+  QAction* saveAsAct;
+  QAction* closeAct;
 };

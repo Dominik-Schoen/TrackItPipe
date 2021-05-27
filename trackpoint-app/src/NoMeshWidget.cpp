@@ -26,6 +26,6 @@ void NoMeshWidget::loadMeshFile() {
 
 void NoMeshWidget::loadProjectFile() {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open a TrackpointApp Project"), "", tr("TrackpointApp Projects (*.trackproj)"));
-  std::string meshFile = fileName.toUtf8().constData();
-  // TODO: Connect
+  std::string projectFile = fileName.toUtf8().constData();
+  MainWindow::getInstance()->getStore()->loadProject(projectFile);
 }

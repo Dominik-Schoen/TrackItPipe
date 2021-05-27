@@ -7,6 +7,9 @@
 
 // Include dependencies
 #include <string>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 class ProjectStore {
 public:
@@ -42,7 +45,8 @@ public:
   OptiTrackSettings getOptiTrackSettings();
 
 private:
-  bool projectLoaded;
+  bool _projectLoaded;
+  bool _projectModified;
   Lib3MF::PWrapper _wrapper;
   Lib3MF::PModel _project;
   std::string _projectFile;
@@ -52,6 +56,9 @@ private:
   SteamVRTrackSettings _steamVrTrackSettings;
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
   void load3mfLib();
-  void render3MFMesh(const std::vector<Lib3MF::sPosition> verticesBuffer, const std::vector<Lib3MF::sTriangle> triangleBuffer);
-  void exportMetaData();
+  void render3MFMesh();
+  void updateMetaData();
+  void loadMetaData();
+  std::vector<float> osgVecToStdVec(osg::Vec3f input);
+  osg::Vec3f stdVecToOsgVec(std::vector<float> input);
 };
