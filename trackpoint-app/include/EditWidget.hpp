@@ -21,6 +21,8 @@ public:
   void updateNormals(osg::Vec3 normal);
   void invalidatePositions();
   ActiveTrackingSystem getSelectedTrackingSystem();
+  void setSelection(int id);
+  int getSelectedPoint();
 
 protected:
   virtual void showEvent(QShowEvent* event);
@@ -29,10 +31,13 @@ private slots:
   void selectTool(Tool tool);
   void updateNormalModifier();
   void resetNormalModifier();
+  void setNormalModifier(osg::Vec3 normalModifier);
   void updateOptiTrackSettings();
   void resetOptiTrackSettings();
+  void setOptiTrackSettings(double length, double radius);
   void exportProject();
 
 private:
   Ui::EditWidget* ui;
+  int selectedPoint = -1;
 };

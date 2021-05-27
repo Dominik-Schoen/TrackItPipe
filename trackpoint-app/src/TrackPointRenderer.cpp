@@ -17,16 +17,25 @@ TrackPointRenderer::~TrackPointRenderer() {
 }
 
 void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
+  for (PointShape* shape: _shapes) {
+    delete shape;
+  }
+  _shapes.clear();
   switch(activeTrackingSystem) {
     case OptiTrack: {
       std::vector<OptiTrackPoint*> points = MainWindow::getInstance()->getStore()->getOptiTrackPoints();
-      _shapes.clear();
+      int id = 0;
       for (OptiTrackPoint* point: points) {
         PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
         newShape->setupOptiTrack(point->getOptiTrackSettings());
-        newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+        if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
+          newShape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
+        } else {
+          newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+        }
         newShape->rotateToNormalVector(point->getNormal());
         _shapes.push_back(newShape);
+        id++;
       }
       break;
     }

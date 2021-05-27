@@ -5,6 +5,7 @@
 #include "OptiTrackPoint.hpp"
 #include "TrackSystemSettingsStructs.hpp"
 #include "OpenScadRenderer.hpp"
+#include "enums.hpp"
 
 // Include dependencies
 #include <string>
@@ -28,6 +29,8 @@ public:
   bool saveProject(std::string projectFile);
   // Export the project
   bool exportProject(std::string path, ExportSettings settings);
+  // UNIVERSAL TRACKPOINT GETTER
+  TrackPoint* getTrackPointById(int id, ActiveTrackingSystem activeTrackingSystem);
   // NORMAL MODIFIER
   // Update normal modifier
   void updateNormalModifier(osg::Vec3 modifier);

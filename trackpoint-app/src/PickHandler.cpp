@@ -55,7 +55,17 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
               }
             }
           } else {
-
+            bool found = false;
+            for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
+              if (found) break;
+              for (PointShape* shape: _osgWidget->getPointRenderer()->getShapes()) {
+                if (std::find(result.nodePath.begin(), result.nodePath.end(), shape->getMesh()) != result.nodePath.end()) {
+                  _clickStartedOnElement = true;
+                  found = true;
+                  break;
+                }
+              }
+            }
           }
         }
       }
@@ -68,16 +78,30 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
         iv.setTraversalMask(~0x1);
         viewer->getCamera()->accept(iv);
         if (intersector->containsIntersections()) {
-          for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
-            if (std::find(result.nodePath.begin(), result.nodePath.end(), _osgWidget->getMesh()) != result.nodePath.end()) {
-              moveTo(result.localIntersectionPoint);
-              rotateToNormalVector(result.localIntersectionNormal);
-              addPoint(result.localIntersectionPoint, result.localIntersectionNormal);
-              break;
+          if (_addNewPoints) {
+            for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
+              if (std::find(result.nodePath.begin(), result.nodePath.end(), _osgWidget->getMesh()) != result.nodePath.end()) {
+                moveTo(result.localIntersectionPoint);
+                rotateToNormalVector(result.localIntersectionNormal);
+                addPoint(result.localIntersectionPoint, result.localIntersectionNormal);
+                break;
+              }
             }
-            /*for () {
-
-            }*/
+          } else {
+            bool found = false;
+            for (const osgUtil::LineSegmentIntersector::Intersection result: intersector->getIntersections()) {
+              if (found) break;
+              int shapeId = 0;
+              for (PointShape* shape: _osgWidget->getPointRenderer()->getShapes()) {
+                if (std::find(result.nodePath.begin(), result.nodePath.end(), shape->getMesh()) != result.nodePath.end()) {
+                  _selectedPoint = shapeId;
+                  MainWindow::getInstance()->getEditWiget()->setSelection(shapeId);
+                  found = true;
+                  break;
+                }
+                shapeId++;
+              }
+            }
           }
         }
       }
@@ -116,7 +140,9 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
           }
         }
       } else {
-        MainWindow::getInstance()->getEditWiget()->invalidatePositions();
+        if (_addNewPoints) {
+          MainWindow::getInstance()->getEditWiget()->invalidatePositions();
+        }
         setVisibility(false);
       }
     }
@@ -131,6 +157,10 @@ void PickHandler::setTrackingSystem(ActiveTrackingSystem activeTrackingSystem) {
 
 void PickHandler::setSelection(bool addNewPoints) {
   _addNewPoints = addNewPoints;
+  if (addNewPoints) {
+    _selectedPoint = -1;
+  }
+  invalidateTrackPointColors();
   updateRenderer();
 }
 
@@ -199,7 +229,11 @@ void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
 }
 
 void PickHandler::invalidateTrackPointColors() {
+  int shapeId = 0;
   for (PointShape* shape: _osgWidget->getPointRenderer()->getShapes()) {
-    shape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+    if (_selectedPoint != shapeId) {
+      shape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+    }
+    shapeId++;
   }
 }

@@ -5,6 +5,7 @@
 // Include modules
 #include "OSGWidget.hpp"
 #include "PickHandler.hpp"
+#include "TrackPointRenderer.hpp"
 
 // Include dependencies
 #include <QFileDialog>
@@ -71,6 +72,33 @@ ActiveTrackingSystem EditWidget::getSelectedTrackingSystem() {
   }
 }
 
+void EditWidget::setSelection(int id) {
+  selectedPoint = id;
+  switch(ui->tabWidget->currentIndex()) {
+    case 0: {
+      OptiTrackPoint* point = MainWindow::getInstance()->getStore()->getOptiTrackPoints()[id];
+      updatePositions(point->getTranslation());
+      updateNormals(point->getNormal());
+      setNormalModifier(point->getNormalModifier());
+      setOptiTrackSettings(point->getLength(), point->getRadius());
+      break;
+    }
+    case 1: {
+      break;
+    }
+    case 2: {
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+}
+
+int EditWidget::getSelectedPoint() {
+  return selectedPoint;
+}
+
 void EditWidget::showEvent(QShowEvent* event) {
   QWidget::showEvent(event);
   resetOptiTrackSettings();
@@ -82,6 +110,10 @@ void EditWidget::selectTool(Tool tool) {
       ui->insertionToolButton->setChecked(true);
       ui->selectionToolButton->setChecked(false);
       MainWindow::getInstance()->getOsgWidget()->getPicker()->setSelection(true);
+      invalidatePositions();
+      resetNormalModifier();
+      resetOptiTrackSettings();
+      selectedPoint = -1;
       break;
     }
     case SelectionTool: {
@@ -95,8 +127,14 @@ void EditWidget::selectTool(Tool tool) {
 
 void EditWidget::updateNormalModifier() {
   osg::Vec3 modifier = osg::Vec3(ui->normalModX->value(), ui->normalModY->value(), ui->normalModZ->value());
-  MainWindow::getInstance()->getStore()->updateNormalModifier(modifier);
-  MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateNormalModifier(modifier);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+    MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalModifier(modifier);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+  }
 }
 
 void EditWidget::resetNormalModifier() {
@@ -104,22 +142,49 @@ void EditWidget::resetNormalModifier() {
   ui->normalModX->setValue(0.0f);
   ui->normalModY->setValue(0.0f);
   ui->normalModZ->setValue(0.0f);
-  MainWindow::getInstance()->getStore()->updateNormalModifier(modifier);
-  MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateNormalModifier(modifier);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+    MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalModifier(modifier);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+  }
+}
+
+void EditWidget::setNormalModifier(osg::Vec3 normalModifier) {
+  ui->normalModX->setValue(normalModifier.x());
+  ui->normalModY->setValue(normalModifier.y());
+  ui->normalModZ->setValue(normalModifier.z());
 }
 
 void EditWidget::updateOptiTrackSettings() {
   OptiTrackSettings settings = {ui->optiTrackLength->value(), ui->optiTrackRadius->value()};
-  MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
-  MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    MainWindow::getInstance()->getStore()->getOptiTrackPoints()[selectedPoint]->updateOptiTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
+  }
 }
 
 void EditWidget::resetOptiTrackSettings() {
   OptiTrackSettings settings = {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
   ui->optiTrackLength->setValue(OPTITRACK_DEFAULT_LENGTH);
   ui->optiTrackRadius->setValue(OPTITRACK_DEFAULT_RADIUS);
-  MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
-  MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    MainWindow::getInstance()->getStore()->getOptiTrackPoints()[selectedPoint]->updateOptiTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
+  }
+}
+
+void EditWidget::setOptiTrackSettings(double length, double radius) {
+  ui->optiTrackLength->setValue(length);
+  ui->optiTrackRadius->setValue(radius);
 }
 
 void EditWidget::exportProject() {

@@ -115,6 +115,23 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
   return true;
 }
 
+TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeTrackingSystem) {
+  switch(activeTrackingSystem) {
+    case OptiTrack: {
+      return _optiTrackPoints[id];
+    };
+    case EMFTrack: {
+      break;
+    };
+    case SteamVRTrack: {
+      break;
+    };
+    case ActionPoints: {
+      break;
+    };
+  }
+}
+
 void ProjectStore::updateNormalModifier(osg::Vec3 modifier) {
   _normalModifier = modifier;
 }

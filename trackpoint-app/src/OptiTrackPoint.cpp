@@ -20,3 +20,8 @@ double OptiTrackPoint::getRadius() {
 OptiTrackSettings OptiTrackPoint::getOptiTrackSettings() {
   return OptiTrackSettings {_length, _radius};
 }
+
+void OptiTrackPoint::updateOptiTrackSettings(OptiTrackSettings settings) {
+  _length = settings.length;
+  _radius = settings.radius;
+}

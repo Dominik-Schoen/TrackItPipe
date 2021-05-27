@@ -11,6 +11,7 @@ public:
   double getLength();
   double getRadius();
   OptiTrackSettings getOptiTrackSettings();
+  void updateOptiTrackSettings(OptiTrackSettings settings);
 
 private:
   double _length;

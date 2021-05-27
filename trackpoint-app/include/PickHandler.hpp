@@ -29,6 +29,7 @@ private:
   bool _clickStartedOnElement = false;
   OSGWidget* _osgWidget;
   double _optiTrackSteamVRLength;
+  int _selectedPoint = -1;
   void moveTo(osg::Vec3f position);
   void rotateToNormalVector(osg::Vec3f normal);
   void removeAllShapes();

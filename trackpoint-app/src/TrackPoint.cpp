@@ -51,3 +51,7 @@ osg::Vec3 TrackPoint::getNormalModifier() {
 osg::Vec3 TrackPoint::getTrackPoint() {
   return _trackOrigin;
 }
+
+void TrackPoint::updateNormalModifier(osg::Vec3 normalModifier) {
+  _normalModifier = normalModifier;
+}

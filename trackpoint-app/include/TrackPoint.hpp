@@ -12,6 +12,7 @@ public:
   osg::Vec3 getNormal();
   osg::Vec3 getNormalModifier();
   osg::Vec3 getTrackPoint();
+  void updateNormalModifier(osg::Vec3 normalModifier);
 
 protected:
   osg::ref_ptr<osg::MatrixTransform> _translationGroup;
