@@ -11,7 +11,7 @@ do
     OPTIONS+="-DBUILD_SHARED_LIBS=OFF "
   fi
   if [ $var == "win-cross" ]; then
-    OPTIONS+="-DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw-w64.cmake "
+    OPTIONS+="-DCMAKE_TOOLCHAIN_FILE=../../../toolchain-mingw-w64.cmake -DBUILD_qtwayland=OFF "
   fi
 done
 
@@ -36,6 +36,10 @@ esac
 
 if [ $MACHINE == "Linux" ]; then
   OPTIONS+="-DINPUT_xcb=yes "
+fi
+
+if [ $MACHINE == "Mac" ]; then
+  OPTIONS+="-DBUILD_qtwayland=OFF "
 fi
 
 URL="https://download.qt.io/official_releases/qt/$QT_MAJOR.$QT_MINOR/$QT_MAJOR.$QT_MINOR.$QT_BUGFIX/single/qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz"

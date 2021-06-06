@@ -18,3 +18,21 @@ build_release_linux:
     expire_in: 2 weeks
     paths:
       - trackpoint-app/build/TrackpointApp
+
+build_release_windows:
+  image: ubuntu:hirsute
+  stage: release
+  when: manual
+  before_script:
+    - apt-get update && apt-get install gcc-mingw-w64 wget cmake
+    - cd trackpoint-app
+    - ./build-dependencies-first.sh win-cross
+    - mkdir build
+  script:
+    - cd build
+    - cmake ..
+    - cmake --build . --parallel
+  artifacts:
+    expire_in: 2 weeks
+    paths:
+      - trackpoint-app/build/TrackpointApp.exe
