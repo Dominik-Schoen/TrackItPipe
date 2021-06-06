@@ -3,11 +3,18 @@
 
 set -e
 
-if [ $1 == "release" ]; then
-  OPTIONS="-static "
-else
-  OPTIONS=""
-fi
+OPTIONS=""
+CMAKE_OPTIONS=""
+
+for var in "$@"
+do
+  if [ $var == "release" ]; then
+    OPTIONS+="-static "
+  fi
+  if [ $var == "win-cross" ]; then
+    CMAKE_OPTIONS+="-DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw-w64.cmake"
+  fi
+done
 
 CORES=$(getconf _NPROCESSORS_ONLN)
 JOBS=$(($CORES-1))
@@ -63,7 +70,7 @@ pushd "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX"
     -skip qtopcua -skip qtquick3d -skip qtquicktimeline -skip qttools \
     -skip qtactiveqt
 
-cmake --build . --parallel $JOBS
+cmake --build . --parallel $JOBS $CMAKE_OPTIONS
 cmake --install .
 
 popd

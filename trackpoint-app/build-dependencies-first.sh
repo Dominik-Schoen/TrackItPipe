@@ -1,11 +1,17 @@
 #!/bin/bash
 # Builds all dependencies which are no clean CMake projects, so using FetchContent is not possible.
 
-if [ $1 == "release" ]; then
-  OPTIONS="release"
-else
-  OPTIONS=""
-fi
+OPTIONS=""
+
+for var in "$@"
+do
+  if [ $var == "release" ]; then
+    OPTIONS+="release"
+  fi
+  if [ $var == "win-cross" ]; then
+    OPTIONS+="win-cross"
+  fi
+done
 
 thirdparty/qt.sh $OPTIONS
 
