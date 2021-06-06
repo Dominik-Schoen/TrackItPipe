@@ -24,7 +24,7 @@ build_release_windows:
   stage: release
   when: manual
   before_script:
-    - apt-get update && apt-get install gcc-mingw-w64 wget cmake
+    - apt-get update && apt-get -y install gcc-mingw-w64 wget cmake
     - cd trackpoint-app
     - ./build-dependencies-first.sh win-cross
     - mkdir build
