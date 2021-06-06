@@ -4,15 +4,14 @@
 set -e
 
 OPTIONS=""
-CMAKE_OPTIONS=""
 
 for var in "$@"
 do
   if [ $var == "release" ]; then
-    OPTIONS+="-static "
+    OPTIONS+="-DBUILD_SHARED_LIBS=OFF "
   fi
   if [ $var == "win-cross" ]; then
-    CMAKE_OPTIONS+="-DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw-w64.cmake"
+    OPTIONS+="-DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw-w64.cmake "
   fi
 done
 
@@ -36,7 +35,7 @@ case "${UNAME_OUT}" in
 esac
 
 if [ $MACHINE == "Linux" ]; then
-  OPTIONS+="-xcb "
+  OPTIONS+="-DINPUT_xcb=yes "
 fi
 
 URL="https://download.qt.io/official_releases/qt/$QT_MAJOR.$QT_MINOR/$QT_MAJOR.$QT_MINOR.$QT_BUGFIX/single/qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz"
@@ -61,16 +60,17 @@ fi
 tar -xf "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX.tar.xz"
 pushd "qt-everywhere-src-$QT_MAJOR.$QT_MINOR.$QT_BUGFIX"
 
-./configure $OPTIONS -ltcg -optimize-size -no-pch -prefix "$DEPLOYDIR" -release -opensource -confirm-license \
-    -nomake examples -nomake tests -nomake tools \
-    -skip qtscxml -skip qtdatavis3d -skip qtcharts \
-    -skip qtquickcontrols2 -skip qtvirtualkeyboard -skip qtshadertools \
-    -skip qttranslations -skip qtdoc -skip qt3d -skip qtnetworkauth \
-    -skip qt5compat -skip qtcoap -skip qtlottie -skip qtmqtt \
-    -skip qtopcua -skip qtquick3d -skip qtquicktimeline -skip qttools \
-    -skip qtactiveqt
+cmake $OPTIONS -DBUILD_qtscxml=OFF -DBUILD_qtdatavis3d=OFF -DBUILD_qtcharts=OFF\
+  -DBUILD_qtquickcontrols2=OFF -DBUILD_qtvirtualkeyboard=OFF -DBUILD_qtshadertools=OFF\
+  -DBUILD_qttranslations=OFF -DBUILD_qtdoc=OFF -DBUILD_qt3d=OFF -DBUILD_qtnetworkauth=OFF\
+  -DBUILD_qt5compat=OFF -DBUILD_qtcoap=OFF -DBUILD_qtlottie=OFF -DBUILD_qtmqtt=OFF\
+  -DBUILD_qtopcua=OFF -DBUILD_qtquick3d=OFF -DBUILD_qtquicktimeline=OFF -DBUILD_qttools=OFF\
+  -DBUILD_qtactiveqt=OFF -DBUILD_WITH_PCH=OFF\
+  -DCMAKE_INSTALL_PREFIX="$DEPLOYDIR"\
+  -DQT_BUILD_EXAMPLES=FALSE -DQT_BUILD_TESTS=FALSE\
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=ON -DINPUT_optimize_size=yes -G Ninja
 
-cmake --build . --parallel $JOBS $CMAKE_OPTIONS
+cmake --build . --parallel $JOBS
 cmake --install .
 
 popd
