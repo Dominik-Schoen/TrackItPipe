@@ -7,6 +7,7 @@
 // Include dependencies
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 const char* openScadBase =
   "$fn = 100;\n"
