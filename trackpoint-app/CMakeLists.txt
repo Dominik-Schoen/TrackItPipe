@@ -6,7 +6,7 @@ INCLUDE(FetchContent)
 
 # Build TrackpointApp
 # Set C++ mode
-SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_STANDARD_REQUIRED True)
 
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wunreachable-code -Wno-register")

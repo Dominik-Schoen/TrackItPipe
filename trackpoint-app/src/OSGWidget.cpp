@@ -74,7 +74,7 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   auto pixelRatio = this->devicePixelRatio();
   osg::Camera* camera = new osg::Camera;
   camera->setViewport(0, 0, this->width() * pixelRatio, this->height() * pixelRatio);
-  camera->setClearColor(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
+  camera->setClearColor(osg::Vec4(0.2f, 0.1875f, 0.375f, 1.0f));
   camera->setProjectionMatrixAsPerspective(30.0f, aspectRatio, 1.0f, 1000.0f);
   camera->setGraphicsContext(graphicsWindow_);
 
