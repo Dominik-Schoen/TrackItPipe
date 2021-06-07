@@ -4,6 +4,7 @@
 set -e
 
 OPTIONS=""
+WINCROSS="false"
 
 for var in "$@"
 do
@@ -11,6 +12,7 @@ do
     OPTIONS+="-DBUILD_SHARED_LIBS=OFF "
   fi
   if [ $var == "win-cross" ]; then
+    WINCROSS="true"
     OPTIONS+="-DCMAKE_TOOLCHAIN_FILE=../../../toolchain-mingw-w64.cmake -DBUILD_qtwayland=OFF "
   fi
 done
@@ -34,7 +36,7 @@ case "${UNAME_OUT}" in
     *)          MACHINE="UNKNOWN:${UNAME_OUT}"
 esac
 
-if [ $MACHINE == "Linux" ]; then
+if [[ ($MACHINE == "Linux") && ($WINCROSS == "false") ]]; then
   OPTIONS+="-DINPUT_xcb=yes "
 fi
 
