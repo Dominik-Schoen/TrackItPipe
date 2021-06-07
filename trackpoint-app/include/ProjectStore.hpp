@@ -42,7 +42,7 @@ public:
   // Add an OptiTrack point
   void addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal);
   // Remove an OptiTrack point
-  void removeOptiTrackPoint();
+  void removeOptiTrackPoint(int id);
   // Update actual OptiTrack settings
   void updateOptiTrackSettings(OptiTrackSettings optiTrackSettings);
   // Return OptiTrack settings

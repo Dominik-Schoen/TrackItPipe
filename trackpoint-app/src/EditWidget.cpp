@@ -26,6 +26,8 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetOptiTrackSettings);
+  // Delete button
+  QObject::connect(ui->deleteTrackPoint, &QPushButton::clicked, this, &EditWidget::deleteCurrentTrackPoint);
   // Export button
   QObject::connect(ui->exportButton, &QPushButton::clicked, this, &EditWidget::exportProject);
 }
@@ -47,6 +49,7 @@ void EditWidget::updateNormals(osg::Vec3 normal) {
 }
 
 void EditWidget::invalidatePositions() {
+  ui->deleteTrackPoint->setEnabled(false);
   ui->anchorX->setText("-");
   ui->anchorY->setText("-");
   ui->anchorZ->setText("-");
@@ -74,6 +77,7 @@ ActiveTrackingSystem EditWidget::getSelectedTrackingSystem() {
 
 void EditWidget::setSelection(int id) {
   selectedPoint = id;
+  ui->deleteTrackPoint->setEnabled(true);
   switch(ui->tabWidget->currentIndex()) {
     case 0: {
       OptiTrackPoint* point = MainWindow::getInstance()->getStore()->getOptiTrackPoints()[id];
@@ -103,6 +107,8 @@ void EditWidget::showEvent(QShowEvent* event) {
   QWidget::showEvent(event);
   resetOptiTrackSettings();
 }
+
+//void EditWidget::
 
 void EditWidget::selectTool(Tool tool) {
   switch(tool) {
@@ -185,6 +191,30 @@ void EditWidget::resetOptiTrackSettings() {
 void EditWidget::setOptiTrackSettings(double length, double radius) {
   ui->optiTrackLength->setValue(length);
   ui->optiTrackRadius->setValue(radius);
+}
+
+void EditWidget::deleteCurrentTrackPoint() {
+  ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+  switch(activeTrackingSystem) {
+    case OptiTrack: {
+      MainWindow::getInstance()->getStore()->removeOptiTrackPoint(selectedPoint);
+      resetOptiTrackSettings();
+      break;
+    }
+    case EMFTrack: {
+      break;
+    }
+    case SteamVRTrack: {
+      break;
+    }
+    case ActionPoints: {
+      break;
+    }
+  }
+  resetNormalModifier();
+  selectedPoint = -1;
+  invalidatePositions();
+  MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
 }
 
 void EditWidget::exportProject() {

@@ -149,8 +149,8 @@ void ProjectStore::addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal) {
   _optiTrackPoints.push_back(optiTrackPoint);
 }
 
-void ProjectStore::removeOptiTrackPoint() {
-  // TODO
+void ProjectStore::removeOptiTrackPoint(int id) {
+  _optiTrackPoints.erase(_optiTrackPoints.begin() + id);
 }
 
 void ProjectStore::updateOptiTrackSettings(OptiTrackSettings optiTrackSettings) {

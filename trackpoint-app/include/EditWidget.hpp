@@ -35,6 +35,7 @@ private slots:
   void updateOptiTrackSettings();
   void resetOptiTrackSettings();
   void setOptiTrackSettings(double length, double radius);
+  void deleteCurrentTrackPoint();
   void exportProject();
 
 private:
