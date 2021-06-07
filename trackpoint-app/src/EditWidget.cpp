@@ -6,6 +6,7 @@
 #include "OSGWidget.hpp"
 #include "PickHandler.hpp"
 #include "TrackPointRenderer.hpp"
+#include "OpenScadRenderer.hpp"
 
 // Include dependencies
 #include <QFileDialog>
@@ -30,6 +31,9 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->deleteTrackPoint, &QPushButton::clicked, this, &EditWidget::deleteCurrentTrackPoint);
   // Export button
   QObject::connect(ui->exportButton, &QPushButton::clicked, this, &EditWidget::exportProject);
+  if (!OpenScadRenderer::openScadAvailable()) {
+    ui->exportGroup->setEnabled(false);
+  }
 }
 
 EditWidget::~EditWidget() {

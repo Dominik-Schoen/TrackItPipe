@@ -8,5 +8,6 @@
 
 class OpenScadRenderer {
 public:
+  static bool openScadAvailable();
   void renderOptiTrack(std::vector<OptiTrackPoint*> points);
 };

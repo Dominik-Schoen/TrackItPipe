@@ -8,12 +8,23 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
 
 const char* openScadBase =
   "$fn = 100;\n"
   "module optiTrackPointBase(translation, rotation, length, radius) {\n"
   "translate(translation) rotate(rotation) cylinder(length, radius, radius, false);\n"
   "}\n";
+
+bool OpenScadRenderer::openScadAvailable() {
+  std::string path = openScadPath + " -v";
+  int result = system(path.c_str());
+  return result == 0;
+}
 
 void OpenScadRenderer::renderOptiTrack(std::vector<OptiTrackPoint*> points) {
   std::ofstream scadFile;
