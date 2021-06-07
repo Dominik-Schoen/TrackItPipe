@@ -29,8 +29,13 @@ public:
   bool saveProject(std::string projectFile);
   // Export the project
   bool exportProject(std::string path, ExportSettings settings);
-  // UNIVERSAL TRACKPOINT GETTER
+  // UNIVERSAL
+  // Get trackpoint
   TrackPoint* getTrackPointById(int id, ActiveTrackingSystem activeTrackingSystem);
+  // Count trackpoints
+  int getCount(ActiveTrackingSystem activeTrackingSystem);
+  // Remove trackpoint
+  void removeTrackPoint(int id, ActiveTrackingSystem activeTrackingSystem);
   // NORMAL MODIFIER
   // Update normal modifier
   void updateNormalModifier(osg::Vec3 modifier);
@@ -41,8 +46,6 @@ public:
   std::vector<OptiTrackPoint*> getOptiTrackPoints();
   // Add an OptiTrack point
   void addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal);
-  // Remove an OptiTrack point
-  void removeOptiTrackPoint(int id);
   // Update actual OptiTrack settings
   void updateOptiTrackSettings(OptiTrackSettings optiTrackSettings);
   // Return OptiTrack settings

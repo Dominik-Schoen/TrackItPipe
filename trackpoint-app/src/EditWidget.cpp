@@ -103,12 +103,32 @@ int EditWidget::getSelectedPoint() {
   return selectedPoint;
 }
 
+void EditWidget::updateTrackpointCount() {
+  ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+  int count = MainWindow::getInstance()->getStore()->getCount(activeTrackingSystem);
+  switch(activeTrackingSystem) {
+    case OptiTrack: {
+      QString countString("TRACKPOINTS SET: ");
+      countString.append(QString::number(count));
+      ui->optiTrackCount->setText(countString);
+      break;
+    }
+    case EMFTrack: {
+      break;
+    }
+    case SteamVRTrack: {
+      break;
+    }
+    case ActionPoints: {
+      break;
+    }
+  }
+}
+
 void EditWidget::showEvent(QShowEvent* event) {
   QWidget::showEvent(event);
   resetOptiTrackSettings();
 }
-
-//void EditWidget::
 
 void EditWidget::selectTool(Tool tool) {
   switch(tool) {
@@ -195,9 +215,10 @@ void EditWidget::setOptiTrackSettings(double length, double radius) {
 
 void EditWidget::deleteCurrentTrackPoint() {
   ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+  MainWindow::getInstance()->getStore()->removeTrackPoint(selectedPoint, activeTrackingSystem);
+  selectedPoint = -1;
   switch(activeTrackingSystem) {
     case OptiTrack: {
-      MainWindow::getInstance()->getStore()->removeOptiTrackPoint(selectedPoint);
       resetOptiTrackSettings();
       break;
     }
@@ -212,7 +233,6 @@ void EditWidget::deleteCurrentTrackPoint() {
     }
   }
   resetNormalModifier();
-  selectedPoint = -1;
   invalidatePositions();
   MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
 }

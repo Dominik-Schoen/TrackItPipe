@@ -150,11 +150,6 @@ bool PickHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapt
   return false;
 }
 
-void PickHandler::setTrackingSystem(ActiveTrackingSystem activeTrackingSystem) {
-  _activeTrackingSystem = activeTrackingSystem;
-  updateRenderer();
-}
-
 void PickHandler::setSelection(bool addNewPoints) {
   _addNewPoints = addNewPoints;
   if (addNewPoints) {
@@ -181,7 +176,7 @@ void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
 
 void PickHandler::updateRenderer() {
   removeAllShapes();
-  switch(_activeTrackingSystem) {
+  switch(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem()) {
     case OptiTrack: {
       OptiTrackSettings settings = MainWindow::getInstance()->getStore()->getOptiTrackSettings();
       _optiTrackSteamVRLength = settings.length;
@@ -200,6 +195,9 @@ void PickHandler::updateRenderer() {
     case SteamVRTrack: {
       break;
     }
+    case ActionPoints: {
+      break;
+    }
   }
   setVisibility(_addNewPoints);
 }
@@ -213,10 +211,9 @@ void PickHandler::setVisibility(bool mode) {
 }
 
 void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
-  switch(_activeTrackingSystem) {
+  switch(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem()) {
     case OptiTrack: {
       MainWindow::getInstance()->getStore()->addOptiTrackPoint(point, normal);
-      _osgWidget->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
       break;
     }
     case EMFTrack: {
@@ -225,7 +222,11 @@ void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
     case SteamVRTrack: {
       break;
     }
+    case ActionPoints: {
+      break;
+    }
   }
+  _osgWidget->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
 }
 
 void PickHandler::invalidateTrackPointColors() {

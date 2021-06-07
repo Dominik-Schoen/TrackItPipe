@@ -13,7 +13,6 @@ public:
   PickHandler(OSGWidget* osgWidget, osg::ref_ptr<osg::Group> root);
   osg::Node* getPickerRoot();
   virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
-  void setTrackingSystem(ActiveTrackingSystem activeTrackingSystem);
   void setSelection(bool addNewPoints);
   void updateRenderer();
 
@@ -24,7 +23,6 @@ private:
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionMoveToEndGroup;
-  ActiveTrackingSystem _activeTrackingSystem = OptiTrack;
   bool _addNewPoints = true;
   bool _clickStartedOnElement = false;
   OSGWidget* _osgWidget;

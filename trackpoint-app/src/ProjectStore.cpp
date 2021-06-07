@@ -132,6 +132,42 @@ TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeT
   }
 }
 
+int ProjectStore::getCount(ActiveTrackingSystem activeTrackingSystem) {
+  switch(activeTrackingSystem) {
+    case OptiTrack: {
+      return _optiTrackPoints.size();
+    };
+    case EMFTrack: {
+      break;
+    };
+    case SteamVRTrack: {
+      break;
+    };
+    case ActionPoints: {
+      break;
+    };
+  }
+}
+
+void ProjectStore::removeTrackPoint(int id, ActiveTrackingSystem activeTrackingSystem) {
+  switch(activeTrackingSystem) {
+    case OptiTrack: {
+      _optiTrackPoints.erase(_optiTrackPoints.begin() + id);
+      break;
+    }
+    case EMFTrack: {
+      break;
+    }
+    case SteamVRTrack: {
+      break;
+    }
+    case ActionPoints: {
+      break;
+    }
+  }
+  MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
+}
+
 void ProjectStore::updateNormalModifier(osg::Vec3 modifier) {
   _normalModifier = modifier;
 }
@@ -147,10 +183,7 @@ std::vector<OptiTrackPoint*> ProjectStore::getOptiTrackPoints() {
 void ProjectStore::addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal) {
   OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _optiTrackSettings.length, _optiTrackSettings.radius);
   _optiTrackPoints.push_back(optiTrackPoint);
-}
-
-void ProjectStore::removeOptiTrackPoint(int id) {
-  _optiTrackPoints.erase(_optiTrackPoints.begin() + id);
+  MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
 }
 
 void ProjectStore::updateOptiTrackSettings(OptiTrackSettings optiTrackSettings) {
@@ -261,6 +294,7 @@ void ProjectStore::loadMetaData() {
   render3MFMesh();
   MainWindow::getInstance()->renderView(Edit);
   MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
+  MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
 }
 
 std::vector<float> ProjectStore::osgVecToStdVec(osg::Vec3f input) {

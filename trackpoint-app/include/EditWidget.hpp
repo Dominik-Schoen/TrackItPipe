@@ -23,6 +23,7 @@ public:
   ActiveTrackingSystem getSelectedTrackingSystem();
   void setSelection(int id);
   int getSelectedPoint();
+  void updateTrackpointCount();
 
 protected:
   virtual void showEvent(QShowEvent* event);
