@@ -2,7 +2,7 @@ stages:
   - release
 
 build_release_linux:
-  image: ubuntu:hirsute
+  image: ubuntu:rolling
   stage: release
   when: manual
   before_script:
@@ -20,7 +20,7 @@ build_release_linux:
       - trackpoint-app/build/TrackpointApp
 
 build_release_windows:
-  image: ubuntu:hirsute
+  image: ubuntu:rolling
   stage: release
   when: manual
   before_script:
