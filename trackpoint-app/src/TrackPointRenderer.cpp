@@ -45,6 +45,9 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
     case SteamVRTrack: {
       break;
     }
+    case ActionPoints: {
+      break;
+    }
   }
   _osgWidget->update();
 }

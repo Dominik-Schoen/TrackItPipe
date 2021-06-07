@@ -176,8 +176,9 @@ void OSGWidget::paintGL() {
 }
 
 void OSGWidget::resizeGL(int width, int height) {
-  this->getEventQueue()->windowResize(this->x(), this->y(), width, height);
-  graphicsWindow_->resized(this->x(), this->y(), width, height);
+  auto pixelRatio = this->devicePixelRatio();
+  this->getEventQueue()->windowResize(this->x(), this->y(), width * pixelRatio, height * pixelRatio);
+  graphicsWindow_->resized(this->x(), this->y(), width * pixelRatio, height * pixelRatio);
 
   this->onResize(width, height);
 }
@@ -253,7 +254,7 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event) {
 
   auto pixelRatio = this->devicePixelRatio();
 
-  this->getEventQueue()->mouseButtonRelease(static_cast<float>(pixelRatio * event->position().x()), static_cast<float>(pixelRatio * event->position().y()), button);
+  this->getEventQueue()->mouseButtonRelease(static_cast<float>(event->position().x() * pixelRatio), static_cast<float>(event->position().y() * pixelRatio), button);
 }
 
 void OSGWidget::wheelEvent(QWheelEvent* event) {

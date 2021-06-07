@@ -16,8 +16,6 @@ public:
   void setSelection(bool addNewPoints);
   void updateRenderer();
 
-//protected:
-
 private:
   osg::ref_ptr<osg::Switch> _selectionSwitch;
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
