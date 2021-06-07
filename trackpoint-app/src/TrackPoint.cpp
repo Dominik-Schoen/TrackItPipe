@@ -16,10 +16,11 @@ osg::Vec3 TrackPoint::getTranslation() {
 
 osg::Vec3 TrackPoint::getRotation() {
   osg::Vec3 start = osg::Vec3(0.0f, 0.0f, 1.0f);
+  osg::Vec3 finalNormal = _normal.operator+(_normalModifier);
 
   // From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   osg::Quat quat = osg::Quat(0.0f, 0.0f, 0.0f, 0.0f);
-  quat.makeRotate(start, _normal);
+  quat.makeRotate(start, finalNormal);
 
   float sinr_cosp = 2 * (quat.w() * quat.x() + quat.y() * quat.z());
   float cosr_cosp = 1 - 2 * (quat.x() * quat.x() + quat.y() * quat.y());
