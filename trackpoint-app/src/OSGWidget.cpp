@@ -85,26 +85,42 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
 
   // Create coordinate axes
   _coordinateAxes = new osg::Group;
+  osg::Vec4 axesColor = osg::Vec4(0.7f, 0.7f, 0.7f, 1.0f);
+
   osg::ref_ptr<osg::MatrixTransform> xRotation = new osg::MatrixTransform;
   xRotation->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), osg::Vec3f(1.0f, 0.0f, 0.0f)));
   osg::ref_ptr<osg::Geode> xAxis = new osg::Geode;
   osg::ref_ptr<osg::ShapeDrawable> xAxisShape = new osg::ShapeDrawable();
   xAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.05f, 100.0f));
-  xAxisShape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  xAxisShape->setColor(axesColor);
   xAxis->addDrawable(xAxisShape.get());
+  osg::ref_ptr<osg::ShapeDrawable> xConeShape = new osg::ShapeDrawable();
+  xConeShape->setShape(new osg::Cone(osg::Vec3(0.0f, 0.0f, 50.0f), 0.2f, 1.0f));
+  xConeShape->setColor(axesColor);
+  xAxis->addDrawable(xConeShape.get());
   xRotation->addChild(xAxis.get());
+
   osg::ref_ptr<osg::MatrixTransform> yRotation = new osg::MatrixTransform;
   yRotation->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), osg::Vec3f(0.0f, 1.0f, 0.0f)));
   osg::ref_ptr<osg::Geode> yAxis = new osg::Geode;
   osg::ref_ptr<osg::ShapeDrawable> yAxisShape = new osg::ShapeDrawable();
   yAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.05f, 100.0f));
-  yAxisShape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  yAxisShape->setColor(axesColor);
   yAxis->addDrawable(yAxisShape.get());
+  osg::ref_ptr<osg::ShapeDrawable> yConeShape = new osg::ShapeDrawable();
+  yConeShape->setShape(new osg::Cone(osg::Vec3(0.0f, 0.0f, 50.0f), 0.2f, 1.0f));
+  yConeShape->setColor(axesColor);
+  yAxis->addDrawable(yConeShape.get());
   yRotation->addChild(yAxis.get());
+
   osg::ref_ptr<osg::Geode> zAxis = new osg::Geode;
   osg::ref_ptr<osg::ShapeDrawable> zAxisShape = new osg::ShapeDrawable();
   zAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.05f, 100.0f));
-  zAxisShape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  zAxisShape->setColor(axesColor);
+  osg::ref_ptr<osg::ShapeDrawable> zConeShape = new osg::ShapeDrawable();
+  zConeShape->setShape(new osg::Cone(osg::Vec3(0.0f, 0.0f, 50.0f), 0.2f, 1.0f));
+  zConeShape->setColor(axesColor);
+  zAxis->addDrawable(zConeShape.get());
   zAxis->addDrawable(zAxisShape.get());
 
   _coordinateAxes->addChild(xRotation.get());
