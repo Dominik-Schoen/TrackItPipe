@@ -84,11 +84,32 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   _view->setSceneData(_root);
 
   // Create coordinate axes
-  _coordinateAxes = new osg::Geode;
-  osg::ref_ptr<osg::ShapeDrawable> zAxis = new osg::ShapeDrawable();
-  zAxis->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.1f, 100.0f));
-  zAxis->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-  _coordinateAxes->addDrawable(zAxis.get());
+  _coordinateAxes = new osg::Group;
+  osg::ref_ptr<osg::MatrixTransform> xRotation = new osg::MatrixTransform;
+  xRotation->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), osg::Vec3f(1.0f, 0.0f, 0.0f)));
+  osg::ref_ptr<osg::Geode> xAxis = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> xAxisShape = new osg::ShapeDrawable();
+  xAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.05f, 100.0f));
+  xAxisShape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  xAxis->addDrawable(xAxisShape.get());
+  xRotation->addChild(xAxis.get());
+  osg::ref_ptr<osg::MatrixTransform> yRotation = new osg::MatrixTransform;
+  yRotation->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), osg::Vec3f(0.0f, 1.0f, 0.0f)));
+  osg::ref_ptr<osg::Geode> yAxis = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> yAxisShape = new osg::ShapeDrawable();
+  yAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.05f, 100.0f));
+  yAxisShape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  yAxis->addDrawable(yAxisShape.get());
+  yRotation->addChild(yAxis.get());
+  osg::ref_ptr<osg::Geode> zAxis = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> zAxisShape = new osg::ShapeDrawable();
+  zAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 0.05f, 100.0f));
+  zAxisShape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+  zAxis->addDrawable(zAxisShape.get());
+
+  _coordinateAxes->addChild(xRotation.get());
+  _coordinateAxes->addChild(yRotation.get());
+  _coordinateAxes->addChild(zAxis.get());
 
   OSGWidget::fixMaterialState(_coordinateAxes);
 

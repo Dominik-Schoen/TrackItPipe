@@ -65,7 +65,7 @@ private:
   osgViewer::View* _view;
   osg::ref_ptr<osg::Group> _root;
   osg::ref_ptr<osg::Group> _pointRoot;
-  osg::ref_ptr<osg::Geode> _coordinateAxes;
+  osg::ref_ptr<osg::Group> _coordinateAxes;
   osg::ref_ptr<osg::Geode> _mesh;
 
   QPoint selectionStart_;
