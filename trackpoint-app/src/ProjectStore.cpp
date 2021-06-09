@@ -133,6 +133,29 @@ TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeT
   }
 }
 
+void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTrackingSystem activeTrackingSystem) {
+  switch(activeTrackingSystem) {
+    case OptiTrack: {
+      OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _optiTrackSettings.length, _optiTrackSettings.radius);
+      _optiTrackPoints.push_back(optiTrackPoint);
+      MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
+      break;
+    }
+    case EMFTrack: {
+      break;
+    }
+    case SteamVRTrack: {
+      SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, _normalModifier, _steamVrTrackSettings.length);
+      _steamVrTrackPoints.push_back(steamVrTrackPoint);
+      MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
+      break;
+    }
+    case ActionPoints: {
+      break;
+    }
+  }
+}
+
 int ProjectStore::getCount(ActiveTrackingSystem activeTrackingSystem) {
   switch(activeTrackingSystem) {
     case OptiTrack: {
@@ -181,18 +204,28 @@ std::vector<OptiTrackPoint*> ProjectStore::getOptiTrackPoints() {
   return _optiTrackPoints;
 }
 
-void ProjectStore::addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal) {
-  OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _optiTrackSettings.length, _optiTrackSettings.radius);
-  _optiTrackPoints.push_back(optiTrackPoint);
-  MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
-}
-
 void ProjectStore::updateOptiTrackSettings(OptiTrackSettings optiTrackSettings) {
   _optiTrackSettings = optiTrackSettings;
 }
 
 OptiTrackSettings ProjectStore::getOptiTrackSettings() {
   return _optiTrackSettings;
+}
+
+std::vector<SteamVRTrackPoint*> ProjectStore::getSteamVRTrackPoints() {
+  return _steamVrTrackPoints;
+}
+
+void ProjectStore::updateSteamVRTrackSettings(SteamVRTrackSettings steamVrTrackSettings) {
+  _steamVrTrackSettings = steamVrTrackSettings;
+}
+
+SteamVRTrackSettings ProjectStore::getSteamVRTrackSettings() {
+  return _steamVrTrackSettings;
+}
+
+std::vector<TrackPoint*> ProjectStore::getActionPoints() {
+  return _actionPoints;
 }
 
 void ProjectStore::load3mfLib() {

@@ -211,21 +211,8 @@ void PickHandler::setVisibility(bool mode) {
 }
 
 void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
-  switch(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem()) {
-    case OptiTrack: {
-      MainWindow::getInstance()->getStore()->addOptiTrackPoint(point, normal);
-      break;
-    }
-    case EMFTrack: {
-      break;
-    }
-    case SteamVRTrack: {
-      break;
-    }
-    case ActionPoints: {
-      break;
-    }
-  }
+  ActiveTrackingSystem activeTrackingSystem = MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem();
+  MainWindow::getInstance()->getStore()->addTrackPoint(point, normal, activeTrackingSystem);
   _osgWidget->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
 }
 

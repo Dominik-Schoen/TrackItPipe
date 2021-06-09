@@ -3,6 +3,7 @@
 // Include modules
 #include "lib3mf_implicit.hpp"
 #include "OptiTrackPoint.hpp"
+#include "SteamVRTrackPoint.hpp"
 #include "TrackSystemSettingsStructs.hpp"
 #include "OpenScadRenderer.hpp"
 #include "enums.hpp"
@@ -32,6 +33,8 @@ public:
   // UNIVERSAL
   // Get trackpoint
   TrackPoint* getTrackPointById(int id, ActiveTrackingSystem activeTrackingSystem);
+  // Add trackpoint
+  void addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTrackingSystem activeTrackingSystem);
   // Count trackpoints
   int getCount(ActiveTrackingSystem activeTrackingSystem);
   // Remove trackpoint
@@ -44,12 +47,20 @@ public:
   // OPTITRACK
   // Get all OptiTrack points
   std::vector<OptiTrackPoint*> getOptiTrackPoints();
-  // Add an OptiTrack point
-  void addOptiTrackPoint(osg::Vec3 point, osg::Vec3 normal);
   // Update actual OptiTrack settings
   void updateOptiTrackSettings(OptiTrackSettings optiTrackSettings);
   // Return OptiTrack settings
   OptiTrackSettings getOptiTrackSettings();
+  // STEAM VR TRACK
+  // Get all SteamVRTrack points
+  std::vector<SteamVRTrackPoint*> getSteamVRTrackPoints();
+  // Update actual SteamVRTrack settings
+  void updateSteamVRTrackSettings(SteamVRTrackSettings steamVrTrackSettings);
+  // Return SteamVRTrack settings
+  SteamVRTrackSettings getSteamVRTrackSettings();
+  // ACTION POINTS
+  // Get all Action points
+  std::vector<TrackPoint*> getActionPoints();
 
 private:
   bool _projectLoaded;
@@ -58,9 +69,11 @@ private:
   Lib3MF::PModel _project;
   std::string _projectFile;
   std::vector<OptiTrackPoint*> _optiTrackPoints;
+  std::vector<SteamVRTrackPoint*> _steamVrTrackPoints;
+  std::vector<TrackPoint*> _actionPoints;
   OptiTrackSettings _optiTrackSettings = OptiTrackSettings {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
   EMFTrackSettings _emfTrackSettings;
-  SteamVRTrackSettings _steamVrTrackSettings;
+  SteamVRTrackSettings _steamVrTrackSettings = SteamVRTrackSettings {STEAMVR_DEFAULT_LENGTH};
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
   void load3mfLib();
   void render3MFMesh();
