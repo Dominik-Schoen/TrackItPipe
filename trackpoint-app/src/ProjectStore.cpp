@@ -102,6 +102,7 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     }
     json trackpointData = pointsList;
     metaData->AddMetaData("tk-ar-tracking", "trackpoints-optitrack", trackpointData.dump(), "string", true);
+    exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   if (settings.EMFTrack) {
 
