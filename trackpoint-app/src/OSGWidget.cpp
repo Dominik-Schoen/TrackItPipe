@@ -4,6 +4,7 @@
 // Include modules
 #include "PickHandler.hpp"
 #include "TrackPointRenderer.hpp"
+#include "HudCallback.hpp"
 
 // Include dependencies
 #include <osgViewer/Viewer>
@@ -132,6 +133,25 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   _root->addChild(_coordinateAxes);
 
   _mesh = new osg::Geode;
+
+  // Add axes preview
+  osg::ref_ptr<osg::Camera> hudCamera = new osg::Camera;
+  int width = 1024;
+  int height = 1024;
+	hudCamera->setProjectionMatrixAsOrtho(0, width, 0, height, 1, 100);
+	hudCamera->setRenderOrder(osg::Camera::POST_RENDER);
+	hudCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+	hudCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
+
+  osg::ref_ptr<osg::Group> axesPreview = createAxesPreview();
+	osg::MatrixTransform* pTM = new osg::MatrixTransform;
+	pTM->addChild(axesPreview.get());
+	axesPreview->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	pTM->setMatrix(osg::Matrix::scale(osg::Vec3(width/12, width/12, width/12)) * osg::Matrix::translate(osg::Vec3(width/20, width/20, 1)));
+	pTM->setUpdateCallback(new HudCallback(camera));
+	hudCamera->addChild(pTM);
+	hudCamera->setViewMatrixAsLookAt(osg::Vec3(0, 0, 1), osg::Vec3(0, 0, 0), osg::Vec3(0, 1, 0)); // opengl default camera position
+  _root->addChild(hudCamera.release());
 
   // Attach a manipulator (it's usually done for us when we use viewer.run())
   osg::ref_ptr<osgGA::TrackballManipulator> tm = new osgGA::TrackballManipulator;
@@ -359,4 +379,56 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const {
   } else {
     throw std::runtime_error("Unable to obtain valid event queue");
   }
+}
+
+osg::ref_ptr<osg::Group> OSGWidget::createAxesPreview() {
+  osg::ref_ptr<osg::Group> axesPreview = new osg::Group;
+
+  osg::Vec4 red = osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f);
+  osg::Vec4 green = osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+  osg::Vec4 blue = osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+  osg::ref_ptr<osg::MatrixTransform> xRotation = new osg::MatrixTransform;
+  xRotation->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), osg::Vec3f(1.0f, 0.0f, 0.0f)));
+  osg::ref_ptr<osg::Geode> xAxis = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> xAxisShape = new osg::ShapeDrawable();
+  xAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.5f), 0.01f, 1.0f));
+  xAxisShape->setColor(red);
+  xAxis->addDrawable(xAxisShape.get());
+  osg::ref_ptr<osg::ShapeDrawable> xConeShape = new osg::ShapeDrawable();
+  xConeShape->setShape(new osg::Cone(osg::Vec3(0.0f, 0.0f, 1.0f), 0.05f, 0.2f));
+  xConeShape->setColor(red);
+  xAxis->addDrawable(xConeShape.get());
+  xRotation->addChild(xAxis.get());
+
+  osg::ref_ptr<osg::MatrixTransform> yRotation = new osg::MatrixTransform;
+  yRotation->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), osg::Vec3f(0.0f, 1.0f, 0.0f)));
+  osg::ref_ptr<osg::Geode> yAxis = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> yAxisShape = new osg::ShapeDrawable();
+  yAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.5f), 0.01f, 1.0f));
+  yAxisShape->setColor(green);
+  yAxis->addDrawable(yAxisShape.get());
+  osg::ref_ptr<osg::ShapeDrawable> yConeShape = new osg::ShapeDrawable();
+  yConeShape->setShape(new osg::Cone(osg::Vec3(0.0f, 0.0f, 1.0f), 0.05f, 0.2f));
+  yConeShape->setColor(green);
+  yAxis->addDrawable(yConeShape.get());
+  yRotation->addChild(yAxis.get());
+
+  osg::ref_ptr<osg::Geode> zAxis = new osg::Geode;
+  osg::ref_ptr<osg::ShapeDrawable> zAxisShape = new osg::ShapeDrawable();
+  zAxisShape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.5f), 0.01f, 1.0f));
+  zAxisShape->setColor(blue);
+  osg::ref_ptr<osg::ShapeDrawable> zConeShape = new osg::ShapeDrawable();
+  zConeShape->setShape(new osg::Cone(osg::Vec3(0.0f, 0.0f, 1.0f), 0.05f, 0.2f));
+  zConeShape->setColor(blue);
+  zAxis->addDrawable(zConeShape.get());
+  zAxis->addDrawable(zAxisShape.get());
+
+  axesPreview->addChild(xRotation.get());
+  axesPreview->addChild(yRotation.get());
+  axesPreview->addChild(zAxis.get());
+
+  OSGWidget::fixMaterialState(axesPreview);
+
+  return axesPreview;
 }

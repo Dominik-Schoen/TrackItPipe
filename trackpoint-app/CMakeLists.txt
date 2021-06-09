@@ -71,6 +71,7 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/StringBasics.cpp
   src/TrackPointRenderer.cpp
   src/PointShape.cpp
+  src/HudCallback.cpp
 )
 
 if(NOT BUILD_STATIC_RELEASE)

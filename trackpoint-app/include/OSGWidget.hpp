@@ -56,6 +56,8 @@ private:
   virtual void onHome();
   virtual void onResize(int width, int height);
 
+  osg::ref_ptr<osg::Group> createAxesPreview();
+
   osgGA::EventQueue* getEventQueue() const;
   PickHandler* _picker;
   TrackPointRenderer* _pointRenderer;
