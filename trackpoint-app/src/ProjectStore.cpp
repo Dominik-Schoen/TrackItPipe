@@ -108,7 +108,34 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
 
   }
   if (settings.SteamVRTrack) {
-
+    renderer->renderSteamVRTrack(_steamVrTrackPoints);
+    Lib3MF::PModel steamVrTrackModel = _wrapper->CreateModel();
+    Lib3MF::PReader reader = steamVrTrackModel->QueryReader("3mf");
+    reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_steamvrtrack.3mf");
+    Lib3MF::PMeshObjectIterator meshIterator = steamVrTrackModel->GetMeshObjects();
+    if (meshIterator->Count() != 1) {
+      return false;
+    }
+    meshIterator->MoveNext();
+    Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
+    Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+    std::vector<Lib3MF::sPosition> verticesBuffer;
+    std::vector<Lib3MF::sTriangle> triangleBuffer;
+    renderedMesh->GetVertices(verticesBuffer);
+    renderedMesh->GetTriangleIndices(triangleBuffer);
+    exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
+    std::vector<std::vector<float>> pointsList;
+    for (SteamVRTrackPoint* point: _steamVrTrackPoints) {
+      std::vector<float> pointData;
+      osg::Vec3 trackPoint = point->getTrackPoint();
+      pointData.push_back(trackPoint.x());
+      pointData.push_back(trackPoint.y());
+      pointData.push_back(trackPoint.z());
+      pointsList.push_back(pointData);
+    }
+    json trackpointData = pointsList;
+    metaData->AddMetaData("tk-ar-tracking", "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
+    exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   delete renderer;
   Lib3MF::PWriter exportWriter = exportModel->QueryWriter("3mf");

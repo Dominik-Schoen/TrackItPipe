@@ -3,6 +3,7 @@
 
 // Include modules
 #include "OSGWidget.hpp"
+#include "defaults.hpp"
 
 // Include dependencies
 #include <osgDB/ReadFile>
@@ -84,7 +85,7 @@ void PointShape::setupSteamVRTrack(SteamVRTrackSettings steamVrTrackSettings) {
     _optiTrackSteamVRLength = steamVrTrackSettings.length;
     _geode = new osg::Geode;
     _shape = new osg::ShapeDrawable();
-    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), 1.0f, steamVrTrackSettings.length));
+    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), STEAMVR_CONSTANT_RADIUS, steamVrTrackSettings.length));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());
     osg::ref_ptr<osg::Node> screw = osgDB::readNodeFile("../resources/steamvrthread.stl");
