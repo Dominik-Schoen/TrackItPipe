@@ -17,10 +17,8 @@ public:
   void updateRenderer();
 
 private:
+  PointShape* _shape = nullptr;
   osg::ref_ptr<osg::Switch> _selectionSwitch;
-  osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
-  osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
-  osg::ref_ptr<osg::MatrixTransform> _selectionMoveToEndGroup;
   bool _addNewPoints = true;
   bool _clickStartedOnElement = false;
   OSGWidget* _osgWidget;
@@ -28,7 +26,6 @@ private:
   int _selectedPoint = -1;
   void moveTo(osg::Vec3f position);
   void rotateToNormalVector(osg::Vec3f normal);
-  void removeAllShapes();
   void setVisibility(bool mode);
   void addPoint(osg::Vec3 point, osg::Vec3 normal);
   void invalidateTrackPointColors();

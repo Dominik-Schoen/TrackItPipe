@@ -30,12 +30,20 @@ protected:
 
 private slots:
   void selectTool(Tool tool);
+  void resetAllSettings();
+  void tabChanged(int index);
   void updateNormalModifier();
   void resetNormalModifier();
   void setNormalModifier(osg::Vec3 normalModifier);
   void updateOptiTrackSettings();
   void resetOptiTrackSettings();
   void setOptiTrackSettings(double length, double radius);
+  void updateSteamVRTrackSettings();
+  void resetSteamVRTrackSettings();
+  void setSteamVRTrackSettings(double length);
+  void updateActionPointSettings(QString input);
+  void resetActionPointSettings();
+  void setActionPointSettings(std::string identifier);
   void deleteCurrentTrackPoint();
   void exportProject();
 

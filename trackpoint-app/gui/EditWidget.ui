@@ -402,7 +402,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -440,7 +440,7 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
-               <layout class="QGridLayout" name="gridLayout">
+               <layout class="QGridLayout" name="optiTrackGrid">
                 <item row="0" column="1">
                  <widget class="QDoubleSpinBox" name="optiTrackLength">
                   <property name="minimum">
@@ -487,6 +487,19 @@
              </layout>
             </widget>
            </item>
+           <item>
+            <spacer name="optiTrackSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="emfTrack">
@@ -501,9 +514,9 @@
             <number>3</number>
            </property>
            <item>
-            <widget class="QPushButton" name="emfTrackExport">
+            <widget class="QLabel" name="emfTrackCount">
              <property name="text">
-              <string>Export for use with EMF Tracking</string>
+              <string>TRACKPOINTS SET: 0</string>
              </property>
             </widget>
            </item>
@@ -521,11 +534,66 @@
             <number>3</number>
            </property>
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QLabel" name="steamVrTrackCount">
              <property name="text">
-              <string>Export for use with SteamVR Tracking</string>
+              <string>TRACKPOINTS SET: 0</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="steamVrProperties">
+             <property name="font">
+              <font>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
+             <property name="title">
+              <string>PROPERTIES</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <layout class="QGridLayout" name="steamVrTrackGrid">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="steamVrTrackLengthLabel">
+                  <property name="text">
+                   <string>Length</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="steamVrTrackLength">
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>5.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QPushButton" name="steamVrTrackLoadDefaults">
+                <property name="text">
+                 <string>Load defaults</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="steamVrSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -540,6 +608,50 @@
            <property name="bottomMargin">
             <number>3</number>
            </property>
+           <item>
+            <widget class="QLabel" name="actionPointCount">
+             <property name="text">
+              <string>ACTION POINTS SET: 0</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="actionPointIdentifier">
+             <property name="text">
+              <string>point0</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="actionPointDoubleIdentifier">
+             <property name="styleSheet">
+              <string notr="true">color: red;</string>
+             </property>
+             <property name="text">
+              <string>Identifier already in use! Not updated.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="actionPointLoadDefaults">
+             <property name="text">
+              <string>Reset identifier</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="actionPointSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </widget>
         </widget>

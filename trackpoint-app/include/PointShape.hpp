@@ -22,6 +22,8 @@ public:
   void setVisibility(bool mode);
   void setColor(osg::Vec4 color);
   void setupOptiTrack(OptiTrackSettings optiTrackSettings);
+  void setupSteamVRTrack(SteamVRTrackSettings steamVrTrackSettings);
+  void setupActionPoints();
   osg::ref_ptr<osg::Geode> getMesh();
 
 private:
@@ -29,6 +31,7 @@ private:
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionMoveToEndGroup;
+  osg::ref_ptr<osg::MatrixTransform> _screwMove;
   osg::ref_ptr<osg::Group> _renderRoot;
   osg::ref_ptr<osg::ShapeDrawable> _shape;
   osg::ref_ptr<osg::Geode> _geode;

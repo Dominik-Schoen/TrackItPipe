@@ -4,6 +4,7 @@
 #include "lib3mf_implicit.hpp"
 #include "OptiTrackPoint.hpp"
 #include "SteamVRTrackPoint.hpp"
+#include "ActionPoint.hpp"
 #include "TrackSystemSettingsStructs.hpp"
 #include "OpenScadRenderer.hpp"
 #include "enums.hpp"
@@ -60,7 +61,13 @@ public:
   SteamVRTrackSettings getSteamVRTrackSettings();
   // ACTION POINTS
   // Get all Action points
-  std::vector<TrackPoint*> getActionPoints();
+  std::vector<ActionPoint*> getActionPoints();
+  // Update actual Action point settings
+  void updateActionPointSettings(ActionPointSettings actionPointSettings);
+  // Return Action point settings
+  ActionPointSettings getActionPointSettings();
+  // Check if an identifier is already in use
+  bool actionPointIdentifierInUse(std::string candidate);
 
 private:
   bool _projectLoaded;
@@ -70,10 +77,11 @@ private:
   std::string _projectFile;
   std::vector<OptiTrackPoint*> _optiTrackPoints;
   std::vector<SteamVRTrackPoint*> _steamVrTrackPoints;
-  std::vector<TrackPoint*> _actionPoints;
+  std::vector<ActionPoint*> _actionPoints;
   OptiTrackSettings _optiTrackSettings = OptiTrackSettings {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
   EMFTrackSettings _emfTrackSettings;
   SteamVRTrackSettings _steamVrTrackSettings = SteamVRTrackSettings {STEAMVR_DEFAULT_LENGTH};
+  ActionPointSettings _actionPointSettings = ActionPointSettings {ACTIONPOINT_DEFAULT_IDENFIFIER};
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
   void load3mfLib();
   void render3MFMesh();

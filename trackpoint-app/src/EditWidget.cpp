@@ -13,11 +13,13 @@
 
 EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget) {
   ui->setupUi(this);
+  ui->actionPointDoubleIdentifier->setVisible(false);
   ui->insertionToolButton->setCheckable(true);
   ui->insertionToolButton->setChecked(true);
   QObject::connect(ui->insertionToolButton, &QToolButton::clicked, this, [=](){ this->selectTool(InsertionTool); });
   ui->selectionToolButton->setCheckable(true);
   QObject::connect(ui->selectionToolButton, &QToolButton::clicked, this, [=](){ this->selectTool(SelectionTool); });
+  QObject::connect(ui->tabWidget, &QTabWidget::currentChanged, this, &EditWidget::tabChanged);
   // Modifiers
   QObject::connect(ui->normalModX, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
   QObject::connect(ui->normalModY, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
@@ -27,6 +29,12 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetOptiTrackSettings);
+  // StramVRTrack settings
+  QObject::connect(ui->steamVrTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateSteamVRTrackSettings);
+  QObject::connect(ui->steamVrTrackLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetSteamVRTrackSettings);
+  // Action point settings
+  QObject::connect(ui->actionPointIdentifier, &QLineEdit::textChanged, this, &EditWidget::updateActionPointSettings);
+  QObject::connect(ui->actionPointLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetActionPointSettings);
   // Delete button
   QObject::connect(ui->deleteTrackPoint, &QPushButton::clicked, this, &EditWidget::deleteCurrentTrackPoint);
   // Export button
@@ -95,9 +103,19 @@ void EditWidget::setSelection(int id) {
       break;
     }
     case 2: {
+      SteamVRTrackPoint* point = MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[id];
+      updatePositions(point->getTranslation());
+      updateNormals(point->getNormal());
+      setNormalModifier(point->getNormalModifier());
+      setSteamVRTrackSettings(point->getLength());
       break;
     }
     default: {
+      ActionPoint* point = MainWindow::getInstance()->getStore()->getActionPoints()[id];
+      updatePositions(point->getTranslation());
+      updateNormals(point->getNormal());
+      setNormalModifier(point->getNormalModifier());
+      setActionPointSettings(point->getIdentifier());
       break;
     }
   }
@@ -108,30 +126,41 @@ int EditWidget::getSelectedPoint() {
 }
 
 void EditWidget::updateTrackpointCount() {
-  ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
-  int count = MainWindow::getInstance()->getStore()->getCount(activeTrackingSystem);
-  switch(activeTrackingSystem) {
-    case OptiTrack: {
-      QString countString("TRACKPOINTS SET: ");
-      countString.append(QString::number(count));
-      ui->optiTrackCount->setText(countString);
-      break;
-    }
-    case EMFTrack: {
-      break;
-    }
-    case SteamVRTrack: {
-      break;
-    }
-    case ActionPoints: {
-      break;
-    }
+  int count;
+  count = MainWindow::getInstance()->getStore()->getCount(OptiTrack);
+  {
+    QString countString("TRACKPOINTS SET: ");
+    countString.append(QString::number(count));
+    ui->optiTrackCount->setText(countString);
+  }
+
+  // TODO: EMF Track
+
+  count = MainWindow::getInstance()->getStore()->getCount(SteamVRTrack);
+  {
+    QString countString("TRACKPOINTS SET: ");
+    countString.append(QString::number(count));
+    ui->steamVrTrackCount->setText(countString);
+  }
+
+  count = MainWindow::getInstance()->getStore()->getCount(ActionPoints);
+  {
+    QString countString("ACTION POINTS SET: ");
+    countString.append(QString::number(count));
+    ui->actionPointCount->setText(countString);
   }
 }
 
 void EditWidget::showEvent(QShowEvent* event) {
   QWidget::showEvent(event);
+  resetAllSettings();
+}
+
+void EditWidget::resetAllSettings() {
+  resetNormalModifier();
   resetOptiTrackSettings();
+  resetSteamVRTrackSettings();
+  resetActionPointSettings();
 }
 
 void EditWidget::selectTool(Tool tool) {
@@ -141,8 +170,7 @@ void EditWidget::selectTool(Tool tool) {
       ui->selectionToolButton->setChecked(false);
       MainWindow::getInstance()->getOsgWidget()->getPicker()->setSelection(true);
       invalidatePositions();
-      resetNormalModifier();
-      resetOptiTrackSettings();
+      resetAllSettings();
       selectedPoint = -1;
       break;
     }
@@ -153,6 +181,15 @@ void EditWidget::selectTool(Tool tool) {
       break;
     }
   }
+}
+
+void EditWidget::tabChanged(int index) {
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  }
+  selectedPoint = -1;
+  ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+  MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
 }
 
 void EditWidget::updateNormalModifier() {
@@ -217,6 +254,79 @@ void EditWidget::setOptiTrackSettings(double length, double radius) {
   ui->optiTrackRadius->setValue(radius);
 }
 
+void EditWidget::updateSteamVRTrackSettings() {
+  SteamVRTrackSettings settings = {ui->steamVrTrackLength->value()};
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateSteamVRTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[selectedPoint]->updateSteamVRTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(SteamVRTrack);
+  }
+}
+
+void EditWidget::resetSteamVRTrackSettings() {
+  SteamVRTrackSettings settings = {STEAMVR_DEFAULT_LENGTH};
+  ui->steamVrTrackLength->setValue(STEAMVR_DEFAULT_LENGTH);
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateSteamVRTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[selectedPoint]->updateSteamVRTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(SteamVRTrack);
+  }
+}
+
+void EditWidget::setSteamVRTrackSettings(double length) {
+  ui->steamVrTrackLength->setValue(length);
+}
+
+void EditWidget::updateActionPointSettings(QString qinput) {
+  std::string input = qinput.toUtf8().constData();
+  if (MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(input)) {
+    ui->actionPointDoubleIdentifier->setVisible(true);
+  } else {
+    ui->actionPointDoubleIdentifier->setVisible(false);
+    QString qtext = ui->actionPointIdentifier->text();
+    ActionPointSettings settings = {qtext.toUtf8().constData()};
+    if (selectedPoint < 0) {
+      MainWindow::getInstance()->getStore()->updateActionPointSettings(settings);
+    } else {
+      MainWindow::getInstance()->getStore()->getActionPoints()[selectedPoint]->updateActionPointSettings(settings);
+    }
+  }
+}
+
+void EditWidget::resetActionPointSettings() {
+  int iterator = 0;
+  ActionPointSettings settings;
+  std::string candidate;
+  while (true) {
+    candidate = "point";
+    candidate += std::to_string(iterator);
+    bool result = MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(candidate);
+    if (!result) {
+      settings = {candidate};
+      break;
+    }
+  }
+  ui->actionPointIdentifier->setText(QString::fromStdString(candidate));
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateActionPointSettings(settings);
+  } else {
+    MainWindow::getInstance()->getStore()->getActionPoints()[selectedPoint]->updateActionPointSettings(settings);
+  }
+}
+
+void EditWidget::setActionPointSettings(std::string identifier) {
+  if (MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(identifier)) {
+    ui->actionPointDoubleIdentifier->setVisible(true);
+  } else {
+    ui->actionPointDoubleIdentifier->setVisible(false);
+    ui->actionPointIdentifier->setText(QString::fromStdString(identifier));
+  }
+}
+
 void EditWidget::deleteCurrentTrackPoint() {
   ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
   MainWindow::getInstance()->getStore()->removeTrackPoint(selectedPoint, activeTrackingSystem);
@@ -230,6 +340,7 @@ void EditWidget::deleteCurrentTrackPoint() {
       break;
     }
     case SteamVRTrack: {
+      resetSteamVRTrackSettings();
       break;
     }
     case ActionPoints: {

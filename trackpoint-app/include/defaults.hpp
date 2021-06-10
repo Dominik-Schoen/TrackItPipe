@@ -1,6 +1,10 @@
 #pragma once
 
+#include <string>
+
 #define OPTITRACK_DEFAULT_LENGTH 10.0
 #define OPTITRACK_DEFAULT_RADIUS 1.0
 
 #define STEAMVR_DEFAULT_LENGTH 10.0
+
+#define ACTIONPOINT_DEFAULT_IDENFIFIER "point0"

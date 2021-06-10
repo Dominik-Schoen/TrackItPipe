@@ -125,10 +125,10 @@ TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeT
       break;
     };
     case SteamVRTrack: {
-      break;
+      return _steamVrTrackPoints[id];
     };
     case ActionPoints: {
-      break;
+      return _actionPoints[id];
     };
   }
 }
@@ -138,7 +138,6 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
     case OptiTrack: {
       OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _optiTrackSettings.length, _optiTrackSettings.radius);
       _optiTrackPoints.push_back(optiTrackPoint);
-      MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
       break;
     }
     case EMFTrack: {
@@ -147,13 +146,15 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
     case SteamVRTrack: {
       SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, _normalModifier, _steamVrTrackSettings.length);
       _steamVrTrackPoints.push_back(steamVrTrackPoint);
-      MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
       break;
     }
     case ActionPoints: {
+      ActionPoint* actionPoint = new ActionPoint(point, normal, _normalModifier, _actionPointSettings.identifier);
+      _actionPoints.push_back(actionPoint);
       break;
     }
   }
+  MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
 }
 
 int ProjectStore::getCount(ActiveTrackingSystem activeTrackingSystem) {
@@ -165,10 +166,10 @@ int ProjectStore::getCount(ActiveTrackingSystem activeTrackingSystem) {
       break;
     };
     case SteamVRTrack: {
-      break;
+      return _steamVrTrackPoints.size();
     };
     case ActionPoints: {
-      break;
+      return _actionPoints.size();
     };
   }
 }
@@ -183,9 +184,11 @@ void ProjectStore::removeTrackPoint(int id, ActiveTrackingSystem activeTrackingS
       break;
     }
     case SteamVRTrack: {
+      _steamVrTrackPoints.erase(_steamVrTrackPoints.begin() + id);
       break;
     }
     case ActionPoints: {
+      _actionPoints.erase(_actionPoints.begin() + id);
       break;
     }
   }
@@ -224,8 +227,25 @@ SteamVRTrackSettings ProjectStore::getSteamVRTrackSettings() {
   return _steamVrTrackSettings;
 }
 
-std::vector<TrackPoint*> ProjectStore::getActionPoints() {
+std::vector<ActionPoint*> ProjectStore::getActionPoints() {
   return _actionPoints;
+}
+
+void ProjectStore::updateActionPointSettings(ActionPointSettings actionPointSettings) {
+  _actionPointSettings = actionPointSettings;
+}
+
+ActionPointSettings ProjectStore::getActionPointSettings() {
+  return _actionPointSettings;
+}
+
+bool ProjectStore::actionPointIdentifierInUse(std::string candidate) {
+  for (ActionPoint* actionPoint: _actionPoints) {
+    if (candidate.compare(actionPoint->getIdentifier()) != 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void ProjectStore::load3mfLib() {
@@ -300,6 +320,35 @@ void ProjectStore::updateMetaData() {
   } catch (Lib3MF::ELib3MFException &e) {
     metaData->AddMetaData(META_NAMESPACE, "optitrack", optiTrackData.dump(), "string", true);
   }
+  json steamVrTrackData = json::array();
+  for (SteamVRTrackPoint* steamVrTrackPoint: _steamVrTrackPoints) {
+    steamVrTrackData.push_back({
+      {"point", osgVecToStdVec(steamVrTrackPoint->getTranslation())},
+      {"normal", osgVecToStdVec(steamVrTrackPoint->getNormal())},
+      {"normalModifier", osgVecToStdVec(steamVrTrackPoint->getNormalModifier())},
+      {"length", steamVrTrackPoint->getLength()}
+    });
+  }
+  try {
+    Lib3MF::PMetaData steamVrTrackPoints = metaData->GetMetaDataByKey(META_NAMESPACE, "steamvrtrack");
+    steamVrTrackPoints->SetValue(steamVrTrackData.dump());
+  } catch (Lib3MF::ELib3MFException &e) {
+    metaData->AddMetaData(META_NAMESPACE, "steamvrtrack", steamVrTrackData.dump(), "string", true);
+  }
+  json actionPointData = json::array();
+  for (ActionPoint* actionPoint: _actionPoints) {
+    actionPointData.push_back({
+      {"point", osgVecToStdVec(actionPoint->getTranslation())},
+      {"normal", osgVecToStdVec(actionPoint->getNormal())},
+      {"normalModifier", osgVecToStdVec(actionPoint->getNormalModifier())}
+    });
+  }
+  try {
+    Lib3MF::PMetaData actionPoints = metaData->GetMetaDataByKey(META_NAMESPACE, "actionpoints");
+    actionPoints->SetValue(actionPointData.dump());
+  } catch (Lib3MF::ELib3MFException &e) {
+    metaData->AddMetaData(META_NAMESPACE, "actionpoints", actionPointData.dump(), "string", true);
+  }
 }
 
 void ProjectStore::loadMetaData() {
@@ -313,17 +362,47 @@ void ProjectStore::loadMetaData() {
   Lib3MF::PMetaData optiTrackString;
   try {
     optiTrackString = metaData->GetMetaDataByKey(META_NAMESPACE, "optitrack");
+    auto optiTrackData = json::parse(optiTrackString->GetValue());
+    _optiTrackPoints.clear();
+    for (const auto pointData: optiTrackData) {
+      osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
+      osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
+      osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
+      OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["length"]), static_cast<double>(pointData["radius"]));
+      _optiTrackPoints.push_back(optiTrackPoint);
+    }
   } catch (Lib3MF::ELib3MFException &e) {
     // TODO: Something is wrong with the file
   }
-  auto optiTrackData = json::parse(optiTrackString->GetValue());
-  _optiTrackPoints.clear();
-  for (const auto pointData: optiTrackData) {
-    osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
-    osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
-    osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
-    OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["length"]), static_cast<double>(pointData["radius"]));
-    _optiTrackPoints.push_back(optiTrackPoint);
+  Lib3MF::PMetaData steamVrTrackString;
+  try {
+    steamVrTrackString = metaData->GetMetaDataByKey(META_NAMESPACE, "steamvrtrack");
+    auto steamVrData = json::parse(steamVrTrackString->GetValue());
+    _steamVrTrackPoints.clear();
+    for (const auto pointData: steamVrData) {
+      osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
+      osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
+      osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
+      SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["length"]));
+      _steamVrTrackPoints.push_back(steamVrTrackPoint);
+    }
+  } catch (Lib3MF::ELib3MFException &e) {
+    // TODO: Something is wrong with the file
+  }
+  Lib3MF::PMetaData actionPointString;
+  try {
+    actionPointString = metaData->GetMetaDataByKey(META_NAMESPACE, "actionpoints");
+    auto actionPointData = json::parse(actionPointString->GetValue());
+    _actionPoints.clear();
+    for (const auto pointData: actionPointData) {
+      osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
+      osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
+      osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
+      ActionPoint* actionPoint = new ActionPoint(point, normal, normalModifier);
+      _actionPoints.push_back(actionPoint);
+    }
+  } catch (Lib3MF::ELib3MFException &e) {
+    // TODO: Something is wrong with the file
   }
   render3MFMesh();
   MainWindow::getInstance()->renderView(Edit);

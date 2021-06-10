@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 typedef struct {
   bool OptiTrack;
   bool EMFTrack;
@@ -20,3 +22,7 @@ typedef struct {
 typedef struct {
   double length;
 } SteamVRTrackSettings;
+
+typedef struct {
+  std::string identifier;
+} ActionPointSettings;

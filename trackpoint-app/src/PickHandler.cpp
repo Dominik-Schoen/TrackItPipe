@@ -19,16 +19,8 @@
 PickHandler::PickHandler(OSGWidget* osgWidget, osg::ref_ptr<osg::Group> root) {
   _osgWidget = osgWidget;
 
-  _selectionRotateGroup = new osg::MatrixTransform;
-
-  _selectionMoveToEndGroup = new osg::MatrixTransform;
-  _selectionMoveToEndGroup->addChild(_selectionRotateGroup.get());
-
-  _selectionTranslateGroup = new osg::MatrixTransform;
-  _selectionTranslateGroup->addChild(_selectionMoveToEndGroup.get());
-
   _selectionSwitch = new osg::Switch;
-  _selectionSwitch->addChild(_selectionTranslateGroup.get());
+
 
   root->addChild(_selectionSwitch.get());
 }
@@ -159,51 +151,53 @@ void PickHandler::setSelection(bool addNewPoints) {
   updateRenderer();
 }
 
-void PickHandler::moveTo(osg::Vec3f position) {
-  _selectionTranslateGroup->setMatrix(osg::Matrix::translate(position));
-  MainWindow::getInstance()->getEditWiget()->updatePositions(position);
-}
-
-void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
-  MainWindow::getInstance()->getEditWiget()->updateNormals(normal);
-  osg::Vec3 modifier = MainWindow::getInstance()->getStore()->getNormalModifier();
-  normal = normal.operator+(modifier);
-  normal.normalize();
-  _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
-  osg::Vec3f movementVector = normal.operator*(_optiTrackSteamVRLength / 2);
-  _selectionMoveToEndGroup->setMatrix(osg::Matrix::translate(movementVector));
-}
-
 void PickHandler::updateRenderer() {
-  removeAllShapes();
-  switch(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem()) {
+  delete _shape;
+  ActiveTrackingSystem activeTrackingSystem = MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem();
+  switch(activeTrackingSystem) {
     case OptiTrack: {
       OptiTrackSettings settings = MainWindow::getInstance()->getStore()->getOptiTrackSettings();
       _optiTrackSteamVRLength = settings.length;
-      osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-      osg::ref_ptr<osg::ShapeDrawable> cylinder = new osg::ShapeDrawable();
-      cylinder->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), settings.radius, settings.length));
-      cylinder->setColor(osg::Vec4(1.0f, 0.0f, 0.0f, 0.2f));
-      geode->addDrawable(cylinder.get());
-      OSGWidget::fixMaterialState(geode);
-      _selectionRotateGroup->addChild(geode.get());
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape->setupOptiTrack(settings);
       break;
     }
     case EMFTrack: {
       break;
     }
     case SteamVRTrack: {
+      SteamVRTrackSettings settings = MainWindow::getInstance()->getStore()->getSteamVRTrackSettings();
+      _optiTrackSteamVRLength = settings.length;
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape->setupSteamVRTrack(settings);
       break;
     }
     case ActionPoints: {
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape->setupActionPoints();
       break;
     }
+  }
+  if (_shape) {
+    _shape->setColor(osg::Vec4(1.0f, 0.0f, 0.0f, 0.2f));
   }
   setVisibility(_addNewPoints);
 }
 
-void PickHandler::removeAllShapes() {
-  _selectionRotateGroup->removeChildren(0, _selectionRotateGroup->getNumChildren());
+void PickHandler::moveTo(osg::Vec3f position) {
+  if (_shape) {
+    _shape->moveTo(position);
+    MainWindow::getInstance()->getEditWiget()->updatePositions(position);
+  }
+}
+
+void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
+  MainWindow::getInstance()->getEditWiget()->updateNormals(normal);
+  if (_shape) {
+    osg::Vec3 modifier = MainWindow::getInstance()->getStore()->getNormalModifier();
+    _shape->rotateToNormalVector(normal);
+    _shape->setNormalModifier(modifier);
+  }
 }
 
 void PickHandler::setVisibility(bool mode) {

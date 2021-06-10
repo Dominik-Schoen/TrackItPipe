@@ -43,9 +43,37 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       break;
     }
     case SteamVRTrack: {
+      std::vector<SteamVRTrackPoint*> points = MainWindow::getInstance()->getStore()->getSteamVRTrackPoints();
+      int id = 0;
+      for (SteamVRTrackPoint* point: points) {
+        PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+        newShape->setupSteamVRTrack(point->getSteamVRTrackSettings());
+        if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
+          newShape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
+        } else {
+          newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+        }
+        newShape->rotateToNormalVector(point->getNormal());
+        _shapes.push_back(newShape);
+        id++;
+      }
       break;
     }
     case ActionPoints: {
+      std::vector<ActionPoint*> points = MainWindow::getInstance()->getStore()->getActionPoints();
+      int id = 0;
+      for (ActionPoint* point: points) {
+        PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+        newShape->setupActionPoints();
+        if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
+          newShape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
+        } else {
+          newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+        }
+        newShape->rotateToNormalVector(point->getNormal());
+        _shapes.push_back(newShape);
+        id++;
+      }
       break;
     }
   }
