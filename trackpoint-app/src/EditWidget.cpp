@@ -170,8 +170,8 @@ void EditWidget::selectTool(Tool tool) {
       ui->selectionToolButton->setChecked(false);
       MainWindow::getInstance()->getOsgWidget()->getPicker()->setSelection(true);
       invalidatePositions();
-      resetAllSettings();
       selectedPoint = -1;
+      resetAllSettings();
       break;
     }
     case SelectionTool: {
