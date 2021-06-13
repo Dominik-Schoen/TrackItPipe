@@ -28,6 +28,7 @@ private:
   void load();
   void save();
   void saveAs();
+  void loadStaticMeshes();
   Ui::MainWindow* ui;
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;

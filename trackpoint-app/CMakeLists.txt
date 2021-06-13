@@ -75,6 +75,7 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/PointShape.cpp
   src/HudCallback.cpp
   src/STLImport.cpp
+  src/MeshTools.cpp
 )
 
 if(NOT BUILD_STATIC_RELEASE)
@@ -107,6 +108,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_LIST_DIR}/thirdparty/stl_reader/install
   include
   gui
+  resources
 )
 
 TARGET_LINK_LIBRARIES(TrackpointApp PRIVATE

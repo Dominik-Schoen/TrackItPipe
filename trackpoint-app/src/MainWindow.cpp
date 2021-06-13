@@ -113,3 +113,7 @@ void MainWindow::saveAs() {
     // TODO: Show error popup
   }
 }
+
+void MainWindow::loadStaticMeshes() {
+  
+}
