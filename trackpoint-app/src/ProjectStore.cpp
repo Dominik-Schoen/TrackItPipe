@@ -101,7 +101,7 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
       pointsList.push_back(pointData);
     }
     json trackpointData = pointsList;
-    metaData->AddMetaData("tk-ar-tracking", "trackpoints-optitrack", trackpointData.dump(), "string", true);
+    metaData->AddMetaData(META_NAMESPACE, "trackpoints-optitrack", trackpointData.dump(), "string", true);
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   if (settings.EMFTrack) {
@@ -134,7 +134,7 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
       pointsList.push_back(pointData);
     }
     json trackpointData = pointsList;
-    metaData->AddMetaData("tk-ar-tracking", "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
+    metaData->AddMetaData(META_NAMESPACE, "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   delete renderer;
