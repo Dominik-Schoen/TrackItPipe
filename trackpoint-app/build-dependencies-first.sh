@@ -14,6 +14,7 @@ do
 done
 
 thirdparty/qt.sh $OPTIONS
+thirdparty/stl_reader.sh $OPTIONS
 
 if [ $OPTIONS == "release" ]; then
   thirdparty/openscenegraph.sh release

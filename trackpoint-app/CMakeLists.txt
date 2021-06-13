@@ -74,6 +74,7 @@ QT_ADD_EXECUTABLE(TrackpointApp
   src/TrackPointRenderer.cpp
   src/PointShape.cpp
   src/HudCallback.cpp
+  src/STLImport.cpp
 )
 
 if(NOT BUILD_STATIC_RELEASE)
@@ -103,6 +104,7 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(
   ${${JSON_PREFIX}_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_LIST_DIR}/thirdparty/stl_reader/install
   include
   gui
 )

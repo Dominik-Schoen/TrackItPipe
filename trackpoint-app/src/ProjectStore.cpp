@@ -6,6 +6,7 @@
 #include "StringBasics.hpp"
 #include "TrackPointRenderer.hpp"
 #include "PlatformSupport.hpp"
+#include "STLImport.hpp"
 
 // Include dependencies
 #include <typeinfo>
@@ -25,7 +26,15 @@ ProjectStore::~ProjectStore() {
 
 void ProjectStore::loadMesh(std::string meshFile) {
   if (StringBasics::endsWithCaseInsensitive(meshFile, ".STL")) {
-    printf("Currently unsupported.\n");
+    _projectLoaded = true;
+    // Read STL file
+    std::vector<Lib3MF::sPosition> verticesBuffer;
+    std::vector<Lib3MF::sTriangle> triangleBuffer;
+    STLImport::readSTL(meshFile, &verticesBuffer, &triangleBuffer);
+    Lib3MF::PMeshObject baseMesh = _project->AddMeshObject();
+    baseMesh->SetGeometry(verticesBuffer, triangleBuffer);
+    render3MFMesh();
+    MainWindow::getInstance()->renderView(Edit);
   } else if (StringBasics::endsWithCaseInsensitive(meshFile, ".3MF")) {
     _projectLoaded = true;
     // Read 3MF file
