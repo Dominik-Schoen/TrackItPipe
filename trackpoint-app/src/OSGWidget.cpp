@@ -5,6 +5,8 @@
 #include "PickHandler.hpp"
 #include "TrackPointRenderer.hpp"
 #include "HudCallback.hpp"
+#include "resources.hpp"
+#include "MeshTools.hpp"
 
 // Include dependencies
 #include <osgViewer/Viewer>
@@ -49,12 +51,14 @@ namespace osgWidget {
   }
 }
 
-void OSGWidget::fixMaterialState(osg::ref_ptr<osg::Node> node) {
+void OSGWidget::fixMaterialState(osg::ref_ptr<osg::Node> node, osg::Vec4* color) {
   osg::StateSet* stateSet = node->getOrCreateStateSet();
   osg::Material* material = new osg::Material;
 
   material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-
+  if (color) {
+    material->setDiffuse(osg::Material::FRONT_AND_BACK, *color);
+  }
   stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
   stateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 }
@@ -213,6 +217,32 @@ PickHandler* OSGWidget::getPicker() {
 
 TrackPointRenderer* OSGWidget::getPointRenderer() {
   return _pointRenderer;
+}
+
+void OSGWidget::loadSteamvrThread() {
+  if (!_steamvrLoaded) {
+    std::vector<Lib3MF::sPosition> verticesBuffer;
+    std::vector<Lib3MF::sTriangle> triangleBuffer;
+    for (unsigned int i = 0; i < sizeof(steamvrthread_VERTICES) / sizeof(float); i += 3) {
+      Lib3MF::sPosition vertex = {steamvrthread_VERTICES[i], steamvrthread_VERTICES[i + 1], steamvrthread_VERTICES[i + 2]};
+      verticesBuffer.push_back(vertex);
+    }
+    for (unsigned int i = 0; i < sizeof(steamvrthread_TRIANGLES) / sizeof(unsigned int); i += 3) {
+      Lib3MF::sTriangle triangle = {steamvrthread_TRIANGLES[i], steamvrthread_TRIANGLES[i + 1], steamvrthread_TRIANGLES[i + 2]};
+      triangleBuffer.push_back(triangle);
+    }
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
+    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+    MeshTools::calculateNormals(verticesBuffer, triangleBuffer, vertices, normals);
+
+    _steamvrThreadMesh = new osg::Geometry;
+    _steamvrThreadMesh->setVertexArray(vertices.get());
+    _steamvrThreadMesh->setNormalArray(normals.get(), osg::Array::BIND_PER_VERTEX);
+    _steamvrThreadMesh->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, vertices->getNumElements()));
+    osgUtil::optimizeMesh(_steamvrThreadMesh.get());
+
+    _steamvrLoaded = true;
+  }
 }
 
 void OSGWidget::paintEvent(QPaintEvent*) {

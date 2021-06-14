@@ -30,9 +30,9 @@ for file in files:
             else:
                 t[point] = vId
                 vertices.append(v)
+                vId += 1
             point += 1
         triangles.append(t)
-        vId += 1
     id = file[0:-4]
     fileData[id] = (vertices, triangles)
 

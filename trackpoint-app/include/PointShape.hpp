@@ -11,9 +11,11 @@
 #include <osg/ShapeDrawable>
 #include <osg/Switch>
 #include <osg/Geode>
+#include "lib3mf_implicit.hpp"
 
 class PointShape {
 public:
+  static void loadSteamvrThread();
   PointShape(const osg::ref_ptr<osg::Group> renderRoot, const ActiveTrackingSystem activeTrackingSystem, osg::Vec3f point, osg::Vec3f normal, osg::Vec3f normalModifier);
   ~PointShape();
   void moveTo(osg::Vec3f position);
@@ -33,8 +35,8 @@ private:
   osg::ref_ptr<osg::MatrixTransform> _selectionMoveToEndGroup;
   osg::ref_ptr<osg::MatrixTransform> _screwMove;
   osg::ref_ptr<osg::Group> _renderRoot;
-  osg::ref_ptr<osg::Geometry> _threadMesh;
   osg::ref_ptr<osg::ShapeDrawable> _shape;
+  osg::ref_ptr<osg::Geode> _thread;
   osg::ref_ptr<osg::Geode> _geode;
   osg::Vec3f _normalModifier;
   double _optiTrackSteamVRLength;

@@ -29,13 +29,15 @@ class OSGWidget : public QOpenGLWidget {
   Q_OBJECT
 
 public:
-  static void fixMaterialState(osg::ref_ptr<osg::Node> node);
+  static void fixMaterialState(osg::ref_ptr<osg::Node> node, osg::Vec4* color = nullptr);
   OSGWidget(QWidget* parent = nullptr);
   virtual ~OSGWidget();
   void renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals);
   osg::ref_ptr<osg::Geode> getMesh();
   PickHandler* getPicker();
   TrackPointRenderer* getPointRenderer();
+  void loadSteamvrThread();
+  osg::ref_ptr<osg::Geometry> _steamvrThreadMesh;
 
 protected:
   virtual void paintEvent(QPaintEvent* paintEvent);
@@ -75,4 +77,6 @@ private:
 
   bool selectionActive_;
   bool selectionFinished_;
+
+  bool _steamvrLoaded = false;
 };
