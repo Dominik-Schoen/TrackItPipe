@@ -48,7 +48,9 @@ void PointShape::setNormalModifier(osg::Vec3f normalModifier) {
 }
 
 void PointShape::rotateToNormalVector(osg::Vec3f normal) {
-  normal = normal.operator+(_normalModifier);
+  osg::Matrix modifierRotation = osg::Matrix::rotate(_normalModifier.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), _normalModifier.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), _normalModifier.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
+  normal = modifierRotation.preMult(normal);
+
   normal.normalize();
   _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
   if (_activeTrackingSystem == OptiTrack || _activeTrackingSystem == SteamVRTrack) {
