@@ -3,6 +3,7 @@
 
 // Include modules
 #include "PlatformSupport.hpp"
+#include "scad.hpp"
 
 // Include dependencies
 #include <iostream>
@@ -16,7 +17,7 @@
 
 const char* openScadBase =
   "$fn = 100;\n"
-  "use </tmp/threads_2.5.scad>\n"
+  "use <threads.scad>\n"
   "module optiTrackPointBase(translation, rotation, length, radius) {\n"
   "translate(translation) rotate(rotation) cylinder(length, radius, radius, false);\n"
   "}\n"
@@ -49,6 +50,7 @@ void OpenScadRenderer::renderOptiTrack(std::vector<OptiTrackPoint*> points) {
 }
 
 void OpenScadRenderer::renderSteamVRTrack(std::vector<SteamVRTrackPoint*> points) {
+  enableSteamvrThread();
   std::ofstream scadFile;
   scadFile.open(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_export_steamvrtrack.scad");
   scadFile << openScadBase;
@@ -61,4 +63,11 @@ void OpenScadRenderer::renderSteamVRTrack(std::vector<SteamVRTrackPoint*> points
   scadFile.close();
   std::string command = openScadPath + " -o " + std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_steamvrtrack.3mf " + std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_export_steamvrtrack.scad";
   system(command.c_str());
+}
+
+void OpenScadRenderer::enableSteamvrThread() {
+  std::ofstream resourceFile;
+  resourceFile.open(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "threads.scad");
+  resourceFile << threads_SCAD;
+  resourceFile.close();
 }

@@ -12,4 +12,7 @@ public:
   static bool openScadAvailable();
   void renderOptiTrack(std::vector<OptiTrackPoint*> points);
   void renderSteamVRTrack(std::vector<SteamVRTrackPoint*> points);
+
+private:
+  void enableSteamvrThread();
 };
