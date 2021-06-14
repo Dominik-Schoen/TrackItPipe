@@ -283,7 +283,7 @@ void EditWidget::setSteamVRTrackSettings(double length) {
 
 void EditWidget::updateActionPointSettings(QString qinput) {
   std::string input = qinput.toUtf8().constData();
-  if (MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(input)) {
+  if (MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(input, selectedPoint) > 0) {
     ui->actionPointDoubleIdentifier->setVisible(true);
   } else {
     ui->actionPointDoubleIdentifier->setVisible(false);
@@ -304,11 +304,12 @@ void EditWidget::resetActionPointSettings() {
   while (true) {
     candidate = "point";
     candidate += std::to_string(iterator);
-    bool result = MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(candidate);
-    if (!result) {
+    unsigned int result = MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(candidate, selectedPoint);
+    if (result == 0) {
       settings = {candidate};
       break;
     }
+    iterator++;
   }
   ui->actionPointIdentifier->setText(QString::fromStdString(candidate));
   if (selectedPoint < 0) {
@@ -319,11 +320,11 @@ void EditWidget::resetActionPointSettings() {
 }
 
 void EditWidget::setActionPointSettings(std::string identifier) {
-  if (MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(identifier)) {
+  ui->actionPointIdentifier->setText(QString::fromStdString(identifier));
+  if (MainWindow::getInstance()->getStore()->actionPointIdentifierInUse(identifier, selectedPoint) > 0) {
     ui->actionPointDoubleIdentifier->setVisible(true);
   } else {
     ui->actionPointDoubleIdentifier->setVisible(false);
-    ui->actionPointIdentifier->setText(QString::fromStdString(identifier));
   }
 }
 

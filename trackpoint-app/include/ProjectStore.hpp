@@ -67,7 +67,7 @@ public:
   // Return Action point settings
   ActionPointSettings getActionPointSettings();
   // Check if an identifier is already in use
-  bool actionPointIdentifierInUse(std::string candidate);
+  unsigned int actionPointIdentifierInUse(std::string candidate, int current);
 
 private:
   bool _projectLoaded;

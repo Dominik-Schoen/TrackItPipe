@@ -207,7 +207,10 @@ void PickHandler::setVisibility(bool mode) {
 void PickHandler::addPoint(osg::Vec3 point, osg::Vec3 normal) {
   ActiveTrackingSystem activeTrackingSystem = MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem();
   MainWindow::getInstance()->getStore()->addTrackPoint(point, normal, activeTrackingSystem);
-  _osgWidget->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
+  _osgWidget->getPointRenderer()->render(activeTrackingSystem);
+  if (activeTrackingSystem == ActionPoints) {
+    MainWindow::getInstance()->getEditWiget()->resetActionPointSettings();
+  }
 }
 
 void PickHandler::invalidateTrackPointColors() {

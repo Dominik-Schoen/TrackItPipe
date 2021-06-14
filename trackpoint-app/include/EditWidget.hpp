@@ -24,6 +24,7 @@ public:
   void setSelection(int id);
   int getSelectedPoint();
   void updateTrackpointCount();
+  void resetActionPointSettings();
 
 protected:
   virtual void showEvent(QShowEvent* event);
@@ -42,7 +43,6 @@ private slots:
   void resetSteamVRTrackSettings();
   void setSteamVRTrackSettings(double length);
   void updateActionPointSettings(QString input);
-  void resetActionPointSettings();
   void setActionPointSettings(std::string identifier);
   void deleteCurrentTrackPoint();
   void exportProject();

@@ -276,13 +276,16 @@ ActionPointSettings ProjectStore::getActionPointSettings() {
   return _actionPointSettings;
 }
 
-bool ProjectStore::actionPointIdentifierInUse(std::string candidate) {
+unsigned int ProjectStore::actionPointIdentifierInUse(std::string candidate, int current) {
+  unsigned int count = 0;
+  int i = 0;
   for (ActionPoint* actionPoint: _actionPoints) {
-    if (candidate.compare(actionPoint->getIdentifier()) != 0) {
-      return true;
+    if (i != current && candidate.compare(actionPoint->getIdentifier()) == 0) {
+      count++;
     }
+    i++;
   }
-  return false;
+  return count;
 }
 
 void ProjectStore::load3mfLib() {
