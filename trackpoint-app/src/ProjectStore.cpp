@@ -96,6 +96,7 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     meshIterator->MoveNext();
     Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
     Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+    exportMesh->SetName("optitrack");
     std::vector<Lib3MF::sPosition> verticesBuffer;
     std::vector<Lib3MF::sTriangle> triangleBuffer;
     renderedMesh->GetVertices(verticesBuffer);
@@ -111,7 +112,8 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
       pointsList.push_back(pointData);
     }
     json trackpointData = pointsList;
-    metaData->AddMetaData(META_NAMESPACE, "trackpoints-optitrack", trackpointData.dump(), "string", true);
+    Lib3MF::PMetaDataGroup optiMetaData = exportMesh->GetMetaDataGroup();
+    optiMetaData->AddMetaData(META_NAMESPACE, "trackpoints-optitrack", trackpointData.dump(), "string", true);
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   if (settings.EMFTrack) {
@@ -129,6 +131,7 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     meshIterator->MoveNext();
     Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
     Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+    exportMesh->SetName("steamvrtrack");
     std::vector<Lib3MF::sPosition> verticesBuffer;
     std::vector<Lib3MF::sTriangle> triangleBuffer;
     renderedMesh->GetVertices(verticesBuffer);
@@ -144,7 +147,8 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
       pointsList.push_back(pointData);
     }
     json trackpointData = pointsList;
-    metaData->AddMetaData(META_NAMESPACE, "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
+    Lib3MF::PMetaDataGroup steamVrMetaData = exportMesh->GetMetaDataGroup();
+    steamVrMetaData->AddMetaData(META_NAMESPACE, "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   delete renderer;
