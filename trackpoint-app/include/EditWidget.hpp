@@ -25,13 +25,13 @@ public:
   int getSelectedPoint();
   void updateTrackpointCount();
   void resetActionPointSettings();
+  void resetAllSettings();
 
 protected:
   virtual void showEvent(QShowEvent* event);
 
 private slots:
   void selectTool(Tool tool);
-  void resetAllSettings();
   void tabChanged(int index);
   void updateNormalModifier();
   void resetNormalModifier();

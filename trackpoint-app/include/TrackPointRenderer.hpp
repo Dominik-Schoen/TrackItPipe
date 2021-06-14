@@ -14,6 +14,7 @@ public:
   ~TrackPointRenderer();
   void render(ActiveTrackingSystem activeTrackingSystem);
   std::vector<PointShape*> getShapes();
+  void clear();
 
 private:
   OSGWidget* _osgWidget;

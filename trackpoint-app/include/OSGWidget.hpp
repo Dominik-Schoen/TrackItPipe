@@ -37,6 +37,7 @@ public:
   PickHandler* getPicker();
   TrackPointRenderer* getPointRenderer();
   void loadSteamvrThread();
+  void clear();
   osg::ref_ptr<osg::Geometry> _steamvrThreadMesh;
 
 protected:

@@ -157,6 +157,7 @@ void EditWidget::showEvent(QShowEvent* event) {
 }
 
 void EditWidget::resetAllSettings() {
+  selectedPoint = -1;
   resetNormalModifier();
   resetOptiTrackSettings();
   resetSteamVRTrackSettings();
@@ -170,7 +171,6 @@ void EditWidget::selectTool(Tool tool) {
       ui->selectionToolButton->setChecked(false);
       MainWindow::getInstance()->getOsgWidget()->getPicker()->setSelection(true);
       invalidatePositions();
-      selectedPoint = -1;
       resetAllSettings();
       break;
     }
@@ -201,6 +201,7 @@ void EditWidget::updateNormalModifier() {
     ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
     MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalModifier(modifier);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -216,6 +217,7 @@ void EditWidget::resetNormalModifier() {
     ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
     MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalModifier(modifier);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -233,6 +235,7 @@ void EditWidget::updateOptiTrackSettings() {
   } else {
     MainWindow::getInstance()->getStore()->getOptiTrackPoints()[selectedPoint]->updateOptiTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -246,6 +249,7 @@ void EditWidget::resetOptiTrackSettings() {
   } else {
     MainWindow::getInstance()->getStore()->getOptiTrackPoints()[selectedPoint]->updateOptiTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -262,6 +266,7 @@ void EditWidget::updateSteamVRTrackSettings() {
   } else {
     MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[selectedPoint]->updateSteamVRTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(SteamVRTrack);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -274,6 +279,7 @@ void EditWidget::resetSteamVRTrackSettings() {
   } else {
     MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[selectedPoint]->updateSteamVRTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(SteamVRTrack);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -293,6 +299,7 @@ void EditWidget::updateActionPointSettings(QString qinput) {
       MainWindow::getInstance()->getStore()->updateActionPointSettings(settings);
     } else {
       MainWindow::getInstance()->getStore()->getActionPoints()[selectedPoint]->updateActionPointSettings(settings);
+      MainWindow::getInstance()->getStore()->projectModified();
     }
   }
 }
@@ -316,6 +323,7 @@ void EditWidget::resetActionPointSettings() {
     MainWindow::getInstance()->getStore()->updateActionPointSettings(settings);
   } else {
     MainWindow::getInstance()->getStore()->getActionPoints()[selectedPoint]->updateActionPointSettings(settings);
+    MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
@@ -345,12 +353,13 @@ void EditWidget::deleteCurrentTrackPoint() {
       break;
     }
     case ActionPoints: {
+      resetActionPointSettings();
       break;
     }
   }
   resetNormalModifier();
   invalidatePositions();
-  MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
+  MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
 }
 
 void EditWidget::exportProject() {

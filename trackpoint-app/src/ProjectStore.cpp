@@ -26,8 +26,12 @@ ProjectStore::~ProjectStore() {
 }
 
 void ProjectStore::loadMesh(std::string meshFile) {
+  if (meshFile == "") {
+    return;
+  }
   if (StringBasics::endsWithCaseInsensitive(meshFile, ".STL")) {
     _projectLoaded = true;
+    _projectModified = false;
     // Read STL file
     std::vector<Lib3MF::sPosition> verticesBuffer;
     std::vector<Lib3MF::sTriangle> triangleBuffer;
@@ -38,6 +42,7 @@ void ProjectStore::loadMesh(std::string meshFile) {
     MainWindow::getInstance()->renderView(Edit);
   } else if (StringBasics::endsWithCaseInsensitive(meshFile, ".3MF")) {
     _projectLoaded = true;
+    _projectModified = false;
     // Read 3MF file
     Lib3MF::PReader reader = _project->QueryReader("3mf");
     reader->ReadFromFile(meshFile);
@@ -50,11 +55,15 @@ void ProjectStore::loadMesh(std::string meshFile) {
 }
 
 bool ProjectStore::loadProject(std::string projectFile) {
+  if (projectFile == "") {
+    return false;
+  }
   if (!_projectLoaded) {
     Lib3MF::PReader reader = _project->QueryReader("3mf");
     reader->ReadFromFile(projectFile);
     _projectLoaded = true;
     _projectModified = false;
+    _projectFile = projectFile;
     loadMetaData();
     return true;
   }
@@ -69,10 +78,14 @@ bool ProjectStore::saveProject() {
 }
 
 bool ProjectStore::saveProject(std::string path) {
+  if (path == "") {
+    return false;
+  }
   updateMetaData();
   Lib3MF::PWriter writer = _project->QueryWriter("3mf");
   writer->WriteToFile(path);
   _projectFile = path;
+  _projectModified = false;
   return true;
 }
 
@@ -177,6 +190,23 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
   return true;
 }
 
+bool ProjectStore::isProjectOpen() {
+  return _projectLoaded;
+}
+
+void ProjectStore::closeProject() {
+  _projectLoaded = false;
+  reset();
+}
+
+bool ProjectStore::isModified() {
+  return _projectModified;
+}
+
+void ProjectStore::projectModified() {
+  _projectModified = true;
+}
+
 TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeTrackingSystem) {
   switch(activeTrackingSystem) {
     case OptiTrack: {
@@ -215,6 +245,7 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
       break;
     }
   }
+  projectModified();
   MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
 }
 
@@ -253,6 +284,7 @@ void ProjectStore::removeTrackPoint(int id, ActiveTrackingSystem activeTrackingS
       break;
     }
   }
+  projectModified();
   MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
 }
 
@@ -315,6 +347,17 @@ unsigned int ProjectStore::actionPointIdentifierInUse(std::string candidate, int
 void ProjectStore::load3mfLib() {
   _wrapper = Lib3MF::CWrapper::loadLibrary();
   _project = _wrapper->CreateModel();
+}
+
+void ProjectStore::reset() {
+  _project = _wrapper->CreateModel();
+  _optiTrackPoints.clear();
+  _steamVrTrackPoints.clear();
+  _actionPoints.clear();
+  _optiTrackSettings = OptiTrackSettings {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
+  _steamVrTrackSettings = SteamVRTrackSettings {STEAMVR_DEFAULT_LENGTH};
+  _actionPointSettings = ActionPointSettings {ACTIONPOINT_DEFAULT_IDENFIFIER};
+  _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
 }
 
 void ProjectStore::render3MFMesh() {
@@ -388,7 +431,8 @@ void ProjectStore::updateMetaData() {
     actionPointData.push_back({
       {"point", osgVecToStdVec(actionPoint->getTranslation())},
       {"normal", osgVecToStdVec(actionPoint->getNormal())},
-      {"normalModifier", osgVecToStdVec(actionPoint->getNormalModifier())}
+      {"normalModifier", osgVecToStdVec(actionPoint->getNormalModifier())},
+      {"identifier", actionPoint->getIdentifier()}
     });
   }
   try {
@@ -446,7 +490,7 @@ void ProjectStore::loadMetaData() {
       osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
       osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
       osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
-      ActionPoint* actionPoint = new ActionPoint(point, normal, normalModifier);
+      ActionPoint* actionPoint = new ActionPoint(point, normal, normalModifier, pointData["identifier"]);
       _actionPoints.push_back(actionPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {

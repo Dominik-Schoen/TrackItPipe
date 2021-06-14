@@ -31,6 +31,14 @@ public:
   bool saveProject(std::string projectFile);
   // Export the project
   bool exportProject(std::string path, ExportSettings settings);
+  // Is currently a project opened
+  bool isProjectOpen();
+  // Close the current project
+  void closeProject();
+  // Is current project modified
+  bool isModified();
+  // Set project modification status
+  void projectModified();
   // UNIVERSAL
   // Get trackpoint
   TrackPoint* getTrackPointById(int id, ActiveTrackingSystem activeTrackingSystem);
@@ -84,6 +92,7 @@ private:
   ActionPointSettings _actionPointSettings = ActionPointSettings {ACTIONPOINT_DEFAULT_IDENFIFIER};
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
   void load3mfLib();
+  void reset();
   void render3MFMesh();
   void updateMetaData();
   void loadMetaData();

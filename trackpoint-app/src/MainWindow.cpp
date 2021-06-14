@@ -2,8 +2,13 @@
 #include "MainWindow.hpp"
 #include "../gui/ui_MainWindow.h"
 
+// Include modules
+#include "TrackPointRenderer.hpp"
+#include "PickHandler.hpp"
+
 // Include dependencies
 #include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow* globalPointer;
 
@@ -30,7 +35,7 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
   newAct = new QAction(tr("&New project"), this);
   newAct->setShortcuts(QKeySequence::New);
   newAct->setStatusTip(tr("Create a new file"));
-  //connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
+  connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
 
   loadAct = new QAction(tr("&Load project"), this);
   loadAct->setShortcuts(QKeySequence::Open);
@@ -49,7 +54,7 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWin
   closeAct = new QAction(tr("&Close project"), this);
   closeAct->setShortcuts(QKeySequence::Close);
   closeAct->setStatusTip(tr("Closing the current project"));
-  //connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
+  connect(closeAct, &QAction::triggered, this, &MainWindow::close);
 
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(newAct);
@@ -94,26 +99,71 @@ void MainWindow::renderView(GuiView view) {
   }
 }
 
+void MainWindow::newFile() {
+  if (MainWindow::getInstance()->getStore()->isProjectOpen()) {
+    if (MainWindow::getInstance()->getStore()->isModified()) {
+      if (!saveChangesPopup()) return;
+    }
+    MainWindow::getInstance()->getStore()->closeProject();
+  }
+  renderView(NoMesh);
+  cleanup();
+  noMeshWidget->loadMeshFile();
+}
+
 void MainWindow::load() {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open a TrackpointApp Project"), "", tr("TrackpointApp Projects (*.trackproj)"));
   std::string projectFile = fileName.toUtf8().constData();
   MainWindow::getInstance()->getStore()->loadProject(projectFile);
 }
 
-void MainWindow::save() {
+bool MainWindow::save() {
   if (!projectStore->saveProject()) {
-    saveAs();
+    return saveAs();
   }
+  return true;
 }
 
-void MainWindow::saveAs() {
+bool MainWindow::saveAs() {
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save your TrackpointApp Project"), "", tr("TrackpointApp Projects (*.trackproj)"));
   std::string fileString = fileName.toUtf8().constData();
   if (!projectStore->saveProject(fileString)) {
     // TODO: Show error popup
+    return false;
   }
+  return true;
 }
 
-void MainWindow::loadStaticMeshes() {
-  
+void MainWindow::close() {
+  if (MainWindow::getInstance()->getStore()->isModified()) {
+    if (!saveChangesPopup()) return;
+  }
+  MainWindow::getInstance()->getStore()->closeProject();
+  renderView(NoMesh);
+  cleanup();
+}
+
+void MainWindow::cleanup() {
+  editWidget->resetAllSettings();
+  osgWidget->clear();
+  osgWidget->getPointRenderer()->clear();
+}
+
+bool MainWindow::saveChangesPopup() {
+  QMessageBox msgBox;
+  msgBox.setText("The current project has been modified.");
+  msgBox.setInformativeText("Do you want to save your changes?");
+  msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+  msgBox.setDefaultButton(QMessageBox::Save);
+  int ret = msgBox.exec();
+  switch(ret) {
+    case QMessageBox::Save:
+      return save();
+    case QMessageBox::Discard:
+      return true;
+    case QMessageBox::Cancel:
+      return false;
+    default:
+      return false;
+  }
 }

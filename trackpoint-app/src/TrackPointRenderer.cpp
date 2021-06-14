@@ -17,10 +17,7 @@ TrackPointRenderer::~TrackPointRenderer() {
 }
 
 void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
-  for (PointShape* shape: _shapes) {
-    delete shape;
-  }
-  _shapes.clear();
+  clear();
   switch(activeTrackingSystem) {
     case OptiTrack: {
       std::vector<OptiTrackPoint*> points = MainWindow::getInstance()->getStore()->getOptiTrackPoints();
@@ -82,4 +79,11 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
 
 std::vector<PointShape*> TrackPointRenderer::getShapes() {
   return _shapes;
+}
+
+void TrackPointRenderer::clear() {
+  for (PointShape* shape: _shapes) {
+    delete shape;
+  }
+  _shapes.clear();
 }

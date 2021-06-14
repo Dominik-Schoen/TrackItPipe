@@ -12,9 +12,9 @@ class NoMeshWidget: public QWidget {
 public:
   NoMeshWidget(QWidget* parent = nullptr);
   ~NoMeshWidget();
+  void loadMeshFile();
 
 private slots:
-  void loadMeshFile();
   void loadProjectFile();
 
 private:

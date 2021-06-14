@@ -19,8 +19,6 @@ protected:
   osg::ref_ptr<osg::MatrixTransform> _rotationGroup;
   osg::ref_ptr<osg::MatrixTransform> _originFixGroup;
   osg::Vec3 _trackOrigin;
-
-private:
   osg::Vec3 _origin;
   osg::Vec3 _normal;
   osg::Vec3 _normalModifier;

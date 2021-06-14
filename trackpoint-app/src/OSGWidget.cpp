@@ -136,8 +136,6 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
 
   _root->addChild(_coordinateAxes);
 
-  _mesh = new osg::Geode;
-
   // Add axes preview
   osg::ref_ptr<osg::Camera> hudCamera = new osg::Camera;
   int width = 1024;
@@ -193,6 +191,7 @@ OSGWidget::~OSGWidget() {
 void OSGWidget::renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals) {
   _root->removeChild(_mesh);
 
+  _mesh = new osg::Geode;
   osg::ref_ptr<osg::Geometry> meshGeometry = new osg::Geometry;
   meshGeometry->setVertexArray(vertices.get());
   meshGeometry->setNormalArray(normals.get(), osg::Array::BIND_PER_VERTEX);
@@ -243,6 +242,10 @@ void OSGWidget::loadSteamvrThread() {
 
     _steamvrLoaded = true;
   }
+}
+
+void OSGWidget::clear() {
+  _root->removeChild(_mesh);
 }
 
 void OSGWidget::paintEvent(QPaintEvent*) {

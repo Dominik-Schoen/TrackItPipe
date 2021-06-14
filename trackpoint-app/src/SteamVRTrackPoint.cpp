@@ -3,9 +3,7 @@
 
 SteamVRTrackPoint::SteamVRTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double length): TrackPoint(point, normal, normalModifier) {
   _length = length;
-
-  osg::Vec3 shift = normal.operator*(length);
-  _trackOrigin = shift.operator+(point);
+  updateShift();
 }
 
 double SteamVRTrackPoint::getLength() {
@@ -18,4 +16,10 @@ SteamVRTrackSettings SteamVRTrackPoint::getSteamVRTrackSettings() {
 
 void SteamVRTrackPoint::updateSteamVRTrackSettings(SteamVRTrackSettings settings) {
   _length = settings.length;
+  updateShift();
+}
+
+void SteamVRTrackPoint::updateShift() {
+  osg::Vec3 shift = _normal.operator*(_length);
+  _trackOrigin = shift.operator+(_origin);
 }

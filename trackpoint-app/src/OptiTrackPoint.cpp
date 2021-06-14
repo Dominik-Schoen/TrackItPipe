@@ -4,9 +4,7 @@
 OptiTrackPoint::OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double length, const double radius): TrackPoint(point, normal, normalModifier) {
   _length = length;
   _radius = radius;
-
-  osg::Vec3 shift = normal.operator*(length);
-  _trackOrigin = shift.operator+(point);
+  updateShift();
 }
 
 double OptiTrackPoint::getLength() {
@@ -24,4 +22,10 @@ OptiTrackSettings OptiTrackPoint::getOptiTrackSettings() {
 void OptiTrackPoint::updateOptiTrackSettings(OptiTrackSettings settings) {
   _length = settings.length;
   _radius = settings.radius;
+  updateShift();
+}
+
+void OptiTrackPoint::updateShift() {
+  osg::Vec3 shift = _normal.operator*(_length);
+  _trackOrigin = shift.operator+(_origin);
 }

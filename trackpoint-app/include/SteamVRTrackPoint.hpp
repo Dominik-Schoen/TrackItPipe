@@ -13,5 +13,6 @@ public:
   void updateSteamVRTrackSettings(SteamVRTrackSettings settings);
 
 private:
+  void updateShift();
   double _length;
 };

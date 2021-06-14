@@ -14,6 +14,7 @@ public:
   void updateOptiTrackSettings(OptiTrackSettings settings);
 
 private:
+  void updateShift();
   double _length;
   double _radius;
 };

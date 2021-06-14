@@ -1,11 +1,13 @@
 #pragma once
 
+// Include modules
 #include "OSGWidget.hpp"
 #include "NoMeshWidget.hpp"
 #include "EditWidget.hpp"
 #include "ProjectStore.hpp"
 #include "enums.hpp"
 
+// Include dependencies
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -25,10 +27,13 @@ public:
   EditWidget* getEditWiget();
 
 private:
+  void newFile();
   void load();
-  void save();
-  void saveAs();
-  void loadStaticMeshes();
+  bool save();
+  bool saveAs();
+  void close();
+  void cleanup();
+  bool saveChangesPopup();
   Ui::MainWindow* ui;
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;
