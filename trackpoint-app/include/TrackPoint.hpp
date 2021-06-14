@@ -13,6 +13,7 @@ public:
   osg::Vec3 getNormalModifier();
   osg::Vec3 getTrackPoint();
   void updateNormalModifier(osg::Vec3 normalModifier);
+  void updatePositions(osg::Vec3 origin);
 
 protected:
   osg::ref_ptr<osg::MatrixTransform> _translationGroup;

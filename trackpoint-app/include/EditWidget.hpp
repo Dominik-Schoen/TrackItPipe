@@ -46,6 +46,8 @@ private slots:
   void setActionPointSettings(std::string identifier);
   void deleteCurrentTrackPoint();
   void exportProject();
+  void changePositions();
+  void setPositionEditing(bool mode);
 
 private:
   Ui::EditWidget* ui;

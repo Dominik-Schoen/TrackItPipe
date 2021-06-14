@@ -17,7 +17,7 @@ osg::Vec3 TrackPoint::getTranslation() {
 osg::Vec3 TrackPoint::getRotation() {
   osg::Vec3 start = osg::Vec3(0.0f, 0.0f, 1.0f);
   osg::Matrix modifierRotation = osg::Matrix::rotate(_normalModifier.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), _normalModifier.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), _normalModifier.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
-  osg::Vec3 finalNormal = modifierRotation.preMult(normal);
+  osg::Vec3 finalNormal = modifierRotation.preMult(_normal);
 
   // From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   osg::Quat quat = osg::Quat(0.0f, 0.0f, 0.0f, 0.0f);
@@ -56,4 +56,8 @@ osg::Vec3 TrackPoint::getTrackPoint() {
 
 void TrackPoint::updateNormalModifier(osg::Vec3 normalModifier) {
   _normalModifier = normalModifier;
+}
+
+void TrackPoint::updatePositions(osg::Vec3 origin) {
+  _origin = origin;
 }

@@ -21,6 +21,9 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->selectionToolButton, &QToolButton::clicked, this, [=](){ this->selectTool(SelectionTool); });
   QObject::connect(ui->tabWidget, &QTabWidget::currentChanged, this, &EditWidget::tabChanged);
   // Modifiers
+  QObject::connect(ui->anchorX, &QDoubleSpinBox::valueChanged, this, &EditWidget::changePositions);
+  QObject::connect(ui->anchorY, &QDoubleSpinBox::valueChanged, this, &EditWidget::changePositions);
+  QObject::connect(ui->anchorZ, &QDoubleSpinBox::valueChanged, this, &EditWidget::changePositions);
   QObject::connect(ui->normalModX, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
   QObject::connect(ui->normalModY, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
   QObject::connect(ui->normalModZ, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
@@ -49,9 +52,9 @@ EditWidget::~EditWidget() {
 }
 
 void EditWidget::updatePositions(osg::Vec3 point) {
-  ui->anchorX->setText(QString::number(point.x()));
-  ui->anchorY->setText(QString::number(point.y()));
-  ui->anchorZ->setText(QString::number(point.z()));
+  ui->anchorX->setValue(point.x());
+  ui->anchorY->setValue(point.y());
+  ui->anchorZ->setValue(point.z());
 }
 
 void EditWidget::updateNormals(osg::Vec3 normal) {
@@ -62,9 +65,9 @@ void EditWidget::updateNormals(osg::Vec3 normal) {
 
 void EditWidget::invalidatePositions() {
   ui->deleteTrackPoint->setEnabled(false);
-  ui->anchorX->setText("-");
-  ui->anchorY->setText("-");
-  ui->anchorZ->setText("-");
+  ui->anchorX->setValue(0.0f);
+  ui->anchorY->setValue(0.0f);
+  ui->anchorZ->setValue(0.0f);
   ui->normalX->setText("-");
   ui->normalY->setText("-");
   ui->normalZ->setText("-");
@@ -170,14 +173,16 @@ void EditWidget::selectTool(Tool tool) {
       ui->insertionToolButton->setChecked(true);
       ui->selectionToolButton->setChecked(false);
       MainWindow::getInstance()->getOsgWidget()->getPicker()->setSelection(true);
-      invalidatePositions();
       resetAllSettings();
+      invalidatePositions();
+      setPositionEditing(true);
       break;
     }
     case SelectionTool: {
       ui->insertionToolButton->setChecked(false);
       ui->selectionToolButton->setChecked(true);
       MainWindow::getInstance()->getOsgWidget()->getPicker()->setSelection(false);
+      setPositionEditing(false);
       break;
     }
   }
@@ -370,4 +375,20 @@ void EditWidget::exportProject() {
   QString fileName = QFileDialog::getSaveFileName(this, tr("Export your TrackpointApp Project"), "", tr("3MF Files (*.3mf)"));
   std::string exportFile = fileName.toUtf8().constData();
   MainWindow::getInstance()->getStore()->exportProject(exportFile, settings);
+}
+
+void EditWidget::changePositions() {
+  osg::Vec3 origin = osg::Vec3(ui->anchorX->value(), ui->anchorY->value(), ui->anchorZ->value());
+  if (selectedPoint >= 0) {
+    ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+    MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updatePositions(origin);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+    MainWindow::getInstance()->getStore()->projectModified();
+  }
+}
+
+void EditWidget::setPositionEditing(bool mode) {
+  ui->anchorX->setReadOnly(mode);
+  ui->anchorY->setReadOnly(mode);
+  ui->anchorZ->setReadOnly(mode);
 }
