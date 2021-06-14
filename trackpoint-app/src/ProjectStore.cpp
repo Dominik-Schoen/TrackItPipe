@@ -148,6 +148,26 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   delete renderer;
+  // Export action point metadata
+  std::unordered_map<std::string, std::vector<std::vector<float>>> actionPointsList;
+  for (ActionPoint* point: _actionPoints) {
+    std::vector<float> pointData;
+    std::vector<float> normalData;
+    std::vector<std::vector<float>> combinatrion;
+    osg::Vec3 translation = point->getTranslation();
+    osg::Vec3 normal = point->getNormal();
+    pointData.push_back(translation.x());
+    pointData.push_back(translation.y());
+    pointData.push_back(translation.z());
+    normalData.push_back(normal.x());
+    normalData.push_back(normal.y());
+    normalData.push_back(normal.z());
+    combinatrion.push_back(pointData);
+    combinatrion.push_back(normalData);
+    actionPointsList.insert({point->getIdentifier(), combinatrion});
+  }
+  json actionPointData = actionPointsList;
+  metaData->AddMetaData(META_NAMESPACE, "trackpoints-actionpoints", actionPointData.dump(), "string", true);
   Lib3MF::PWriter exportWriter = exportModel->QueryWriter("3mf");
   exportWriter->WriteToFile(path);
   return true;
