@@ -23,6 +23,13 @@ public class SteamVRTrack : MonoBehaviour
         CModel model = Wrapper.CreateModel();
         CReader reader = model.QueryReader("3mf");
         reader.ReadFromFile(filePath);
+        CMeshObjectIterator iterator = model.GetMeshObjects();
+        CMeshObject fileMesh = getSteamVrMesh(iterator);
+        if (fileMesh == null)
+        {
+            return;
+        }
+        
 
         Vector3[] vertices = new Vector3[4]
         {
@@ -67,5 +74,24 @@ public class SteamVRTrack : MonoBehaviour
     void Update()
     {
         
+    }
+
+    CMeshObject getSteamVrMesh(CMeshObjectIterator iterator)
+    {
+        iterator.MoveNext();
+        bool found = false;
+        ulong count = iterator.Count();
+        CMeshObject fileMesh = iterator.GetCurrentMeshObject();
+        for (ulong i = 1; i < count; i++)
+        {
+            if (fileMesh.GetName() == "steamvrtrack")
+            {
+                return fileMesh;
+            }
+            iterator.MoveNext();
+            fileMesh = iterator.GetCurrentMeshObject();
+        }
+
+        return null;
     }
 }
