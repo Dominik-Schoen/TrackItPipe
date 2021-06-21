@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,6 @@ using Lib3MF;
 public class SteamVRTrack : MonoBehaviour
 {
     public string filePath;
-    public float width = 1;
-    public float height = 1;
     
     // Start is called before the first frame update
     void Start()
@@ -27,45 +26,57 @@ public class SteamVRTrack : MonoBehaviour
         CMeshObject fileMesh = getSteamVrMesh(iterator);
         if (fileMesh == null)
         {
+            Debug.Log("TrackpointApp Error: No valid mesh found.");
             return;
         }
+
+        sPosition[] fileVertices;
+        sTriangle[] fileTriangles;
+        fileMesh.GetVertices(out fileVertices);
+        fileMesh.GetTriangleIndices(out fileTriangles);
+        uint vertexCount = fileMesh.GetTriangleCount() * 3;
+   
+        Vector3[] vertices = new Vector3[vertexCount];
+        int[] tris = new int[vertexCount];
+        Vector3[] normals = new Vector3[vertexCount];
+
+        for (int i = 0; i < fileMesh.GetTriangleCount(); i++)
+        {
+            sTriangle current = fileTriangles[i];
+
+            sPosition one = fileVertices[current.Indices[0]];
+            vertices[i * 3] = new Vector3(one.Coordinates[0], one.Coordinates[1], one.Coordinates[2]);
+            sPosition two = fileVertices[current.Indices[1]];
+            vertices[i * 3 + 1] = new Vector3(two.Coordinates[0], two.Coordinates[1], two.Coordinates[2]);
+            sPosition three = fileVertices[current.Indices[2]];
+            vertices[i * 3 + 2] = new Vector3(three.Coordinates[0], three.Coordinates[1], three.Coordinates[2]);
+
+            tris[i * 3] = i * 3;
+            tris[i * 3 + 1] = i * 3 + 1;
+            tris[i * 3 + 2] = i * 3 + 2;
+
+            Vector3 lineOne = vertices[i * 3 + 1] - vertices[i * 3];
+            Vector3 lineTwo = vertices[i * 3 + 2] - vertices[i * 3];
+
+            Vector3 normal = Vector3.Cross(lineOne, lineTwo).normalized;
+            
+            normals[i * 3] = normal;
+            normals[i * 3 + 1] = normal;
+            normals[i * 3 + 2] = normal;
+        }
         
-
-        Vector3[] vertices = new Vector3[4]
-        {
-            new Vector3(0, 0, 0),
-            new Vector3(width, 0, 0),
-            new Vector3(0, height, 0),
-            new Vector3(width, height, 0)
-        };
         mesh.vertices = vertices;
-
-        int[] tris = new int[6]
-        {
-            // lower left triangle
-            0, 2, 1,
-            // upper right triangle
-            2, 3, 1
-        };
         mesh.triangles = tris;
-
-        Vector3[] normals = new Vector3[4]
-        {
-            -Vector3.forward,
-            -Vector3.forward,
-            -Vector3.forward,
-            -Vector3.forward
-        };
         mesh.normals = normals;
 
-        Vector2[] uv = new Vector2[4]
+        /*Vector2[] uv = new Vector2[4]
         {
             new Vector2(0, 0),
             new Vector2(1, 0),
             new Vector2(0, 1),
             new Vector2(1, 1)
         };
-        mesh.uv = uv;
+        mesh.uv = uv;*/
 
         meshFilter.mesh = mesh;
     }
@@ -78,18 +89,16 @@ public class SteamVRTrack : MonoBehaviour
 
     CMeshObject getSteamVrMesh(CMeshObjectIterator iterator)
     {
-        iterator.MoveNext();
-        bool found = false;
         ulong count = iterator.Count();
-        CMeshObject fileMesh = iterator.GetCurrentMeshObject();
-        for (ulong i = 1; i < count; i++)
+        CMeshObject fileMesh;
+        for (ulong i = 0; i < count; i++)
         {
+            iterator.MoveNext();
+            fileMesh = iterator.GetCurrentMeshObject();
             if (fileMesh.GetName() == "steamvrtrack")
             {
                 return fileMesh;
             }
-            iterator.MoveNext();
-            fileMesh = iterator.GetCurrentMeshObject();
         }
 
         return null;
