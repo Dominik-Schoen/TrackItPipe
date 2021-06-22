@@ -152,7 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc1b324900d1ce4abf1157a1a9b937d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filePath: ..\..\testdata\glasExport.3mf
+  filePath: ..\..\testdata\glasExport2.3mf
+  rotationCorrection: 0
 --- !u!4 &222388454
 Transform:
   m_ObjectHideFlags: 0
@@ -337,7 +338,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 3}
+  m_LocalPosition: {x: 0, y: -0.5, z: 3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
