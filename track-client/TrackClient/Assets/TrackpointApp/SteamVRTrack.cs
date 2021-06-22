@@ -45,8 +45,8 @@ public class SteamVRTrack : TrackpointMesh
         trackpointMesh.transform.localPosition = new Vector3(-(point[0] / divisor), -(point[1] / divisor), -(point[2] / divisor));
         Vector3 unityNormal = new Vector3(normal[0], normal[2], normal[1]);
         Quaternion rotateObjectToTrackpoint = Quaternion.FromToRotation(Vector3.up, unityNormal); 
-        Quaternion correction = Quaternion.AngleAxis(rotationCorrection, Vector3.up);
-        Quaternion result = rotateObjectToTrackpoint * correction;
+        Quaternion correction = Quaternion.AngleAxis(rotationCorrection, Vector3.back);
+        Quaternion result = correction * rotateObjectToTrackpoint;
         rotationObject.transform.rotation = result;
     }
 }
