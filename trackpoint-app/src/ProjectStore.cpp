@@ -115,16 +115,17 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     renderedMesh->GetVertices(verticesBuffer);
     renderedMesh->GetTriangleIndices(triangleBuffer);
     exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
-    std::vector<std::vector<float>> pointsList;
+    json trackpointData = json::array();
     for (OptiTrackPoint* point: _optiTrackPoints) {
-      std::vector<float> pointData;
       osg::Vec3 trackPoint = point->getTrackPoint();
-      pointData.push_back(trackPoint.x());
-      pointData.push_back(trackPoint.y());
-      pointData.push_back(trackPoint.z());
-      pointsList.push_back(pointData);
+      osg::Vec3 trackNormal = point->getNormal();
+      json pointData = {
+        {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
+        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
+      };
+      trackpointData.push_back(pointData);
     }
-    json trackpointData = pointsList;
+
     Lib3MF::PMetaDataGroup optiMetaData = exportMesh->GetMetaDataGroup();
     optiMetaData->AddMetaData(META_NAMESPACE, "trackpoints-optitrack", trackpointData.dump(), "string", true);
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
@@ -150,40 +151,32 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     renderedMesh->GetVertices(verticesBuffer);
     renderedMesh->GetTriangleIndices(triangleBuffer);
     exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
-    std::vector<std::vector<float>> pointsList;
+    json trackpointData = json::array();
     for (SteamVRTrackPoint* point: _steamVrTrackPoints) {
-      std::vector<float> pointData;
       osg::Vec3 trackPoint = point->getTrackPoint();
-      pointData.push_back(trackPoint.x());
-      pointData.push_back(trackPoint.y());
-      pointData.push_back(trackPoint.z());
-      pointsList.push_back(pointData);
+      osg::Vec3 trackNormal = point->getNormal();
+      json pointData = {
+        {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
+        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
+      };
+      trackpointData.push_back(pointData);
     }
-    json trackpointData = pointsList;
+
     Lib3MF::PMetaDataGroup steamVrMetaData = exportMesh->GetMetaDataGroup();
     steamVrMetaData->AddMetaData(META_NAMESPACE, "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   delete renderer;
   // Export action point metadata
-  std::unordered_map<std::string, std::vector<std::vector<float>>> actionPointsList;
+  json actionPointData;
   for (ActionPoint* point: _actionPoints) {
-    std::vector<float> pointData;
-    std::vector<float> normalData;
-    std::vector<std::vector<float>> combinatrion;
     osg::Vec3 translation = point->getTranslation();
     osg::Vec3 normal = point->getNormal();
-    pointData.push_back(translation.x());
-    pointData.push_back(translation.y());
-    pointData.push_back(translation.z());
-    normalData.push_back(normal.x());
-    normalData.push_back(normal.y());
-    normalData.push_back(normal.z());
-    combinatrion.push_back(pointData);
-    combinatrion.push_back(normalData);
-    actionPointsList.insert({point->getIdentifier(), combinatrion});
+    actionPointData[point->getIdentifier()] = {
+      {"point", {translation.x(), translation.y(), translation.z()}},
+      {"normal", {normal.x(), normal.y(), normal.z()}}
+    };
   }
-  json actionPointData = actionPointsList;
   metaData->AddMetaData(META_NAMESPACE, "trackpoints-actionpoints", actionPointData.dump(), "string", true);
   Lib3MF::PWriter exportWriter = exportModel->QueryWriter("3mf");
   exportWriter->WriteToFile(path);

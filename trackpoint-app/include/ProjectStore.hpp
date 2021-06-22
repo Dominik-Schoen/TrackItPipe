@@ -13,6 +13,11 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
+struct steamVrTrackPointJson {
+  float point[3];
+  float normal[3];
+};
+
 using json = nlohmann::json;
 
 class ProjectStore {

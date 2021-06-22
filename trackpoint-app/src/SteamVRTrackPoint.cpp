@@ -20,6 +20,6 @@ void SteamVRTrackPoint::updateSteamVRTrackSettings(SteamVRTrackSettings settings
 }
 
 void SteamVRTrackPoint::updateShift() {
-  osg::Vec3 shift = _normal.operator*(_length);
+  osg::Vec3 shift = _normal.operator*(_length + STEAMVR_THREAD_LENGTH + STEAMVR_ORIGIN_OFFSET);
   _trackOrigin = shift.operator+(_origin);
 }
