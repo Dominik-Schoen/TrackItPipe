@@ -90,6 +90,9 @@ bool ProjectStore::saveProject(std::string path) {
 }
 
 bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
+  if (path == "") {
+    return false;
+  }
   OpenScadRenderer* renderer = new OpenScadRenderer();
   // Base for rendering mesh
   Lib3MF::PWriter writer = _project->QueryWriter("3mf");
