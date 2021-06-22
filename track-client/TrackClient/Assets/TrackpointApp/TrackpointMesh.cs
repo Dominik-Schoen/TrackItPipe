@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Lib3MF;
+using TrackpointApp;
 
 public enum TrackingSystem {
     OptiTrack = 0,
@@ -12,7 +13,7 @@ public enum TrackingSystem {
 public class TrackpointMesh : MonoBehaviour
 {
     private const string META_NAMESPACE = "tk-ar-tracking";
-    private const int divisor = 100;
+    private const int divisor = Configuration.divisor;
     
     private CModel model;
     private CMeshObject fileMesh;
