@@ -9,6 +9,7 @@
 
 // Include dependencies
 #include <QMainWindow>
+#include <QCloseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,6 +26,9 @@ public:
   OSGWidget* getOsgWidget();
   ProjectStore* getStore();
   EditWidget* getEditWiget();
+
+protected:
+  virtual void closeEvent(QCloseEvent *event);
 
 private:
   void newFile();

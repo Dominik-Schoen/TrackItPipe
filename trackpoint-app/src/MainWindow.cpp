@@ -72,18 +72,6 @@ MainWindow::~MainWindow() {
   delete osgWidget;
 }
 
-OSGWidget* MainWindow::getOsgWidget() {
-  return osgWidget;
-}
-
-ProjectStore* MainWindow::getStore() {
-  return projectStore;
-}
-
-EditWidget* MainWindow::getEditWiget() {
-  return editWidget;
-}
-
 void MainWindow::renderView(GuiView view) {
   switch(view) {
     case NoMesh: {
@@ -97,6 +85,29 @@ void MainWindow::renderView(GuiView view) {
       break;
     }
   }
+}
+
+OSGWidget* MainWindow::getOsgWidget() {
+  return osgWidget;
+}
+
+ProjectStore* MainWindow::getStore() {
+  return projectStore;
+}
+
+EditWidget* MainWindow::getEditWiget() {
+  return editWidget;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+  if (MainWindow::getInstance()->getStore()->isModified()) {
+    if (!saveChangesPopup()) {
+      event->ignore();
+      return;
+    }
+  }
+  MainWindow::getInstance()->getStore()->closeProject();
+  event->accept();
 }
 
 void MainWindow::newFile() {
