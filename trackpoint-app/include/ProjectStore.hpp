@@ -3,6 +3,7 @@
 // Include modules
 #include "lib3mf_implicit.hpp"
 #include "OptiTrackPoint.hpp"
+#include "EMFTrackPoint.hpp"
 #include "SteamVRTrackPoint.hpp"
 #include "ActionPoint.hpp"
 #include "TrackSystemSettingsStructs.hpp"
@@ -12,11 +13,6 @@
 // Include dependencies
 #include <string>
 #include <nlohmann/json.hpp>
-
-struct steamVrTrackPointJson {
-  float point[3];
-  float normal[3];
-};
 
 using json = nlohmann::json;
 
@@ -65,6 +61,13 @@ public:
   void updateOptiTrackSettings(OptiTrackSettings optiTrackSettings);
   // Return OptiTrack settings
   OptiTrackSettings getOptiTrackSettings();
+  // EMF TRACK
+  // Get all EMFTrack points
+  std::vector<EMFTrackPoint*> getEMFTrackPoints();
+  // Update actual EMFTrack settings
+  void updateEMFTrackSettings(EMFTrackSettings emfTrackSettings);
+  // Return EMFTrack settings
+  EMFTrackSettings getEMFTrackSettings();
   // STEAM VR TRACK
   // Get all SteamVRTrack points
   std::vector<SteamVRTrackPoint*> getSteamVRTrackPoints();
@@ -89,10 +92,11 @@ private:
   Lib3MF::PModel _project;
   std::string _projectFile;
   std::vector<OptiTrackPoint*> _optiTrackPoints;
+  std::vector<EMFTrackPoint*> _emfTrackPoints;
   std::vector<SteamVRTrackPoint*> _steamVrTrackPoints;
   std::vector<ActionPoint*> _actionPoints;
   OptiTrackSettings _optiTrackSettings = OptiTrackSettings {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
-  EMFTrackSettings _emfTrackSettings;
+  EMFTrackSettings _emfTrackSettings = EMFTrackSettings {EMFTRACK_DEFAULT_WIDTH, EMFTRACK_DEFAULT_HEIGHT, EMFTRACK_DEFAULT_DEPTH};
   SteamVRTrackSettings _steamVrTrackSettings = SteamVRTrackSettings {STEAMVR_DEFAULT_LENGTH};
   ActionPointSettings _actionPointSettings = ActionPointSettings {ACTIONPOINT_DEFAULT_IDENFIFIER};
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);

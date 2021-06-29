@@ -209,7 +209,7 @@ TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeT
       return _optiTrackPoints[id];
     };
     case EMFTrack: {
-      break;
+      return _emfTrackPoints[id];
     };
     case SteamVRTrack: {
       return _steamVrTrackPoints[id];
@@ -228,6 +228,8 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
       break;
     }
     case EMFTrack: {
+      EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, _normalModifier, _emfTrackSettings.width, _emfTrackSettings.height, _emfTrackSettings.depth);
+      _emfTrackPoints.push_back(emfTrackPoint);
       break;
     }
     case SteamVRTrack: {
@@ -251,7 +253,7 @@ int ProjectStore::getCount(ActiveTrackingSystem activeTrackingSystem) {
       return _optiTrackPoints.size();
     };
     case EMFTrack: {
-      break;
+      return _emfTrackPoints.size();
     };
     case SteamVRTrack: {
       return _steamVrTrackPoints.size();
@@ -269,6 +271,7 @@ void ProjectStore::removeTrackPoint(int id, ActiveTrackingSystem activeTrackingS
       break;
     }
     case EMFTrack: {
+      _emfTrackPoints.erase(_emfTrackPoints.begin() + id);
       break;
     }
     case SteamVRTrack: {
@@ -302,6 +305,18 @@ void ProjectStore::updateOptiTrackSettings(OptiTrackSettings optiTrackSettings) 
 
 OptiTrackSettings ProjectStore::getOptiTrackSettings() {
   return _optiTrackSettings;
+}
+
+std::vector<EMFTrackPoint*> ProjectStore::getEMFTrackPoints() {
+  return _emfTrackPoints;
+}
+
+void ProjectStore::updateEMFTrackSettings(EMFTrackSettings emfTrackSettings) {
+  _emfTrackSettings = emfTrackSettings;
+}
+
+EMFTrackSettings ProjectStore::getEMFTrackSettings() {
+  return _emfTrackSettings;
 }
 
 std::vector<SteamVRTrackPoint*> ProjectStore::getSteamVRTrackPoints() {
@@ -407,6 +422,23 @@ void ProjectStore::updateMetaData() {
   } catch (Lib3MF::ELib3MFException &e) {
     metaData->AddMetaData(META_NAMESPACE, "optitrack", optiTrackData.dump(), "string", true);
   }
+  json emfTrackData = json::array();
+  for (EMFTrackPoint* emfTrackPoint: _emfTrackPoints) {
+    emfTrackData.push_back({
+      {"point", osgVecToStdVec(emfTrackPoint->getTranslation())},
+      {"normal", osgVecToStdVec(emfTrackPoint->getNormal())},
+      {"normalModifier", osgVecToStdVec(emfTrackPoint->getNormalModifier())},
+      {"width", emfTrackPoint->getWidth()},
+      {"height", emfTrackPoint->getHeight()},
+      {"depth", emfTrackPoint->getDepth()}
+    });
+  }
+  try {
+    Lib3MF::PMetaData emfTrackPoints = metaData->GetMetaDataByKey(META_NAMESPACE, "emftrack");
+    emfTrackPoints->SetValue(emfTrackData.dump());
+  } catch (Lib3MF::ELib3MFException &e) {
+    metaData->AddMetaData(META_NAMESPACE, "emftrack", emfTrackData.dump(), "string", true);
+  }
   json steamVrTrackData = json::array();
   for (SteamVRTrackPoint* steamVrTrackPoint: _steamVrTrackPoints) {
     steamVrTrackData.push_back({
@@ -458,6 +490,21 @@ void ProjectStore::loadMetaData() {
       osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
       OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["length"]), static_cast<double>(pointData["radius"]));
       _optiTrackPoints.push_back(optiTrackPoint);
+    }
+  } catch (Lib3MF::ELib3MFException &e) {
+    // TODO: Something is wrong with the file
+  }
+  Lib3MF::PMetaData emfTrackString;
+  try {
+    emfTrackString = metaData->GetMetaDataByKey(META_NAMESPACE, "emftrack");
+    auto emfTrackData = json::parse(emfTrackString->GetValue());
+    _emfTrackPoints.clear();
+    for (const auto pointData: emfTrackData) {
+      osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
+      osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
+      osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
+      EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["width"]), static_cast<double>(pointData["height"]), static_cast<double>(pointData["depth"]));
+      _emfTrackPoints.push_back(emfTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
     // TODO: Something is wrong with the file
