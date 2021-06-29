@@ -2,6 +2,6 @@
 {
     public class Configuration
     {
-        public const int divisor = 100;
+        public const int divisor = 1000;
     }
 }

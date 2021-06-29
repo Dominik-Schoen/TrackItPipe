@@ -105,6 +105,13 @@ public class TrackpointMesh : MonoBehaviour
         CMetaData metaData = metaDataGroup.GetMetaDataByKey(META_NAMESPACE, key);
         return metaData.GetValue();
     }
+
+    public string getActionPointMetaData()
+    {
+        CMetaDataGroup metaDataGroup = model.GetMetaDataGroup();
+        CMetaData metaData = metaDataGroup.GetMetaDataByKey(META_NAMESPACE, "trackpoints-actionpoints");
+        return metaData.GetValue();
+    }
     
     CMeshObject getMesh(CMeshObjectIterator iterator, TrackingSystem trackingSystem)
     {

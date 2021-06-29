@@ -6,7 +6,7 @@ using Valve.VR;
 using JsonConvert = Valve.Newtonsoft.Json.JsonConvert;
 using TrackpointApp;
 
-public class SteamVRTrack : TrackpointMesh
+public class SteamVRTrack : MonoBehaviour
 {
     public string filePath;
     public int rotationCorrection;
@@ -14,6 +14,7 @@ public class SteamVRTrack : TrackpointMesh
 
     private GameObject rotationObject;
     private GameObject meshObject;
+    private List<ActionPoint> actionPoints = new List<ActionPoint>();
     private TrackpointMesh trackpointMesh;
     private SteamVR_TrackedObject tracking;
     
@@ -21,12 +22,15 @@ public class SteamVRTrack : TrackpointMesh
     void Start()
     {
         rotationObject = new GameObject();
+        rotationObject.name = "TrackingRotation";
         meshObject = new GameObject();
+        meshObject.name = "TrackingMesh";
         rotationObject.transform.parent = this.transform;
         trackpointMesh = meshObject.AddComponent<TrackpointMesh>();
         trackpointMesh.transform.parent = rotationObject.transform;
         trackpointMesh.setup(filePath, TrackingSystem.SteamVRTrack);
         setupTrackpointTranslationAndRotation();
+        setupActionPoints();
         tracking = gameObject.AddComponent<SteamVR_TrackedObject>();
         tracking.index = (SteamVR_TrackedObject.EIndex)1;
     }
@@ -48,6 +52,26 @@ public class SteamVRTrack : TrackpointMesh
         Quaternion correction = Quaternion.AngleAxis(rotationCorrection, Vector3.back);
         Quaternion result = correction * rotateObjectToTrackpoint;
         rotationObject.transform.rotation = result;
+    }
+
+    void setupActionPoints()
+    {
+        string metadata = trackpointMesh.getActionPointMetaData();
+        Dictionary<String, trackpoints> metaObject = JsonConvert.DeserializeObject<Dictionary<String, trackpoints>>(metadata);
+        foreach (KeyValuePair<String, trackpoints> actionPoint in metaObject)
+        {
+            GameObject anchor = new GameObject();
+            anchor.name = "ActionPoint " + actionPoint.Key;
+            anchor.transform.parent = trackpointMesh.transform;
+            float[] point = actionPoint.Value.point;
+            float[] normal = actionPoint.Value.normal;
+            anchor.transform.localPosition = new Vector3(point[0] / divisor, point[1] / divisor, point[2] / divisor);
+            Vector3 unityNormal = new Vector3(normal[0], normal[2], normal[1]);
+            anchor.transform.rotation = Quaternion.FromToRotation(Vector3.up, unityNormal);
+            ActionPoint actionPointObject = anchor.AddComponent<ActionPoint>();
+            actionPointObject.setup();
+            actionPoints.Add(actionPointObject);
+        }
     }
 }
 
