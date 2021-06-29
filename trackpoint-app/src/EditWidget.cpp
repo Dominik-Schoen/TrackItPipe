@@ -31,10 +31,15 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   // OptiTrack settings
   QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
   QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
-  QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetOptiTrackSettings);
+  QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateOptiTrackSettings(true); });
+  // EMF Track settings
+  QObject::connect(ui->emfTrackWidth, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateEMFTrackSettings);
+  QObject::connect(ui->emfTrackHeight, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateEMFTrackSettings);
+  QObject::connect(ui->emfTrackDepth, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateEMFTrackSettings);
+  QObject::connect(ui->emfTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateEMFTrackSettings(true); });
   // StramVRTrack settings
   QObject::connect(ui->steamVrTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateSteamVRTrackSettings);
-  QObject::connect(ui->steamVrTrackLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetSteamVRTrackSettings);
+  QObject::connect(ui->steamVrTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateSteamVRTrackSettings(true); });
   // Action point settings
   QObject::connect(ui->actionPointIdentifier, &QLineEdit::textChanged, this, &EditWidget::updateActionPointSettings);
   QObject::connect(ui->actionPointLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetActionPointSettings);
@@ -93,35 +98,36 @@ ActiveTrackingSystem EditWidget::getSelectedTrackingSystem() {
 void EditWidget::setSelection(int id) {
   selectedPoint = id;
   ui->deleteTrackPoint->setEnabled(true);
+  TrackPoint* point;
   switch(ui->tabWidget->currentIndex()) {
     case 0: {
-      OptiTrackPoint* point = MainWindow::getInstance()->getStore()->getOptiTrackPoints()[id];
-      updatePositions(point->getTranslation());
-      updateNormals(point->getNormal());
-      setNormalModifier(point->getNormalModifier());
-      setOptiTrackSettings(point->getLength(), point->getRadius());
+      OptiTrackPoint* optiPoint = MainWindow::getInstance()->getStore()->getOptiTrackPoints()[id];
+      setOptiTrackSettings(optiPoint->getLength(), optiPoint->getRadius());
+      point = static_cast<TrackPoint*>(optiPoint);
       break;
     }
     case 1: {
+      EMFTrackPoint* emfPoint = MainWindow::getInstance()->getStore()->getEMFTrackPoints()[id];
+      setEMFTrackSettings(emfPoint->getWidth(), emfPoint->getHeight(), emfPoint->getDepth());
+      point = static_cast<TrackPoint*>(emfPoint);
       break;
     }
     case 2: {
-      SteamVRTrackPoint* point = MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[id];
-      updatePositions(point->getTranslation());
-      updateNormals(point->getNormal());
-      setNormalModifier(point->getNormalModifier());
-      setSteamVRTrackSettings(point->getLength());
+      SteamVRTrackPoint* steamVrPoint = MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[id];
+      setSteamVRTrackSettings(steamVrPoint->getLength());
+      point = static_cast<TrackPoint*>(steamVrPoint);
       break;
     }
     default: {
-      ActionPoint* point = MainWindow::getInstance()->getStore()->getActionPoints()[id];
-      updatePositions(point->getTranslation());
-      updateNormals(point->getNormal());
-      setNormalModifier(point->getNormalModifier());
-      setActionPointSettings(point->getIdentifier());
+      ActionPoint* actionPoint = MainWindow::getInstance()->getStore()->getActionPoints()[id];
+      setActionPointSettings(actionPoint->getIdentifier());
+      point = static_cast<TrackPoint*>(actionPoint);
       break;
     }
   }
+  updatePositions(point->getTranslation());
+  updateNormals(point->getNormal());
+  setNormalModifier(point->getNormalModifier());
 }
 
 int EditWidget::getSelectedPoint() {
@@ -137,7 +143,12 @@ void EditWidget::updateTrackpointCount() {
     ui->optiTrackCount->setText(countString);
   }
 
-  // TODO: EMF Track
+  count = MainWindow::getInstance()->getStore()->getCount(EMFTrack);
+  {
+    QString countString("TRACKPOINTS SET: ");
+    countString.append(QString::number(count));
+    ui->emfTrackCount->setText(countString);
+  }
 
   count = MainWindow::getInstance()->getStore()->getCount(SteamVRTrack);
   {
@@ -162,8 +173,9 @@ void EditWidget::showEvent(QShowEvent* event) {
 void EditWidget::resetAllSettings() {
   selectedPoint = -1;
   resetNormalModifier();
-  resetOptiTrackSettings();
-  resetSteamVRTrackSettings();
+  updateOptiTrackSettings(true);
+  updateEMFTrackSettings(true);
+  updateSteamVRTrackSettings(true);
   resetActionPointSettings();
 }
 
@@ -232,22 +244,14 @@ void EditWidget::setNormalModifier(osg::Vec3 normalModifier) {
   ui->normalModZ->setValue(normalModifier.z());
 }
 
-void EditWidget::updateOptiTrackSettings() {
-  OptiTrackSettings settings = {ui->optiTrackLength->value(), ui->optiTrackRadius->value()};
-  if (selectedPoint < 0) {
-    MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
-    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+void EditWidget::updateOptiTrackSettings(bool reset) {
+  OptiTrackSettings settings;
+  if (reset) {
+    settings = {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
+    setOptiTrackSettings(OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS);
   } else {
-    MainWindow::getInstance()->getStore()->getOptiTrackPoints()[selectedPoint]->updateOptiTrackSettings(settings);
-    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
-    MainWindow::getInstance()->getStore()->projectModified();
+    settings = {ui->optiTrackLength->value(), ui->optiTrackRadius->value()};
   }
-}
-
-void EditWidget::resetOptiTrackSettings() {
-  OptiTrackSettings settings = {OPTITRACK_DEFAULT_LENGTH, OPTITRACK_DEFAULT_RADIUS};
-  ui->optiTrackLength->setValue(OPTITRACK_DEFAULT_LENGTH);
-  ui->optiTrackRadius->setValue(OPTITRACK_DEFAULT_RADIUS);
   if (selectedPoint < 0) {
     MainWindow::getInstance()->getStore()->updateOptiTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
@@ -263,21 +267,38 @@ void EditWidget::setOptiTrackSettings(double length, double radius) {
   ui->optiTrackRadius->setValue(radius);
 }
 
-void EditWidget::updateSteamVRTrackSettings() {
-  SteamVRTrackSettings settings = {ui->steamVrTrackLength->value()};
+void EditWidget::updateEMFTrackSettings(bool reset) {
+  EMFTrackSettings settings;
+  if (reset) {
+    settings = {EMFTRACK_DEFAULT_WIDTH, EMFTRACK_DEFAULT_HEIGHT, EMFTRACK_DEFAULT_DEPTH};
+    setEMFTrackSettings(EMFTRACK_DEFAULT_WIDTH, EMFTRACK_DEFAULT_HEIGHT, EMFTRACK_DEFAULT_DEPTH);
+  } else {
+    settings = {ui->emfTrackWidth->value(), ui->emfTrackHeight->value(), ui->emfTrackDepth->value()};
+  }
   if (selectedPoint < 0) {
-    MainWindow::getInstance()->getStore()->updateSteamVRTrackSettings(settings);
+    MainWindow::getInstance()->getStore()->updateEMFTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
   } else {
-    MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[selectedPoint]->updateSteamVRTrackSettings(settings);
-    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(SteamVRTrack);
+    MainWindow::getInstance()->getStore()->getEMFTrackPoints()[selectedPoint]->updateEMFTrackSettings(settings);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(EMFTrack);
     MainWindow::getInstance()->getStore()->projectModified();
   }
 }
 
-void EditWidget::resetSteamVRTrackSettings() {
-  SteamVRTrackSettings settings = {STEAMVR_DEFAULT_LENGTH};
-  ui->steamVrTrackLength->setValue(STEAMVR_DEFAULT_LENGTH);
+void EditWidget::setEMFTrackSettings(double width, double height, double depth) {
+  ui->emfTrackWidth->setValue(width);
+  ui->emfTrackHeight->setValue(height);
+  ui->emfTrackDepth->setValue(depth);
+}
+
+void EditWidget::updateSteamVRTrackSettings(bool reset) {
+  SteamVRTrackSettings settings;
+  if (reset) {
+    settings = {STEAMVR_DEFAULT_LENGTH};
+    setSteamVRTrackSettings(STEAMVR_DEFAULT_LENGTH);
+  } else {
+    settings = {ui->steamVrTrackLength->value()};
+  }
   if (selectedPoint < 0) {
     MainWindow::getInstance()->getStore()->updateSteamVRTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
@@ -347,14 +368,15 @@ void EditWidget::deleteCurrentTrackPoint() {
   selectedPoint = -1;
   switch(activeTrackingSystem) {
     case OptiTrack: {
-      resetOptiTrackSettings();
+      updateOptiTrackSettings(true);
       break;
     }
     case EMFTrack: {
+      updateEMFTrackSettings(true);
       break;
     }
     case SteamVRTrack: {
-      resetSteamVRTrackSettings();
+      updateSteamVRTrackSettings(true);
       break;
     }
     case ActionPoints: {

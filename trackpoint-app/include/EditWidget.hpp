@@ -36,11 +36,11 @@ private slots:
   void updateNormalModifier();
   void resetNormalModifier();
   void setNormalModifier(osg::Vec3 normalModifier);
-  void updateOptiTrackSettings();
-  void resetOptiTrackSettings();
+  void updateOptiTrackSettings(bool reset = false);
   void setOptiTrackSettings(double length, double radius);
-  void updateSteamVRTrackSettings();
-  void resetSteamVRTrackSettings();
+  void updateEMFTrackSettings(bool reset = false);
+  void setEMFTrackSettings(double width, double height, double depth);
+  void updateSteamVRTrackSettings(bool reset = false);
   void setSteamVRTrackSettings(double length);
   void updateActionPointSettings(QString input);
   void setActionPointSettings(std::string identifier);

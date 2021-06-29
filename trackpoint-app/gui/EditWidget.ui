@@ -40,7 +40,7 @@
         <x>0</x>
         <y>0</y>
         <width>506</width>
-        <height>912</height>
+        <height>917</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -561,6 +561,86 @@
               <string>TRACKPOINTS SET: 0</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="emfTrackProperties">
+             <property name="font">
+              <font>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
+             <property name="title">
+              <string>PROPERTIES</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <layout class="QGridLayout" name="emfTrackGrid">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="emfTrackWidthLabel">
+                  <property name="text">
+                   <string>Width</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="emfTrackDepthLabel">
+                  <property name="text">
+                   <string>Depth</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="emfTrackHeightLabel">
+                  <property name="text">
+                   <string>Height</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QDoubleSpinBox" name="emfTrackWidth">
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="emfTrackHeight">
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="emfTrackDepth">
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QPushButton" name="emfTrackLoadDefaults">
+                <property name="text">
+                 <string>Load defaults</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="emfTrackSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>1</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
