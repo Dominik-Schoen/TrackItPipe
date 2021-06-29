@@ -17,7 +17,7 @@ public class SteamVRTrack : MonoBehaviour
     private List<ActionPoint> actionPoints = new List<ActionPoint>();
     private TrackpointMesh trackpointMesh;
     private SteamVR_TrackedObject tracking;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,7 +48,7 @@ public class SteamVRTrack : MonoBehaviour
         float[] normal = metaObject[0].normal;
         trackpointMesh.transform.localPosition = new Vector3(-(point[0] / divisor), -(point[1] / divisor), -(point[2] / divisor));
         Vector3 unityNormal = new Vector3(normal[0], normal[2], normal[1]);
-        Quaternion rotateObjectToTrackpoint = Quaternion.FromToRotation(Vector3.up, unityNormal); 
+        Quaternion rotateObjectToTrackpoint = Quaternion.FromToRotation(Vector3.up, unityNormal);
         Quaternion correction = Quaternion.AngleAxis(rotationCorrection, Vector3.back);
         Quaternion result = correction * rotateObjectToTrackpoint;
         rotationObject.transform.rotation = result;
@@ -66,8 +66,8 @@ public class SteamVRTrack : MonoBehaviour
             float[] point = actionPoint.Value.point;
             float[] normal = actionPoint.Value.normal;
             anchor.transform.localPosition = new Vector3(point[0] / divisor, point[1] / divisor, point[2] / divisor);
-            Vector3 unityNormal = new Vector3(normal[0], normal[2], normal[1]);
-            anchor.transform.rotation = Quaternion.FromToRotation(Vector3.up, unityNormal);
+            Vector3 unityNormal = new Vector3(normal[0], normal[1], normal[2]);
+            anchor.transform.localRotation = Quaternion.FromToRotation(Vector3.up, unityNormal);
             ActionPoint actionPointObject = anchor.AddComponent<ActionPoint>();
             actionPointObject.setup();
             actionPoints.Add(actionPointObject);

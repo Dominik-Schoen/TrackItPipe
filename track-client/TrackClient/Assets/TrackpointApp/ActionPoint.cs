@@ -6,13 +6,15 @@ namespace TrackpointApp
     {
         private GameObject cylinder;
         private const int divisor = Configuration.divisor;
-        
+
         public void setup()
         {
             cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            cylinder.transform.parent = this.transform;
-            size(2.5f / divisor, 2.0f / divisor);
+            cylinder.transform.parent = gameObject.transform;
+            cylinder.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
+            cylinder.transform.localRotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
             cylinder.GetComponent<Renderer>().material.color = Color.blue;
+            size(2.5f / divisor, 2.0f / divisor);
         }
 
         private void size(float radius, float length)
