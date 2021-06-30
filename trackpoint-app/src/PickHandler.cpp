@@ -196,6 +196,10 @@ void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
   MainWindow::getInstance()->getEditWiget()->updateNormals(normal);
   if (_shape) {
     osg::Vec3 modifier = MainWindow::getInstance()->getStore()->getNormalModifier();
+    ActiveTrackingSystem activeTrackingSystem = MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem();
+    if (activeTrackingSystem == EMFTrack) {
+      normal = normal.operator*(-1.0f);
+    }
     _shape->rotateToNormalVector(normal);
     _shape->setNormalModifier(modifier);
   }

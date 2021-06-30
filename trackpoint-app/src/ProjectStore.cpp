@@ -134,7 +134,38 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
     exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   if (settings.EMFTrack) {
+    renderer->renderEMFTrack(_emfTrackPoints);
+    Lib3MF::PModel emfTrackModel = _wrapper->CreateModel();
+    Lib3MF::PReader reader = emfTrackModel->QueryReader("3mf");
+    reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_emftrack.3mf");
+    Lib3MF::PMeshObjectIterator meshIterator = emfTrackModel->GetMeshObjects();
+    if (meshIterator->Count() != 1) {
+      return false;
+    }
+    meshIterator->MoveNext();
+    Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
+    Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+    exportMesh->SetName("emftrack");
+    std::vector<Lib3MF::sPosition> verticesBuffer;
+    std::vector<Lib3MF::sTriangle> triangleBuffer;
+    renderedMesh->GetVertices(verticesBuffer);
+    renderedMesh->GetTriangleIndices(triangleBuffer);
+    exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
+    json trackpointData = json::array();
+    for (EMFTrackPoint* point: _emfTrackPoints) {
+      osg::Vec3 moveToMid = point->getNormal().operator*(-(point->getDepth() / 2));
+      osg::Vec3 trackPoint = point->getTrackPoint().operator+(moveToMid);
+      osg::Vec3 trackNormal = point->getNormal();
+      json pointData = {
+        {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
+        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
+      };
+      trackpointData.push_back(pointData);
+    }
 
+    Lib3MF::PMetaDataGroup emfMetaData = exportMesh->GetMetaDataGroup();
+    emfMetaData->AddMetaData(META_NAMESPACE, "trackpoints-emftrack", trackpointData.dump(), "string", true);
+    exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
   }
   if (settings.SteamVRTrack) {
     renderer->renderSteamVRTrack(_steamVrTrackPoints);
@@ -228,6 +259,7 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
       break;
     }
     case EMFTrack: {
+      normal = normal.operator*(-1.0f);
       EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, _normalModifier, _emfTrackSettings.width, _emfTrackSettings.height, _emfTrackSettings.depth);
       _emfTrackPoints.push_back(emfTrackPoint);
       break;
