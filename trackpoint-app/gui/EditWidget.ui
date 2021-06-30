@@ -503,7 +503,7 @@
                 <item row="1" column="1">
                  <widget class="QDoubleSpinBox" name="optiTrackRadius">
                   <property name="minimum">
-                   <double>1.000000000000000</double>
+                   <double>1.500000000000000</double>
                   </property>
                   <property name="maximum">
                    <double>10.000000000000000</double>

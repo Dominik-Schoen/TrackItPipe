@@ -38,6 +38,7 @@ private:
   osg::ref_ptr<osg::MatrixTransform> _screwMove;
   osg::ref_ptr<osg::Group> _renderRoot;
   osg::ref_ptr<osg::ShapeDrawable> _shape;
+  osg::ref_ptr<osg::ShapeDrawable> _optiConnector;
   osg::ref_ptr<osg::Geode> _thread;
   osg::ref_ptr<osg::Geode> _geode;
   osg::Vec3f _normalModifier;

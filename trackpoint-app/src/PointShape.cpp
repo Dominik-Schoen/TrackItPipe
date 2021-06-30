@@ -71,6 +71,9 @@ void PointShape::setColor(osg::Vec4 color) {
   if (_thread) {
     OSGWidget::fixMaterialState(_thread, &color);
   }
+  if (_optiConnector) {
+    _optiConnector->setColor(color);
+  }
 }
 
 void PointShape::setupOptiTrack(OptiTrackSettings optiTrackSettings) {
@@ -78,9 +81,13 @@ void PointShape::setupOptiTrack(OptiTrackSettings optiTrackSettings) {
     _optiTrackSteamVRLength = optiTrackSettings.length;
     _geode = new osg::Geode;
     _shape = new osg::ShapeDrawable;
-    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), optiTrackSettings.radius, optiTrackSettings.length));
+    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, -2.5f), optiTrackSettings.radius, optiTrackSettings.length - 5.0f));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());
+    _optiConnector = new osg::ShapeDrawable;
+    _optiConnector->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, optiTrackSettings.length - 7.5f), 0.74f, 5.0f));
+    _optiConnector->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
+    _geode->addDrawable(_optiConnector.get());
     OSGWidget::fixMaterialState(_geode);
     _selectionRotateGroup->addChild(_geode.get());
   }
