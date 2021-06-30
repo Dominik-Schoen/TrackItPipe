@@ -76,7 +76,7 @@ void TrackPointRenderer::clear() {
 }
 
 PointShape* TrackPointRenderer::addPointShape(TrackPoint* point, ActiveTrackingSystem activeTrackingSystem) {
-  PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+  PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier(), point->getNormalRotation());
   return newShape;
 }
 
@@ -86,6 +86,6 @@ void TrackPointRenderer::commonSetupPointShape(PointShape* shape, TrackPoint* po
   } else {
     shape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
   }
-  shape->rotateToNormalVector(point->getNormal());
+  shape->rotateToNormalVector(point->getNormal(), point->getNormalRotation());
   _shapes.push_back(shape);
 }

@@ -54,6 +54,14 @@ public:
   void updateNormalModifier(osg::Vec3 modifier);
   // Return normal modifier
   osg::Vec3 getNormalModifier();
+  // Update normal rotation
+  void updateNormalRotation(float normalRotation);
+  // Return normal rotation
+  float getNormalRotation();
+  // Update compensation
+  void updateCompensation(bool compensation);
+  // Return compensation
+  bool getCompensation();
   // OPTITRACK
   // Get all OptiTrack points
   std::vector<OptiTrackPoint*> getOptiTrackPoints();
@@ -100,6 +108,8 @@ private:
   SteamVRTrackSettings _steamVrTrackSettings = SteamVRTrackSettings {STEAMVR_DEFAULT_LENGTH};
   ActionPointSettings _actionPointSettings = ActionPointSettings {ACTIONPOINT_DEFAULT_IDENFIFIER};
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
+  float _normalRotation = 0.0f;
+  bool _compensation = true;
   void load3mfLib();
   void reset();
   void render3MFMesh();

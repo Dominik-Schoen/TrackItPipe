@@ -27,6 +27,8 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->normalModX, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
   QObject::connect(ui->normalModY, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
   QObject::connect(ui->normalModZ, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
+  QObject::connect(ui->rotateAroundNormal, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateNormalRotation(false); });
+  QObject::connect(ui->compensation, &QCheckBox::stateChanged, this, [=](){ this->updateCompensation(false); });
   QObject::connect(ui->modifierReset, &QPushButton::clicked, this, &EditWidget::resetNormalModifier);
   // OptiTrack settings
   QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateOptiTrackSettings(false); });
@@ -50,6 +52,8 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   if (!OpenScadRenderer::openScadAvailable()) {
     ui->exportGroup->setEnabled(false);
   }
+  ui->exportProgress->setVisible(false);
+  ui->exportLabel->setVisible(false);
 }
 
 EditWidget::~EditWidget() {
@@ -242,6 +246,54 @@ void EditWidget::setNormalModifier(osg::Vec3 normalModifier) {
   ui->normalModX->setValue(normalModifier.x());
   ui->normalModY->setValue(normalModifier.y());
   ui->normalModZ->setValue(normalModifier.z());
+}
+
+void EditWidget::updateNormalRotation(bool reset) {
+  float normalRotation;
+  if (reset) {
+    normalRotation = 0.0f;
+  } else {
+    normalRotation = ui->rotateAroundNormal->value();
+  }
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateNormalRotation(normalRotation);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+    MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalRotation(normalRotation);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+    MainWindow::getInstance()->getStore()->projectModified();
+  }
+}
+
+void EditWidget::setNormalRotation(float normalRotation) {
+  ui->rotateAroundNormal->value();
+}
+
+void EditWidget::updateCompensation(bool reset) {
+  bool compensation;
+  if (reset) {
+    compensation = true;
+  } else {
+    compensation = ui->compensation->checkState() == Qt::Checked ? true : false;
+  }
+  if (selectedPoint < 0) {
+    MainWindow::getInstance()->getStore()->updateCompensation(compensation);
+    MainWindow::getInstance()->getOsgWidget()->getPicker()->updateRenderer();
+  } else {
+    ActiveTrackingSystem activeTrackingSystem = getSelectedTrackingSystem();
+    MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateCompensation(compensation);
+    MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
+    MainWindow::getInstance()->getStore()->projectModified();
+  }
+}
+
+void EditWidget::setCompensation(bool compensation) {
+  if (compensation) {
+    ui->compensation->setCheckState(Qt::Checked);
+  } else {
+    ui->compensation->setCheckState(Qt::Unchecked);
+  }
 }
 
 void EditWidget::updateOptiTrackSettings(bool reset) {

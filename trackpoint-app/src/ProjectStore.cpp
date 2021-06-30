@@ -158,7 +158,8 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
       osg::Vec3 trackNormal = point->getNormal();
       json pointData = {
         {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
-        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
+        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}},
+        {"rotation", point->getNormalRotation()}
       };
       trackpointData.push_back(pointData);
     }
@@ -254,23 +255,23 @@ TrackPoint* ProjectStore::getTrackPointById(int id, ActiveTrackingSystem activeT
 void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTrackingSystem activeTrackingSystem) {
   switch(activeTrackingSystem) {
     case OptiTrack: {
-      OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _optiTrackSettings.length, _optiTrackSettings.radius);
+      OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _normalRotation, _compensation, _optiTrackSettings.length, _optiTrackSettings.radius);
       _optiTrackPoints.push_back(optiTrackPoint);
       break;
     }
     case EMFTrack: {
       normal = normal.operator*(-1.0f);
-      EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, _normalModifier, _emfTrackSettings.width, _emfTrackSettings.height, _emfTrackSettings.depth);
+      EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, _normalModifier, _normalRotation, _compensation, _emfTrackSettings.width, _emfTrackSettings.height, _emfTrackSettings.depth);
       _emfTrackPoints.push_back(emfTrackPoint);
       break;
     }
     case SteamVRTrack: {
-      SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, _normalModifier, _steamVrTrackSettings.length);
+      SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, _normalModifier, _normalRotation, _compensation, _steamVrTrackSettings.length);
       _steamVrTrackPoints.push_back(steamVrTrackPoint);
       break;
     }
     case ActionPoints: {
-      ActionPoint* actionPoint = new ActionPoint(point, normal, _normalModifier, _actionPointSettings.identifier);
+      ActionPoint* actionPoint = new ActionPoint(point, normal, _normalModifier, _normalRotation, _compensation, _actionPointSettings.identifier);
       _actionPoints.push_back(actionPoint);
       break;
     }
@@ -325,6 +326,22 @@ void ProjectStore::updateNormalModifier(osg::Vec3 modifier) {
 
 osg::Vec3 ProjectStore::getNormalModifier() {
   return _normalModifier;
+}
+
+void ProjectStore::updateNormalRotation(float normalRotation) {
+  _normalRotation = normalRotation;
+}
+
+float ProjectStore::getNormalRotation() {
+  return _normalRotation;
+}
+
+void ProjectStore::updateCompensation(bool compensation) {
+  _compensation = compensation;
+}
+
+bool ProjectStore::getCompensation() {
+  return _compensation;
 }
 
 std::vector<OptiTrackPoint*> ProjectStore::getOptiTrackPoints() {
@@ -444,6 +461,8 @@ void ProjectStore::updateMetaData() {
       {"point", osgVecToStdVec(optiTrackPoint->getTranslation())},
       {"normal", osgVecToStdVec(optiTrackPoint->getNormal())},
       {"normalModifier", osgVecToStdVec(optiTrackPoint->getNormalModifier())},
+      {"normalRotation", optiTrackPoint->getNormalRotation()},
+      {"compensation", optiTrackPoint->getCompensation()},
       {"length", optiTrackPoint->getLength()},
       {"radius", optiTrackPoint->getRadius()}
     });
@@ -460,6 +479,8 @@ void ProjectStore::updateMetaData() {
       {"point", osgVecToStdVec(emfTrackPoint->getTranslation())},
       {"normal", osgVecToStdVec(emfTrackPoint->getNormal())},
       {"normalModifier", osgVecToStdVec(emfTrackPoint->getNormalModifier())},
+      {"normalRotation", emfTrackPoint->getNormalRotation()},
+      {"compensation", emfTrackPoint->getCompensation()},
       {"width", emfTrackPoint->getWidth()},
       {"height", emfTrackPoint->getHeight()},
       {"depth", emfTrackPoint->getDepth()}
@@ -477,6 +498,8 @@ void ProjectStore::updateMetaData() {
       {"point", osgVecToStdVec(steamVrTrackPoint->getTranslation())},
       {"normal", osgVecToStdVec(steamVrTrackPoint->getNormal())},
       {"normalModifier", osgVecToStdVec(steamVrTrackPoint->getNormalModifier())},
+      {"normalRotation", steamVrTrackPoint->getNormalRotation()},
+      {"compensation", steamVrTrackPoint->getCompensation()},
       {"length", steamVrTrackPoint->getLength()}
     });
   }
@@ -492,6 +515,8 @@ void ProjectStore::updateMetaData() {
       {"point", osgVecToStdVec(actionPoint->getTranslation())},
       {"normal", osgVecToStdVec(actionPoint->getNormal())},
       {"normalModifier", osgVecToStdVec(actionPoint->getNormalModifier())},
+      {"normalRotation", actionPoint->getNormalRotation()},
+      {"compensation", actionPoint->getCompensation()},
       {"identifier", actionPoint->getIdentifier()}
     });
   }
@@ -520,7 +545,7 @@ void ProjectStore::loadMetaData() {
       osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
       osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
       osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
-      OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["length"]), static_cast<double>(pointData["radius"]));
+      OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, normalModifier, static_cast<float>(pointData["normalRotation"]), static_cast<bool>(pointData["compensation"]), static_cast<double>(pointData["length"]), static_cast<double>(pointData["radius"]));
       _optiTrackPoints.push_back(optiTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
@@ -535,7 +560,7 @@ void ProjectStore::loadMetaData() {
       osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
       osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
       osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
-      EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["width"]), static_cast<double>(pointData["height"]), static_cast<double>(pointData["depth"]));
+      EMFTrackPoint* emfTrackPoint = new EMFTrackPoint(point, normal, normalModifier, static_cast<float>(pointData["normalRotation"]), static_cast<bool>(pointData["compensation"]), static_cast<double>(pointData["width"]), static_cast<double>(pointData["height"]), static_cast<double>(pointData["depth"]));
       _emfTrackPoints.push_back(emfTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
@@ -550,7 +575,7 @@ void ProjectStore::loadMetaData() {
       osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
       osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
       osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
-      SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, normalModifier, static_cast<double>(pointData["length"]));
+      SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, normalModifier, static_cast<float>(pointData["normalRotation"]), static_cast<bool>(pointData["compensation"]), static_cast<double>(pointData["length"]));
       _steamVrTrackPoints.push_back(steamVrTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
@@ -565,7 +590,7 @@ void ProjectStore::loadMetaData() {
       osg::Vec3f point = osg::Vec3f(pointData["point"][0], pointData["point"][1], pointData["point"][2]);
       osg::Vec3f normal = osg::Vec3f(pointData["normal"][0], pointData["normal"][1], pointData["normal"][2]);
       osg::Vec3f normalModifier = osg::Vec3f(pointData["normalModifier"][0], pointData["normalModifier"][1], pointData["normalModifier"][2]);
-      ActionPoint* actionPoint = new ActionPoint(point, normal, normalModifier, pointData["identifier"]);
+      ActionPoint* actionPoint = new ActionPoint(point, normal, normalModifier, static_cast<float>(pointData["normalRotation"]), static_cast<bool>(pointData["compensation"]), pointData["identifier"]);
       _actionPoints.push_back(actionPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {

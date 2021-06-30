@@ -157,24 +157,24 @@ void PickHandler::updateRenderer() {
   switch(activeTrackingSystem) {
     case OptiTrack: {
       OptiTrackSettings settings = MainWindow::getInstance()->getStore()->getOptiTrackSettings();
-      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), 0.0f);
       _shape->setupOptiTrack(settings);
       break;
     }
     case EMFTrack: {
       EMFTrackSettings settings = MainWindow::getInstance()->getStore()->getEMFTrackSettings();
-      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), 0.0f);
       _shape->setupEMFTrack(settings);
       break;
     }
     case SteamVRTrack: {
       SteamVRTrackSettings settings = MainWindow::getInstance()->getStore()->getSteamVRTrackSettings();
-      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), 0.0f);
       _shape->setupSteamVRTrack(settings);
       break;
     }
     case ActionPoints: {
-      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), 0.0f);
       _shape->setupActionPoints();
       break;
     }
@@ -196,11 +196,12 @@ void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
   MainWindow::getInstance()->getEditWiget()->updateNormals(normal);
   if (_shape) {
     osg::Vec3 modifier = MainWindow::getInstance()->getStore()->getNormalModifier();
+    float normalRotation = MainWindow::getInstance()->getStore()->getNormalRotation();
     ActiveTrackingSystem activeTrackingSystem = MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem();
     if (activeTrackingSystem == EMFTrack) {
       normal = normal.operator*(-1.0f);
     }
-    _shape->rotateToNormalVector(normal);
+    _shape->rotateToNormalVector(normal, normalRotation);
     _shape->setNormalModifier(modifier);
   }
 }

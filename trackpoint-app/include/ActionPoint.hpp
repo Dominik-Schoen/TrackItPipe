@@ -7,7 +7,7 @@
 
 class ActionPoint: public TrackPoint {
 public:
-  ActionPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const std::string identifier = ACTIONPOINT_DEFAULT_IDENFIFIER);
+  ActionPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const float normalRotation, const bool compensation, const std::string identifier = ACTIONPOINT_DEFAULT_IDENFIFIER);
   std::string getIdentifier();
   ActionPointSettings getActionPointSettings();
   void updateActionPointSettings(ActionPointSettings settings);

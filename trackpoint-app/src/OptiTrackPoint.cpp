@@ -1,14 +1,14 @@
 // Include own headers
 #include "OptiTrackPoint.hpp"
 
-OptiTrackPoint::OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double length, const double radius): TrackPoint(point, normal, normalModifier) {
+OptiTrackPoint::OptiTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const float normalRotation, const bool compensation, const double length, const double radius): TrackPoint(point, normal, normalModifier, normalRotation, compensation) {
   _length = length;
   _radius = radius;
   updateShift();
 }
 
 double OptiTrackPoint::getLength() {
-  return _length;
+  return _length;// + MeshTools::compensationLength(_normal, _normalModifier, _radius);
 }
 
 double OptiTrackPoint::getRadius() {

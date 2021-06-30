@@ -1,7 +1,7 @@
 // Include own headers
 #include "ActionPoint.hpp"
 
-ActionPoint::ActionPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const std::string identifier): TrackPoint(point, normal, normalModifier) {
+ActionPoint::ActionPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const float normalRotation, const bool compensation, const std::string identifier): TrackPoint(point, normal, normalModifier, normalRotation, compensation) {
   _identifier = identifier;
 }
 

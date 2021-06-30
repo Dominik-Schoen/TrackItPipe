@@ -16,11 +16,11 @@
 class PointShape {
 public:
   static void loadSteamvrThread();
-  PointShape(const osg::ref_ptr<osg::Group> renderRoot, const ActiveTrackingSystem activeTrackingSystem, osg::Vec3f point, osg::Vec3f normal, osg::Vec3f normalModifier);
+  PointShape(const osg::ref_ptr<osg::Group> renderRoot, const ActiveTrackingSystem activeTrackingSystem, osg::Vec3f point, osg::Vec3f normal, osg::Vec3f normalModifier, float normalRotation);
   ~PointShape();
   void moveTo(osg::Vec3f position);
   void setNormalModifier(osg::Vec3f normalModifier);
-  void rotateToNormalVector(osg::Vec3f normal);
+  void rotateToNormalVector(osg::Vec3f normal, float normalRotation);
   void setVisibility(bool mode);
   void setColor(osg::Vec4 color);
   void setupOptiTrack(OptiTrackSettings optiTrackSettings);

@@ -4,10 +4,12 @@
 // Include modules
 #include "OSGWidget.hpp"
 
-TrackPoint::TrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier) {
+TrackPoint::TrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const float normalRotation, const bool compensation) {
   _origin = point;
   _normal = normal;
   _normalModifier = normalModifier;
+  _normalRotation = normalRotation;
+  _compensation = compensation;
 }
 
 osg::Vec3 TrackPoint::getTranslation() {
@@ -22,6 +24,10 @@ osg::Vec3 TrackPoint::getRotation() {
   // From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   osg::Quat quat = osg::Quat(0.0f, 0.0f, 0.0f, 0.0f);
   quat.makeRotate(start, finalNormal);
+  osg::Matrix matrix;
+  quat.get(matrix);
+  matrix = matrix.operator*(osg::Matrix::rotate(_normalRotation * M_PI / 180, finalNormal));
+  quat.set(matrix);
 
   float sinr_cosp = 2 * (quat.w() * quat.x() + quat.y() * quat.z());
   float cosr_cosp = 1 - 2 * (quat.x() * quat.x() + quat.y() * quat.y());
@@ -54,10 +60,26 @@ osg::Vec3 TrackPoint::getTrackPoint() {
   return _trackOrigin;
 }
 
+float TrackPoint::getNormalRotation() {
+  return _normalRotation;
+}
+
+bool TrackPoint::getCompensation() {
+  return _compensation;
+}
+
 void TrackPoint::updateNormalModifier(osg::Vec3 normalModifier) {
   _normalModifier = normalModifier;
 }
 
 void TrackPoint::updatePositions(osg::Vec3 origin) {
   _origin = origin;
+}
+
+void TrackPoint::updateNormalRotation(float normalRotation) {
+  _normalRotation = normalRotation;
+}
+
+void TrackPoint::updateCompensation(bool compensation) {
+  _compensation = compensation;
 }

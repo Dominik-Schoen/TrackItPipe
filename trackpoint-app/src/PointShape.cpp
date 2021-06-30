@@ -10,7 +10,7 @@
 #include <osgUtil/MeshOptimizers>
 #include "lib3mf_implicit.hpp"
 
-PointShape::PointShape(const osg::ref_ptr<osg::Group> renderRoot, const ActiveTrackingSystem activeTrackingSystem, osg::Vec3f point, osg::Vec3f normal, osg::Vec3f normalModifier) {
+PointShape::PointShape(const osg::ref_ptr<osg::Group> renderRoot, const ActiveTrackingSystem activeTrackingSystem, osg::Vec3f point, osg::Vec3f normal, osg::Vec3f normalModifier, float normalRotation) {
   _renderRoot = renderRoot;
   _activeTrackingSystem = activeTrackingSystem;
 
@@ -32,7 +32,7 @@ PointShape::PointShape(const osg::ref_ptr<osg::Group> renderRoot, const ActiveTr
 
   moveTo(point);
   setNormalModifier(normalModifier);
-  rotateToNormalVector(normal);
+  rotateToNormalVector(normal, normalRotation);
 }
 
 PointShape::~PointShape() {
@@ -47,11 +47,13 @@ void PointShape::setNormalModifier(osg::Vec3f normalModifier) {
   _normalModifier = normalModifier;
 }
 
-void PointShape::rotateToNormalVector(osg::Vec3f normal) {
+void PointShape::rotateToNormalVector(osg::Vec3f normal, float normalRotation) {
   osg::Matrix modifierRotation = osg::Matrix::rotate(_normalModifier.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), _normalModifier.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), _normalModifier.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
   normal = modifierRotation.preMult(normal);
   normal.normalize();
-  _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
+  osg::Matrix matrix = osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal);
+  matrix = matrix.operator*(osg::Matrix::rotate(normalRotation * M_PI / 180, normal));
+  _selectionRotateGroup->setMatrix(matrix);
   if (_activeTrackingSystem == OptiTrack || _activeTrackingSystem == SteamVRTrack) {
     osg::Vec3f movementVector = normal.operator*(_optiTrackSteamVRLength / 2);
     _selectionMoveToEndGroup->setMatrix(osg::Matrix::translate(movementVector));

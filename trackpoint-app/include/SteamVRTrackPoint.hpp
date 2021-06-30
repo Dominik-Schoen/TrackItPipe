@@ -7,7 +7,7 @@
 
 class SteamVRTrackPoint: public TrackPoint {
 public:
-  SteamVRTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double length = STEAMVR_DEFAULT_LENGTH);
+  SteamVRTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const float normalRotation, const bool compensation, const double length = STEAMVR_DEFAULT_LENGTH);
   double getLength();
   SteamVRTrackSettings getSteamVRTrackSettings();
   void updateSteamVRTrackSettings(SteamVRTrackSettings settings);

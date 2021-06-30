@@ -36,6 +36,10 @@ private slots:
   void updateNormalModifier();
   void resetNormalModifier();
   void setNormalModifier(osg::Vec3 normalModifier);
+  void updateNormalRotation(bool reset = false);
+  void setNormalRotation(float normalRotation);
+  void updateCompensation(bool reset = false);
+  void setCompensation(bool compensation);
   void updateOptiTrackSettings(bool reset = false);
   void setOptiTrackSettings(double length, double radius);
   void updateEMFTrackSettings(bool reset = false);

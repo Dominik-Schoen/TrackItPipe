@@ -1,7 +1,7 @@
 // Include own headers
 #include "EMFTrackPoint.hpp"
 
-EMFTrackPoint::EMFTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const double width, const double height, const double depth): TrackPoint(point, normal, normalModifier) {
+EMFTrackPoint::EMFTrackPoint(const osg::Vec3 point, const osg::Vec3 normal, const osg::Vec3 normalModifier, const float normalRotation, const bool compensation, const double width, const double height, const double depth): TrackPoint(point, normal, normalModifier, normalRotation, compensation) {
   _width = width;
   _height = height;
   _depth = depth;
