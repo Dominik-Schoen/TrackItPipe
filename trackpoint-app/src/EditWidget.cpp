@@ -29,16 +29,16 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->normalModZ, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateNormalModifier);
   QObject::connect(ui->modifierReset, &QPushButton::clicked, this, &EditWidget::resetNormalModifier);
   // OptiTrack settings
-  QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
-  QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateOptiTrackSettings);
+  QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateOptiTrackSettings(false); });
+  QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateOptiTrackSettings(false); });
   QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateOptiTrackSettings(true); });
   // EMF Track settings
-  QObject::connect(ui->emfTrackWidth, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateEMFTrackSettings);
-  QObject::connect(ui->emfTrackHeight, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateEMFTrackSettings);
-  QObject::connect(ui->emfTrackDepth, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateEMFTrackSettings);
+  QObject::connect(ui->emfTrackWidth, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
+  QObject::connect(ui->emfTrackHeight, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
+  QObject::connect(ui->emfTrackDepth, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
   QObject::connect(ui->emfTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateEMFTrackSettings(true); });
   // StramVRTrack settings
-  QObject::connect(ui->steamVrTrackLength, &QDoubleSpinBox::valueChanged, this, &EditWidget::updateSteamVRTrackSettings);
+  QObject::connect(ui->steamVrTrackLength, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateSteamVRTrackSettings(false); });
   QObject::connect(ui->steamVrTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateSteamVRTrackSettings(true); });
   // Action point settings
   QObject::connect(ui->actionPointIdentifier, &QLineEdit::textChanged, this, &EditWidget::updateActionPointSettings);
