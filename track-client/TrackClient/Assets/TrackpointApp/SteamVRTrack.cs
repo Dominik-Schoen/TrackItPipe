@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Valve.VR;
 using JsonConvert = Valve.Newtonsoft.Json.JsonConvert;
@@ -57,20 +58,26 @@ public class SteamVRTrack : MonoBehaviour
     void setupActionPoints()
     {
         string metadata = trackpointMesh.getActionPointMetaData();
-        Dictionary<String, trackpoints> metaObject = JsonConvert.DeserializeObject<Dictionary<String, trackpoints>>(metadata);
-        foreach (KeyValuePair<String, trackpoints> actionPoint in metaObject)
+        if (metadata != "")
         {
-            GameObject anchor = new GameObject();
-            anchor.name = "ActionPoint " + actionPoint.Key;
-            anchor.transform.parent = trackpointMesh.transform;
-            float[] point = actionPoint.Value.point;
-            float[] normal = actionPoint.Value.normal;
-            anchor.transform.localPosition = new Vector3(point[0] / divisor, point[1] / divisor, point[2] / divisor);
-            Vector3 unityNormal = new Vector3(normal[0], normal[1], normal[2]);
-            anchor.transform.localRotation = Quaternion.FromToRotation(Vector3.up, unityNormal);
-            ActionPoint actionPointObject = anchor.AddComponent<ActionPoint>();
-            actionPointObject.setup();
-            actionPoints.Add(actionPointObject);
+            Dictionary<String, trackpoints> metaObject =
+                JsonConvert.DeserializeObject<Dictionary<String, trackpoints>>(metadata);
+            if (metaObject.Count() <= 0) return;
+            foreach (KeyValuePair<String, trackpoints> actionPoint in metaObject)
+            {
+                GameObject anchor = new GameObject();
+                anchor.name = "ActionPoint " + actionPoint.Key;
+                anchor.transform.parent = trackpointMesh.transform;
+                float[] point = actionPoint.Value.point;
+                float[] normal = actionPoint.Value.normal;
+                anchor.transform.localPosition =
+                    new Vector3(point[0] / divisor, point[1] / divisor, point[2] / divisor);
+                Vector3 unityNormal = new Vector3(normal[0], normal[1], normal[2]);
+                anchor.transform.localRotation = Quaternion.FromToRotation(Vector3.up, unityNormal);
+                ActionPoint actionPointObject = anchor.AddComponent<ActionPoint>();
+                actionPointObject.setup();
+                actionPoints.Add(actionPointObject);
+            }
         }
     }
 }
