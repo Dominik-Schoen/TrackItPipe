@@ -51,14 +51,7 @@ void PointShape::rotateToNormalVector(osg::Vec3f normal) {
   osg::Matrix modifierRotation = osg::Matrix::rotate(_normalModifier.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), _normalModifier.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), _normalModifier.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
   normal = modifierRotation.preMult(normal);
   normal.normalize();
-  osg::Matrix rotationMatrix;
-  if (_activeTrackingSystem == EMFTrack) {
-    osg::Vec3 angles = getRotation(normal);
-    rotationMatrix = osg::Matrix::rotate(angles.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), angles.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), angles.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
-  } else {
-    rotationMatrix = osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal);
-  }
-  _selectionRotateGroup->setMatrix(rotationMatrix);
+  _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
   if (_activeTrackingSystem == OptiTrack || _activeTrackingSystem == SteamVRTrack) {
     osg::Vec3f movementVector = normal.operator*(_optiTrackSteamVRLength / 2);
     _selectionMoveToEndGroup->setMatrix(osg::Matrix::translate(movementVector));
@@ -146,31 +139,4 @@ osg::Matrix PointShape::emfYFix(osg::Vec3 normal) {
   xyNormal.normalize();
   float deg = (90.0f * M_PI / 180) * normal.x() * -1;
   return osg::Matrix::rotate(deg, normal);
-}
-
-osg::Vec3 PointShape::getRotation(osg::Vec3 normal) {
-  osg::Vec3 start = osg::Vec3(0.0f, 0.0f, 1.0f);
-  osg::Vec3 finalNormal = normal;
-
-  // From https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-  osg::Quat quat = osg::Quat(0.0f, 0.0f, 0.0f, 0.0f);
-  quat.makeRotate(start, finalNormal);
-
-  float sinr_cosp = 2 * (quat.w() * quat.x() + quat.y() * quat.z());
-  float cosr_cosp = 1 - 2 * (quat.x() * quat.x() + quat.y() * quat.y());
-  float xRotation = std::atan2(sinr_cosp, cosr_cosp) * 180.0 / M_PI;
-
-  float sinp = 2 * (quat.w() * quat.y() - quat.z() * quat.x());
-  float yRotation;
-  if (std::abs(sinp) >= 1) {
-    yRotation = std::copysign(M_PI / 2, sinp) * 180.0 / M_PI;
-  } else {
-    yRotation = std::asin(sinp) * 180.0 / M_PI;
-  }
-
-  float siny_cosp = 2 * (quat.w() * quat.z() + quat.x() * quat.y());
-  float cosy_cosp = 1 - 2 * (quat.y() * quat.y() + quat.z() * quat.z());
-  float zRotation = std::atan2(siny_cosp, cosy_cosp) * 180.0 / M_PI;
-
-  return osg::Vec3(xRotation, yRotation, zRotation);
 }

@@ -31,7 +31,6 @@ public:
 
 private:
   osg::Matrix emfYFix(osg::Vec3 normal);
-  osg::Vec3 getRotation(osg::Vec3 normal);
   osg::ref_ptr<osg::Switch> _selectionSwitch;
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
