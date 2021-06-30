@@ -11,6 +11,7 @@ public:
   double getLength();
   SteamVRTrackSettings getSteamVRTrackSettings();
   void updateSteamVRTrackSettings(SteamVRTrackSettings settings);
+  float getNormalCompensation();
 
 private:
   void updateShift();

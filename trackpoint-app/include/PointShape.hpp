@@ -27,6 +27,7 @@ public:
   void setupEMFTrack(EMFTrackSettings emfTrackSettings);
   void setupSteamVRTrack(SteamVRTrackSettings steamVrTrackSettings);
   void setupActionPoints();
+  void setCompensation(bool compensation, float compensationLength);
   osg::ref_ptr<osg::Geode> getMesh();
 
 private:
@@ -44,4 +45,6 @@ private:
   osg::Vec3f _normalModifier;
   double _optiTrackSteamVRLength;
   ActiveTrackingSystem _activeTrackingSystem;
+  bool _compensation = true;
+  float _compensationLength = 0.0f;
 };

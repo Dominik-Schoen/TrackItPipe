@@ -3,6 +3,7 @@
 
 // Include modules
 #include "TrackPointRenderer.hpp"
+#include "MeshTools.hpp"
 
 // Include dependencies
 #include <osg/io_utils>
@@ -203,6 +204,29 @@ void PickHandler::rotateToNormalVector(osg::Vec3f normal) {
     }
     _shape->rotateToNormalVector(normal, normalRotation);
     _shape->setNormalModifier(modifier);
+    float objectWidth;
+    switch(activeTrackingSystem) {
+      case OptiTrack: {
+        OptiTrackSettings settings = MainWindow::getInstance()->getStore()->getOptiTrackSettings();
+        objectWidth = settings.radius;
+        break;
+      }
+      case EMFTrack: {
+        EMFTrackSettings settings = MainWindow::getInstance()->getStore()->getEMFTrackSettings();
+        objectWidth = std::sqrt(std::pow(settings.width / 2, 2) + std::pow(settings.height / 2, 2));
+        break;
+      }
+      case SteamVRTrack: {
+        objectWidth = STEAMVR_CONSTANT_RADIUS;
+        break;
+      }
+      case ActionPoints: {
+        objectWidth = 0.0f;
+        break;
+      }
+    }
+    float compensationLength = MeshTools::compensationLength(normal, modifier, objectWidth);
+    _shape->setCompensation(MainWindow::getInstance()->getStore()->getCompensation(), compensationLength);
   }
 }
 

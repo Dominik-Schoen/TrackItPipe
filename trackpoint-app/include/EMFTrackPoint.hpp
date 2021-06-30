@@ -13,6 +13,7 @@ public:
   double getDepth();
   EMFTrackSettings getEMFTrackSettings();
   void updateEMFTrackSettings(EMFTrackSettings settings);
+  float getNormalCompensation();
 
 private:
   double _width;

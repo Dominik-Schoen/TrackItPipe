@@ -21,6 +21,7 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       int id = 0;
       for (OptiTrackPoint* point: points) {
         PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
+        newShape->setCompensation(point->getCompensation(), point->getNormalCompensation());
         newShape->setupOptiTrack(point->getOptiTrackSettings());
         commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;
@@ -32,6 +33,7 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       int id = 0;
       for (EMFTrackPoint* point: points) {
         PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
+        newShape->setCompensation(point->getCompensation(), point->getNormalCompensation());
         newShape->setupEMFTrack(point->getEMFTrackSettings());
         commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;
@@ -43,6 +45,7 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       int id = 0;
       for (SteamVRTrackPoint* point: points) {
         PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
+        newShape->setCompensation(point->getCompensation(), point->getNormalCompensation());
         newShape->setupSteamVRTrack(point->getSteamVRTrackSettings());
         commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;
@@ -54,6 +57,7 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       int id = 0;
       for (ActionPoint* point: points) {
         PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
+        newShape->setCompensation(point->getCompensation(), 0.0f);
         newShape->setupActionPoints();
         commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;

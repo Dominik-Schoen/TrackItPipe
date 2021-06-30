@@ -12,6 +12,7 @@ public:
   double getRadius();
   OptiTrackSettings getOptiTrackSettings();
   void updateOptiTrackSettings(OptiTrackSettings settings);
+  float getNormalCompensation();
 
 private:
   void updateShift();

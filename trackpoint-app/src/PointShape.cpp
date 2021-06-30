@@ -55,11 +55,19 @@ void PointShape::rotateToNormalVector(osg::Vec3f normal, float normalRotation) {
   matrix = matrix.operator*(osg::Matrix::rotate(normalRotation * M_PI / 180, normal));
   _selectionRotateGroup->setMatrix(matrix);
   if (_activeTrackingSystem == OptiTrack || _activeTrackingSystem == SteamVRTrack) {
-    osg::Vec3f movementVector = normal.operator*(_optiTrackSteamVRLength / 2);
+    float movementFixLength = _optiTrackSteamVRLength / 2;
+    if (_compensation) {
+      movementFixLength -= _compensationLength / 2;
+    }
+    osg::Vec3f movementVector = normal.operator*(movementFixLength);
     _selectionMoveToEndGroup->setMatrix(osg::Matrix::translate(movementVector));
   }
   if (_activeTrackingSystem == SteamVRTrack) {
-    osg::Vec3f movementVector = osg::Vec3f(0.0f, 0.0f, 1.0f).operator*(_optiTrackSteamVRLength / 2);
+    float threadFixLength = _optiTrackSteamVRLength / 2;
+    if (_compensation) {
+      threadFixLength += _compensationLength / 2;
+    }
+    osg::Vec3f movementVector = osg::Vec3f(0.0f, 0.0f, 1.0f).operator*(threadFixLength);
     _screwMove->setMatrix(osg::Matrix::translate(movementVector));
   }
 }
@@ -83,11 +91,17 @@ void PointShape::setupOptiTrack(OptiTrackSettings optiTrackSettings) {
     _optiTrackSteamVRLength = optiTrackSettings.length;
     _geode = new osg::Geode;
     _shape = new osg::ShapeDrawable;
-    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, -2.5f), optiTrackSettings.radius, optiTrackSettings.length - 5.0f));
+    float baseLength = optiTrackSettings.length - 5.0f;
+    float smallShapePosition = optiTrackSettings.length - 7.5f;
+    if (_compensation) {
+      baseLength += _compensationLength;
+      smallShapePosition += _compensationLength / 2;
+    }
+    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, -2.5f), optiTrackSettings.radius, baseLength));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());
     _optiConnector = new osg::ShapeDrawable;
-    _optiConnector->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, optiTrackSettings.length - 7.5f), 0.74f, 5.0f));
+    _optiConnector->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, smallShapePosition), 0.74f, 5.0f));
     _optiConnector->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_optiConnector.get());
     OSGWidget::fixMaterialState(_geode);
@@ -99,7 +113,11 @@ void PointShape::setupEMFTrack(EMFTrackSettings emfTrackSettings) {
   if (_activeTrackingSystem == EMFTrack) {
     _geode = new osg::Geode;
     _shape = new osg::ShapeDrawable;
-    _shape->setShape(new osg::Box(osg::Vec3(0.0f, 0.0f, static_cast<float>(emfTrackSettings.depth) / 2), static_cast<float>(emfTrackSettings.width), static_cast<float>(emfTrackSettings.height), static_cast<float>(emfTrackSettings.depth)));
+    float depth = static_cast<float>(emfTrackSettings.depth);
+    if (_compensation) {
+      depth += _compensationLength;
+    }
+    _shape->setShape(new osg::Box(osg::Vec3(0.0f, 0.0f, static_cast<float>(emfTrackSettings.depth) / 2), static_cast<float>(emfTrackSettings.width), static_cast<float>(emfTrackSettings.height), depth));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());
     OSGWidget::fixMaterialState(_geode);
@@ -112,7 +130,11 @@ void PointShape::setupSteamVRTrack(SteamVRTrackSettings steamVrTrackSettings) {
     _optiTrackSteamVRLength = steamVrTrackSettings.length;
     _geode = new osg::Geode;
     _shape = new osg::ShapeDrawable;
-    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), STEAMVR_CONSTANT_RADIUS, steamVrTrackSettings.length));
+    float baseLength = steamVrTrackSettings.length;
+    if (_compensation) {
+      baseLength += _compensationLength;
+    }
+    _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), STEAMVR_CONSTANT_RADIUS, baseLength));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());
 
@@ -137,6 +159,11 @@ void PointShape::setupActionPoints() {
     OSGWidget::fixMaterialState(_geode);
     _selectionRotateGroup->addChild(_geode.get());
   }
+}
+
+void PointShape::setCompensation(bool compensation, float compensationLength) {
+  _compensation = compensation;
+  _compensationLength = compensationLength;
 }
 
 osg::ref_ptr<osg::Geode> PointShape::getMesh() {
