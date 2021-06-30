@@ -2,10 +2,7 @@
 #include "TrackPointRenderer.hpp"
 
 // Include modules
-#include "OptiTrackPoint.hpp"
 #include "MainWindow.hpp"
-
-// Include dependencies
 
 
 TrackPointRenderer::TrackPointRenderer(OSGWidget* osgWidget, osg::ref_ptr<osg::Group> renderRoot) {
@@ -23,35 +20,31 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       std::vector<OptiTrackPoint*> points = MainWindow::getInstance()->getStore()->getOptiTrackPoints();
       int id = 0;
       for (OptiTrackPoint* point: points) {
-        PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+        PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
         newShape->setupOptiTrack(point->getOptiTrackSettings());
-        if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
-          newShape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
-        } else {
-          newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
-        }
-        newShape->rotateToNormalVector(point->getNormal());
-        _shapes.push_back(newShape);
+        commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;
       }
       break;
     }
     case EMFTrack: {
+      std::vector<EMFTrackPoint*> points = MainWindow::getInstance()->getStore()->getEMFTrackPoints();
+      int id = 0;
+      for (EMFTrackPoint* point: points) {
+        PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
+        newShape->setupEMFTrack(point->getEMFTrackSettings());
+        commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
+        id++;
+      }
       break;
     }
     case SteamVRTrack: {
       std::vector<SteamVRTrackPoint*> points = MainWindow::getInstance()->getStore()->getSteamVRTrackPoints();
       int id = 0;
       for (SteamVRTrackPoint* point: points) {
-        PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+        PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
         newShape->setupSteamVRTrack(point->getSteamVRTrackSettings());
-        if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
-          newShape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
-        } else {
-          newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
-        }
-        newShape->rotateToNormalVector(point->getNormal());
-        _shapes.push_back(newShape);
+        commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;
       }
       break;
@@ -60,15 +53,9 @@ void TrackPointRenderer::render(ActiveTrackingSystem activeTrackingSystem) {
       std::vector<ActionPoint*> points = MainWindow::getInstance()->getStore()->getActionPoints();
       int id = 0;
       for (ActionPoint* point: points) {
-        PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+        PointShape* newShape = addPointShape(static_cast<TrackPoint*>(point), activeTrackingSystem);
         newShape->setupActionPoints();
-        if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
-          newShape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
-        } else {
-          newShape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
-        }
-        newShape->rotateToNormalVector(point->getNormal());
-        _shapes.push_back(newShape);
+        commonSetupPointShape(newShape, static_cast<TrackPoint*>(point), id);
         id++;
       }
       break;
@@ -86,4 +73,19 @@ void TrackPointRenderer::clear() {
     delete shape;
   }
   _shapes.clear();
+}
+
+PointShape* TrackPointRenderer::addPointShape(TrackPoint* point, ActiveTrackingSystem activeTrackingSystem) {
+  PointShape* newShape = new PointShape(_renderRoot, activeTrackingSystem, point->getTranslation(), point->getNormal(), point->getNormalModifier());
+  return newShape;
+}
+
+void TrackPointRenderer::commonSetupPointShape(PointShape* shape, TrackPoint* point, int id) {
+  if (id == MainWindow::getInstance()->getEditWiget()->getSelectedPoint()) {
+    shape->setColor(osg::Vec4(0.0f, 0.0f, 1.0f, 0.2f));
+  } else {
+    shape->setColor(osg::Vec4(0.0f, 1.0f, 0.0f, 0.2f));
+  }
+  shape->rotateToNormalVector(point->getNormal());
+  _shapes.push_back(shape);
 }

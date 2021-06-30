@@ -157,17 +157,18 @@ void PickHandler::updateRenderer() {
   switch(activeTrackingSystem) {
     case OptiTrack: {
       OptiTrackSettings settings = MainWindow::getInstance()->getStore()->getOptiTrackSettings();
-      _optiTrackSteamVRLength = settings.length;
       _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
       _shape->setupOptiTrack(settings);
       break;
     }
     case EMFTrack: {
+      EMFTrackSettings settings = MainWindow::getInstance()->getStore()->getEMFTrackSettings();
+      _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
+      _shape->setupEMFTrack(settings);
       break;
     }
     case SteamVRTrack: {
       SteamVRTrackSettings settings = MainWindow::getInstance()->getStore()->getSteamVRTrackSettings();
-      _optiTrackSteamVRLength = settings.length;
       _shape = new PointShape(_selectionSwitch, activeTrackingSystem, osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 0.0f, 0.0f));
       _shape->setupSteamVRTrack(settings);
       break;

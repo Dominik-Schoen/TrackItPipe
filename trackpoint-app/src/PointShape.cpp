@@ -50,7 +50,9 @@ void PointShape::setNormalModifier(osg::Vec3f normalModifier) {
 void PointShape::rotateToNormalVector(osg::Vec3f normal) {
   osg::Matrix modifierRotation = osg::Matrix::rotate(_normalModifier.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), _normalModifier.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), _normalModifier.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
   normal = modifierRotation.preMult(normal);
-
+  if (_activeTrackingSystem == EMFTrack) {
+    normal = normal.operator*(-1.0f);
+  }
   normal.normalize();
   _selectionRotateGroup->setMatrix(osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal));
   if (_activeTrackingSystem == OptiTrack || _activeTrackingSystem == SteamVRTrack) {
@@ -78,8 +80,20 @@ void PointShape::setupOptiTrack(OptiTrackSettings optiTrackSettings) {
   if (_activeTrackingSystem == OptiTrack) {
     _optiTrackSteamVRLength = optiTrackSettings.length;
     _geode = new osg::Geode;
-    _shape = new osg::ShapeDrawable();
+    _shape = new osg::ShapeDrawable;
     _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), optiTrackSettings.radius, optiTrackSettings.length));
+    _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
+    _geode->addDrawable(_shape.get());
+    OSGWidget::fixMaterialState(_geode);
+    _selectionRotateGroup->addChild(_geode.get());
+  }
+}
+
+void PointShape::setupEMFTrack(EMFTrackSettings emfTrackSettings) {
+  if (_activeTrackingSystem == EMFTrack) {
+    _geode = new osg::Geode;
+    _shape = new osg::ShapeDrawable;
+    _shape->setShape(new osg::Box(osg::Vec3(0.0f, 0.0f, static_cast<float>(emfTrackSettings.depth) / 2), static_cast<float>(emfTrackSettings.width), static_cast<float>(emfTrackSettings.height), static_cast<float>(emfTrackSettings.depth)));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());
     OSGWidget::fixMaterialState(_geode);
@@ -91,7 +105,7 @@ void PointShape::setupSteamVRTrack(SteamVRTrackSettings steamVrTrackSettings) {
   if (_activeTrackingSystem == SteamVRTrack) {
     _optiTrackSteamVRLength = steamVrTrackSettings.length;
     _geode = new osg::Geode;
-    _shape = new osg::ShapeDrawable();
+    _shape = new osg::ShapeDrawable;
     _shape->setShape(new osg::Cylinder(osg::Vec3(0.0f, 0.0f, 0.0f), STEAMVR_CONSTANT_RADIUS, steamVrTrackSettings.length));
     _shape->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 0.2f));
     _geode->addDrawable(_shape.get());

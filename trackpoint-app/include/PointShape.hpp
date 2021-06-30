@@ -24,6 +24,7 @@ public:
   void setVisibility(bool mode);
   void setColor(osg::Vec4 color);
   void setupOptiTrack(OptiTrackSettings optiTrackSettings);
+  void setupEMFTrack(EMFTrackSettings emfTrackSettings);
   void setupSteamVRTrack(SteamVRTrackSettings steamVrTrackSettings);
   void setupActionPoints();
   osg::ref_ptr<osg::Geode> getMesh();
