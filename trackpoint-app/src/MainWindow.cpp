@@ -99,6 +99,13 @@ EditWidget* MainWindow::getEditWiget() {
   return editWidget;
 }
 
+void MainWindow::showErrorMessage(std::string message, std::string title) {
+  QMessageBox msg(this);
+  msg.setText(QString::fromUtf8(message.c_str()));
+  msg.setWindowTitle(QString::fromUtf8(title.c_str()));
+  msg.exec();
+}
+
 void MainWindow::closeEvent(QCloseEvent *event) {
   if (MainWindow::getInstance()->getStore()->isModified()) {
     if (!saveChangesPopup()) {
@@ -139,7 +146,7 @@ bool MainWindow::saveAs() {
   QString fileName = QFileDialog::getSaveFileName(this, tr("Save your TrackpointApp Project"), "", tr("TrackpointApp Projects (*.trackproj)"));
   std::string fileString = fileName.toUtf8().constData();
   if (!projectStore->saveProject(fileString)) {
-    // TODO: Show error popup
+    showErrorMessage("Something went wrong while saving the project. Please try again.", "Error saving project.");
     return false;
   }
   return true;

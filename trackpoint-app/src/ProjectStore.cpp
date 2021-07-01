@@ -49,8 +49,7 @@ void ProjectStore::loadMesh(std::string meshFile) {
     render3MFMesh();
     MainWindow::getInstance()->renderView(Edit);
   } else {
-    // TODO: Show error popup
-    printf("Unsupported file type.\n");
+    MainWindow::getInstance()->showErrorMessage("Unsupported file type. Please use .stl or .3mf files.", "Error opening file.");
   }
 }
 
@@ -425,9 +424,7 @@ void ProjectStore::render3MFMesh() {
   Lib3MF::PMeshObjectIterator meshIterator = _project->GetMeshObjects();
   // Our use case supports just a single mesh per project
   if (meshIterator->Count() != 1) {
-    // TODO: Show error popup
-    printf("Not 1 mesh: %llu\n", meshIterator->Count());
-    return;
+    MainWindow::getInstance()->showErrorMessage("The input file contains more than one mesh. Currently, we don't support this case, so the first mesh will be used.", "Input file error.");
   }
   meshIterator->MoveNext();
   Lib3MF::PMeshObject mesh = meshIterator->GetCurrentMeshObject();
@@ -533,7 +530,7 @@ void ProjectStore::loadMetaData() {
   try {
     Lib3MF::PMetaData versionInformation = metaData->GetMetaDataByKey(META_NAMESPACE, "format");
   } catch (Lib3MF::ELib3MFException &e) {
-    // TODO: Alert not a TrackpointApp poject
+    MainWindow::getInstance()->showErrorMessage("This is not a valid TrackpointApp project.", "Error opening project file.");
   }
 
   Lib3MF::PMetaData optiTrackString;
@@ -549,7 +546,7 @@ void ProjectStore::loadMetaData() {
       _optiTrackPoints.push_back(optiTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
-    // TODO: Something is wrong with the file
+    MainWindow::getInstance()->showErrorMessage("Unable to load OptiTrack trackpoints.", "Error opening project file.");
   }
   Lib3MF::PMetaData emfTrackString;
   try {
@@ -564,7 +561,7 @@ void ProjectStore::loadMetaData() {
       _emfTrackPoints.push_back(emfTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
-    // TODO: Something is wrong with the file
+    MainWindow::getInstance()->showErrorMessage("Unable to load EMFTrack trackpoints.", "Error opening project file.");
   }
   Lib3MF::PMetaData steamVrTrackString;
   try {
@@ -579,7 +576,7 @@ void ProjectStore::loadMetaData() {
       _steamVrTrackPoints.push_back(steamVrTrackPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
-    // TODO: Something is wrong with the file
+    MainWindow::getInstance()->showErrorMessage("Unable to load SteamVR trackpoints.", "Error opening project file.");
   }
   Lib3MF::PMetaData actionPointString;
   try {
@@ -594,7 +591,7 @@ void ProjectStore::loadMetaData() {
       _actionPoints.push_back(actionPoint);
     }
   } catch (Lib3MF::ELib3MFException &e) {
-    // TODO: Something is wrong with the file
+    MainWindow::getInstance()->showErrorMessage("Unable to load ActionPoints.", "Error opening project file.");
   }
   render3MFMesh();
   MainWindow::getInstance()->renderView(Edit);

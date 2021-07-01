@@ -26,6 +26,7 @@ public:
   OSGWidget* getOsgWidget();
   ProjectStore* getStore();
   EditWidget* getEditWiget();
+  void showErrorMessage(std::string message, std::string title = "Error");
 
 protected:
   virtual void closeEvent(QCloseEvent *event);
