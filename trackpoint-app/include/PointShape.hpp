@@ -35,7 +35,6 @@ private:
   osg::ref_ptr<osg::Switch> _selectionSwitch;
   osg::ref_ptr<osg::MatrixTransform> _selectionTranslateGroup;
   osg::ref_ptr<osg::MatrixTransform> _selectionRotateGroup;
-  osg::ref_ptr<osg::MatrixTransform> _selectionMoveToEndGroup;
   osg::ref_ptr<osg::MatrixTransform> _screwMove;
   osg::ref_ptr<osg::Group> _renderRoot;
   osg::ref_ptr<osg::ShapeDrawable> _shape;
@@ -43,7 +42,9 @@ private:
   osg::ref_ptr<osg::Geode> _thread;
   osg::ref_ptr<osg::Geode> _geode;
   osg::Vec3f _normalModifier;
-  double _optiTrackSteamVRLength;
+  OptiTrackSettings _optiTrackSettings;
+  EMFTrackSettings _emfTrackSettings;
+  SteamVRTrackSettings _steamVrTrackSettings;
   ActiveTrackingSystem _activeTrackingSystem;
   bool _compensation = true;
   float _compensationLength = 0.0f;
