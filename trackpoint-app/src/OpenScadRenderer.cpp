@@ -18,20 +18,20 @@
 const char* openScadBase =
   "$fn = 100;\n"
   "use <threads.scad>\n"
-  "module optiTrackPointBase(translation, rotation, length, radius) {\n"
+  "module optiTrackPointBase(translation, rotation, length, radius, compensation) {\n"
   "translate(translation) rotate(rotation) {\n"
-  "cylinder(length - 5, radius, radius, false);\n"
+  "translate([0, 0, -compensation]) cylinder(length + compensation - 5, radius, radius, false);\n"
   "translate([0, 0, length - 5]) cylinder(5, 0.74, 0.74, false);\n"
   "}\n"
   "}\n"
-  "module emfTrackPointBase(translation, rotation, width, height, depth) {\n"
+  "module emfTrackPointBase(translation, rotation, width, height, depth, compensation) {\n"
   "translate(translation) rotate(rotation) {\n"
-  "translate([-(width / 2), -(height / 2), 0]) cube([width, height, depth]);"
+  "translate([-(width / 2), -(height / 2), -compensation]) cube([width, height, depth + compensation]);"
   "}\n"
   "}\n"
-  "module steamVrTrackPointBase(translation, rotation, length) {\n"
+  "module steamVrTrackPointBase(translation, rotation, length, compensation) {\n"
   "translate(translation) rotate(rotation) {\n"
-  "cylinder(length, 3.5, 3.5, false);\n"
+  "translate([0, 0, -compensation]) cylinder(length + compensation, 3.5, 3.5, false);\n"
   "translate([0, 0, length]) english_thread(diameter=1/4, threads_per_inch=20, length=0.393701);\n"
   "}\n"
   "}\n";
@@ -50,7 +50,7 @@ void OpenScadRenderer::renderOptiTrack(std::vector<OptiTrackPoint*> points) {
   for (OptiTrackPoint* point: points) {
     osg::Vec3 translation = point->getTranslation();
     osg::Vec3 rotation = point->getRotation();
-    scadFile << "optiTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "], " << point->getLength() << ", " << point->getRadius() << ");\n";
+    scadFile << "optiTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "], " << point->getLength() << ", " << point->getRadius() << ", " << point->getNormalCompensation() << ");\n";
   }
   scadFile.close();
   std::string command = openScadPath + " -o " + std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_optitrack.3mf " + std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_export_optitrack.scad";
@@ -65,7 +65,7 @@ void OpenScadRenderer::renderEMFTrack(std::vector<EMFTrackPoint*> points) {
   for (EMFTrackPoint* point: points) {
     osg::Vec3 translation = point->getTranslation();
     osg::Vec3 rotation = point->getRotation();
-    scadFile << "emfTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "], " << point->getWidth() << ", " << point->getHeight() << ", " << point->getDepth() << ");\n";
+    scadFile << "emfTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "], " << point->getWidth() << ", " << point->getHeight() << ", " << point->getDepth() << ", " << point->getNormalCompensation() << ");\n";
   }
   scadFile << "}\n";
   scadFile.close();
@@ -82,7 +82,7 @@ void OpenScadRenderer::renderSteamVRTrack(std::vector<SteamVRTrackPoint*> points
   for (SteamVRTrackPoint* point: points) {
     osg::Vec3 translation = point->getTranslation();
     osg::Vec3 rotation = point->getRotation();
-    scadFile << "steamVrTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "], " << point->getLength() << ");\n";
+    scadFile << "steamVrTrackPointBase([" << translation.x() << "," << translation.y() << "," << translation.z() << "], [" << rotation.x() << "," << rotation.y() << "," << rotation.z() << "], " << point->getLength() << ", " << point->getNormalCompensation() << ");\n";
   }
   scadFile.close();
   std::string command = openScadPath + " -o " + std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_steamvrtrack.3mf " + std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_export_steamvrtrack.scad";
