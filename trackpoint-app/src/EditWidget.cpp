@@ -193,7 +193,7 @@ void EditWidget::setExportAvailable(bool available) {
 void EditWidget::setExportStatus(int jobs, int done) {
   ui->exportProgress->setValue(done);
   std::stringstream text;
-  text << "Export running: " << ++done << " of " << jobs << ".";
+  text << "Export running: " << done << " of " << jobs << " finished.";
   ui->exportLabel->setText(QString::fromUtf8(text.str().c_str()));
 }
 

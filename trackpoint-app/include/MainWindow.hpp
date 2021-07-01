@@ -39,6 +39,7 @@ private:
   void close();
   void cleanup();
   bool saveChangesPopup();
+  bool isRenderingPopup();
   Ui::MainWindow* ui;
   OSGWidget* osgWidget;
   NoMeshWidget* noMeshWidget;

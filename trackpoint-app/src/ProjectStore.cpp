@@ -16,7 +16,7 @@
 
 #define META_NAMESPACE "tk-ar-tracking"
 
-ProjectStore::ProjectStore() {
+ProjectStore::ProjectStore(QObject* parent): QObject() {
   _projectLoaded = false;
   _projectModified = false;
   load3mfLib();
@@ -92,128 +92,38 @@ bool ProjectStore::exportProject(std::string path, ExportSettings settings) {
   if (path == "") {
     return false;
   }
-  OpenScadRenderer* renderer = new OpenScadRenderer();
+  MainWindow::getInstance()->getEditWiget()->setExportAvailable(false);
+  _exportPath = path;
   // Base for rendering mesh
   Lib3MF::PWriter writer = _project->QueryWriter("3mf");
   writer->WriteToFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_export.3mf");
-  // Export file
-  Lib3MF::PModel exportModel = _wrapper->CreateModel();
-  Lib3MF::PMetaDataGroup metaData = exportModel->GetMetaDataGroup();
+  // Store export settings
+  _wantedExports = 0;
+  _doneExports = 0;
+  _currentExportSettings = settings;
+  if (settings.OptiTrack) _wantedExports++;
+  if (settings.EMFTrack) _wantedExports++;
+  if (settings.SteamVRTrack) _wantedExports++;
+  MainWindow::getInstance()->getEditWiget()->setExportStatus(_wantedExports, _doneExports);
   if (settings.OptiTrack) {
-    renderer->renderOptiTrack(_optiTrackPoints);
-    Lib3MF::PModel optiTrackModel = _wrapper->CreateModel();
-    Lib3MF::PReader reader = optiTrackModel->QueryReader("3mf");
-    reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_optitrack.3mf");
-    Lib3MF::PMeshObjectIterator meshIterator = optiTrackModel->GetMeshObjects();
-    if (meshIterator->Count() != 1) {
-      return false;
-    }
-    meshIterator->MoveNext();
-    Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
-    Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
-    exportMesh->SetName("optitrack");
-    std::vector<Lib3MF::sPosition> verticesBuffer;
-    std::vector<Lib3MF::sTriangle> triangleBuffer;
-    renderedMesh->GetVertices(verticesBuffer);
-    renderedMesh->GetTriangleIndices(triangleBuffer);
-    exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
-    json trackpointData = json::array();
-    for (OptiTrackPoint* point: _optiTrackPoints) {
-      osg::Vec3 trackPoint = point->getTrackPoint();
-      osg::Vec3 trackNormal = point->getNormal();
-      json pointData = {
-        {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
-        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
-      };
-      trackpointData.push_back(pointData);
-    }
-
-    Lib3MF::PMetaDataGroup optiMetaData = exportMesh->GetMetaDataGroup();
-    optiMetaData->AddMetaData(META_NAMESPACE, "trackpoints-optitrack", trackpointData.dump(), "string", true);
-    exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
+    _optiTrackRenderThread = QThread::create(renderOptiTrackInThread, _optiTrackPoints);
+    _optiTrackRenderThread->setObjectName("TrackpointApp OptiTrack Renderer");
+    QObject::connect(_optiTrackRenderThread, &QThread::finished, this, &ProjectStore::renderThreadDone);
+    _optiTrackRenderThread->start();
   }
   if (settings.EMFTrack) {
-    renderer->renderEMFTrack(_emfTrackPoints);
-    Lib3MF::PModel emfTrackModel = _wrapper->CreateModel();
-    Lib3MF::PReader reader = emfTrackModel->QueryReader("3mf");
-    reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_emftrack.3mf");
-    Lib3MF::PMeshObjectIterator meshIterator = emfTrackModel->GetMeshObjects();
-    if (meshIterator->Count() != 1) {
-      return false;
-    }
-    meshIterator->MoveNext();
-    Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
-    Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
-    exportMesh->SetName("emftrack");
-    std::vector<Lib3MF::sPosition> verticesBuffer;
-    std::vector<Lib3MF::sTriangle> triangleBuffer;
-    renderedMesh->GetVertices(verticesBuffer);
-    renderedMesh->GetTriangleIndices(triangleBuffer);
-    exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
-    json trackpointData = json::array();
-    for (EMFTrackPoint* point: _emfTrackPoints) {
-      osg::Vec3 moveToMid = point->getNormal().operator*(-(point->getDepth() / 2));
-      osg::Vec3 trackPoint = point->getTrackPoint().operator+(moveToMid);
-      osg::Vec3 trackNormal = point->getNormal();
-      json pointData = {
-        {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
-        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}},
-        {"rotation", point->getNormalRotation()}
-      };
-      trackpointData.push_back(pointData);
-    }
-
-    Lib3MF::PMetaDataGroup emfMetaData = exportMesh->GetMetaDataGroup();
-    emfMetaData->AddMetaData(META_NAMESPACE, "trackpoints-emftrack", trackpointData.dump(), "string", true);
-    exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
+    _emfTrackRenderThread = QThread::create(renderEMFTrackInThread, _emfTrackPoints);
+    _emfTrackRenderThread->setObjectName("TrackpointApp EMFTrack Renderer");
+    QObject::connect(_emfTrackRenderThread, &QThread::finished, this, &ProjectStore::renderThreadDone);
+    _emfTrackRenderThread->start();
   }
   if (settings.SteamVRTrack) {
-    renderer->renderSteamVRTrack(_steamVrTrackPoints);
-    Lib3MF::PModel steamVrTrackModel = _wrapper->CreateModel();
-    Lib3MF::PReader reader = steamVrTrackModel->QueryReader("3mf");
-    reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_steamvrtrack.3mf");
-    Lib3MF::PMeshObjectIterator meshIterator = steamVrTrackModel->GetMeshObjects();
-    if (meshIterator->Count() != 1) {
-      return false;
-    }
-    meshIterator->MoveNext();
-    Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
-    Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
-    exportMesh->SetName("steamvrtrack");
-    std::vector<Lib3MF::sPosition> verticesBuffer;
-    std::vector<Lib3MF::sTriangle> triangleBuffer;
-    renderedMesh->GetVertices(verticesBuffer);
-    renderedMesh->GetTriangleIndices(triangleBuffer);
-    exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
-    json trackpointData = json::array();
-    for (SteamVRTrackPoint* point: _steamVrTrackPoints) {
-      osg::Vec3 trackPoint = point->getTrackPoint();
-      osg::Vec3 trackNormal = point->getNormal();
-      json pointData = {
-        {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
-        {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
-      };
-      trackpointData.push_back(pointData);
-    }
-
-    Lib3MF::PMetaDataGroup steamVrMetaData = exportMesh->GetMetaDataGroup();
-    steamVrMetaData->AddMetaData(META_NAMESPACE, "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
-    exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
+    _steamVrTrackRenderThread = QThread::create(renderSteamVRTrackInThread, _steamVrTrackPoints);
+    _steamVrTrackRenderThread->setObjectName("TrackpointApp SteamVR Track Renderer");
+    QObject::connect(_steamVrTrackRenderThread, &QThread::finished, this, &ProjectStore::renderThreadDone);
+    _steamVrTrackRenderThread->start();
   }
-  delete renderer;
-  // Export action point metadata
-  json actionPointData;
-  for (ActionPoint* point: _actionPoints) {
-    osg::Vec3 translation = point->getTranslation();
-    osg::Vec3 normal = point->getNormal();
-    actionPointData[point->getIdentifier()] = {
-      {"point", {translation.x(), translation.y(), translation.z()}},
-      {"normal", {normal.x(), normal.y(), normal.z()}}
-    };
-  }
-  metaData->AddMetaData(META_NAMESPACE, "trackpoints-actionpoints", actionPointData.dump(), "string", true);
-  Lib3MF::PWriter exportWriter = exportModel->QueryWriter("3mf");
-  exportWriter->WriteToFile(path);
+  _exportRunning = true;
   return true;
 }
 
@@ -228,6 +138,10 @@ void ProjectStore::closeProject() {
 
 bool ProjectStore::isModified() {
   return _projectModified;
+}
+
+bool ProjectStore::isRendering() {
+  return _exportRunning;
 }
 
 void ProjectStore::projectModified() {
@@ -401,6 +315,132 @@ unsigned int ProjectStore::actionPointIdentifierInUse(std::string candidate, int
     i++;
   }
   return count;
+}
+
+void ProjectStore::renderThreadDone() {
+  _doneExports++;
+  MainWindow::getInstance()->getEditWiget()->setExportStatus(_wantedExports, _doneExports);
+  if (_wantedExports == _doneExports) {
+    // Export file
+    Lib3MF::PModel exportModel = _wrapper->CreateModel();
+    Lib3MF::PMetaDataGroup metaData = exportModel->GetMetaDataGroup();
+    if (_currentExportSettings.OptiTrack) {
+      Lib3MF::PModel optiTrackModel = _wrapper->CreateModel();
+      Lib3MF::PReader reader = optiTrackModel->QueryReader("3mf");
+      reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_optitrack.3mf");
+      Lib3MF::PMeshObjectIterator meshIterator = optiTrackModel->GetMeshObjects();
+      if (meshIterator->Count() == 1) {
+        meshIterator->MoveNext();
+        Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
+        Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+        exportMesh->SetName("optitrack");
+        std::vector<Lib3MF::sPosition> verticesBuffer;
+        std::vector<Lib3MF::sTriangle> triangleBuffer;
+        renderedMesh->GetVertices(verticesBuffer);
+        renderedMesh->GetTriangleIndices(triangleBuffer);
+        exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
+        json trackpointData = json::array();
+        for (OptiTrackPoint* point: _optiTrackPoints) {
+          osg::Vec3 trackPoint = point->getTrackPoint();
+          osg::Vec3 trackNormal = point->getNormal();
+          json pointData = {
+            {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
+            {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
+          };
+          trackpointData.push_back(pointData);
+        }
+
+        Lib3MF::PMetaDataGroup optiMetaData = exportMesh->GetMetaDataGroup();
+        optiMetaData->AddMetaData(META_NAMESPACE, "trackpoints-optitrack", trackpointData.dump(), "string", true);
+        exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
+      } else {
+        MainWindow::getInstance()->showErrorMessage("An error occured while rendering OptiTrack model: inconsistent data.", "Error exporting project.");
+      }
+    }
+    if (_currentExportSettings.EMFTrack) {
+      Lib3MF::PModel emfTrackModel = _wrapper->CreateModel();
+      Lib3MF::PReader reader = emfTrackModel->QueryReader("3mf");
+      reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_emftrack.3mf");
+      Lib3MF::PMeshObjectIterator meshIterator = emfTrackModel->GetMeshObjects();
+      if (meshIterator->Count() == 1) {
+        meshIterator->MoveNext();
+        Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
+        Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+        exportMesh->SetName("emftrack");
+        std::vector<Lib3MF::sPosition> verticesBuffer;
+        std::vector<Lib3MF::sTriangle> triangleBuffer;
+        renderedMesh->GetVertices(verticesBuffer);
+        renderedMesh->GetTriangleIndices(triangleBuffer);
+        exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
+        json trackpointData = json::array();
+        for (EMFTrackPoint* point: _emfTrackPoints) {
+          osg::Vec3 moveToMid = point->getNormal().operator*(-(point->getDepth() / 2));
+          osg::Vec3 trackPoint = point->getTrackPoint().operator+(moveToMid);
+          osg::Vec3 trackNormal = point->getNormal();
+          json pointData = {
+            {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
+            {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}},
+            {"rotation", point->getNormalRotation()}
+          };
+          trackpointData.push_back(pointData);
+        }
+
+        Lib3MF::PMetaDataGroup emfMetaData = exportMesh->GetMetaDataGroup();
+        emfMetaData->AddMetaData(META_NAMESPACE, "trackpoints-emftrack", trackpointData.dump(), "string", true);
+        exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
+      } else {
+        MainWindow::getInstance()->showErrorMessage("An error occured while rendering EMFTrack model: inconsistent data.", "Error exporting project.");
+      }
+    }
+    if (_currentExportSettings.SteamVRTrack) {
+      Lib3MF::PModel steamVrTrackModel = _wrapper->CreateModel();
+      Lib3MF::PReader reader = steamVrTrackModel->QueryReader("3mf");
+      reader->ReadFromFile(std::filesystem::temp_directory_path().u8string() + fileDelimiter + "trackpointapp_render_steamvrtrack.3mf");
+      Lib3MF::PMeshObjectIterator meshIterator = steamVrTrackModel->GetMeshObjects();
+      if (meshIterator->Count() == 1) {
+        meshIterator->MoveNext();
+        Lib3MF::PMeshObject renderedMesh = meshIterator->GetCurrentMeshObject();
+        Lib3MF::PMeshObject exportMesh = exportModel->AddMeshObject();
+        exportMesh->SetName("steamvrtrack");
+        std::vector<Lib3MF::sPosition> verticesBuffer;
+        std::vector<Lib3MF::sTriangle> triangleBuffer;
+        renderedMesh->GetVertices(verticesBuffer);
+        renderedMesh->GetTriangleIndices(triangleBuffer);
+        exportMesh->SetGeometry(verticesBuffer, triangleBuffer);
+        json trackpointData = json::array();
+        for (SteamVRTrackPoint* point: _steamVrTrackPoints) {
+          osg::Vec3 trackPoint = point->getTrackPoint();
+          osg::Vec3 trackNormal = point->getNormal();
+          json pointData = {
+            {"point", {trackPoint.x(), trackPoint.y(), trackPoint.z()}},
+            {"normal", {trackNormal.x(), trackNormal.y(), trackNormal.z()}}
+          };
+          trackpointData.push_back(pointData);
+        }
+
+        Lib3MF::PMetaDataGroup steamVrMetaData = exportMesh->GetMetaDataGroup();
+        steamVrMetaData->AddMetaData(META_NAMESPACE, "trackpoints-steamvrtrack", trackpointData.dump(), "string", true);
+        exportModel->AddBuildItem(exportMesh.get(), _wrapper->GetIdentityTransform());
+      } else {
+        MainWindow::getInstance()->showErrorMessage("An error occured while rendering SteamVR Track model: inconsistent data.", "Error exporting project.");
+      }
+    }
+    // Export action point metadata
+    json actionPointData;
+    for (ActionPoint* point: _actionPoints) {
+      osg::Vec3 translation = point->getTranslation();
+      osg::Vec3 normal = point->getNormal();
+      actionPointData[point->getIdentifier()] = {
+        {"point", {translation.x(), translation.y(), translation.z()}},
+        {"normal", {normal.x(), normal.y(), normal.z()}}
+      };
+    }
+    metaData->AddMetaData(META_NAMESPACE, "trackpoints-actionpoints", actionPointData.dump(), "string", true);
+    Lib3MF::PWriter exportWriter = exportModel->QueryWriter("3mf");
+    exportWriter->WriteToFile(_exportPath);
+    _exportRunning = false;
+    MainWindow::getInstance()->getEditWiget()->setExportAvailable(true);
+  }
 }
 
 void ProjectStore::load3mfLib() {
@@ -597,6 +637,24 @@ void ProjectStore::loadMetaData() {
   MainWindow::getInstance()->renderView(Edit);
   MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(MainWindow::getInstance()->getEditWiget()->getSelectedTrackingSystem());
   MainWindow::getInstance()->getEditWiget()->updateTrackpointCount();
+}
+
+void ProjectStore::renderOptiTrackInThread(std::vector<OptiTrackPoint*> optiTrackPoints) {
+  OpenScadRenderer* renderer = new OpenScadRenderer();
+  renderer->renderOptiTrack(optiTrackPoints);
+  delete renderer;
+}
+
+void ProjectStore::renderEMFTrackInThread(std::vector<EMFTrackPoint*> emfTrackPoints) {
+  OpenScadRenderer* renderer = new OpenScadRenderer();
+  renderer->renderEMFTrack(emfTrackPoints);
+  delete renderer;
+}
+
+void ProjectStore::renderSteamVRTrackInThread(std::vector<SteamVRTrackPoint*> steamVrTrackPoints) {
+  OpenScadRenderer* renderer = new OpenScadRenderer();
+  renderer->renderSteamVRTrack(steamVrTrackPoints);
+  delete renderer;
 }
 
 std::vector<float> ProjectStore::osgVecToStdVec(osg::Vec3f input) {

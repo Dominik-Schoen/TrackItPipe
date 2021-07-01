@@ -13,13 +13,16 @@
 // Include dependencies
 #include <string>
 #include <nlohmann/json.hpp>
+#include <QThread>
 
 using json = nlohmann::json;
 
-class ProjectStore {
+class ProjectStore: public QObject {
+  Q_OBJECT
+
 public:
   // Create an empty project
-  ProjectStore();
+  ProjectStore(QObject* parent = nullptr);
   // Destructor
   ~ProjectStore();
   // Load a mesh
@@ -38,6 +41,8 @@ public:
   void closeProject();
   // Is current project modified
   bool isModified();
+  // Is a rendering in progress
+  bool isRendering();
   // Set project modification status
   void projectModified();
   // UNIVERSAL
@@ -93,6 +98,9 @@ public:
   // Check if an identifier is already in use
   unsigned int actionPointIdentifierInUse(std::string candidate, int current);
 
+private slots:
+  void renderThreadDone();
+
 private:
   bool _projectLoaded;
   bool _projectModified;
@@ -110,11 +118,22 @@ private:
   osg::Vec3 _normalModifier = osg::Vec3(0.0f, 0.0f, 0.0f);
   float _normalRotation = 0.0f;
   bool _compensation = true;
+  QThread* _optiTrackRenderThread;
+  QThread* _emfTrackRenderThread;
+  QThread* _steamVrTrackRenderThread;
+  bool _exportRunning = false;
+  ExportSettings _currentExportSettings;
+  int _wantedExports;
+  int _doneExports;
+  std::string _exportPath;
   void load3mfLib();
   void reset();
   void render3MFMesh();
   void updateMetaData();
   void loadMetaData();
+  static void renderOptiTrackInThread(std::vector<OptiTrackPoint*> optiTrackPoints);
+  static void renderEMFTrackInThread(std::vector<EMFTrackPoint*> emfTrackPoints);
+  static void renderSteamVRTrackInThread(std::vector<SteamVRTrackPoint*> steamVrTrackPoints);
   std::vector<float> osgVecToStdVec(osg::Vec3f input);
   osg::Vec3f stdVecToOsgVec(std::vector<float> input);
 };

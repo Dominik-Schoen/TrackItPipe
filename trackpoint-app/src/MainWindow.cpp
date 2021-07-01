@@ -107,22 +107,31 @@ void MainWindow::showErrorMessage(std::string message, std::string title) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-  if (MainWindow::getInstance()->getStore()->isModified()) {
+  if (projectStore->isModified()) {
     if (!saveChangesPopup()) {
       event->ignore();
       return;
     }
   }
-  MainWindow::getInstance()->getStore()->closeProject();
+  if (projectStore->isRendering()) {
+    if (!isRenderingPopup()) {
+      event->ignore();
+      return;
+    }
+  }
+  projectStore->closeProject();
   event->accept();
 }
 
 void MainWindow::newFile() {
-  if (MainWindow::getInstance()->getStore()->isProjectOpen()) {
-    if (MainWindow::getInstance()->getStore()->isModified()) {
+  if (projectStore->isProjectOpen()) {
+    if (projectStore->isModified()) {
       if (!saveChangesPopup()) return;
     }
-    MainWindow::getInstance()->getStore()->closeProject();
+    if (projectStore->isRendering()) {
+      if (!isRenderingPopup()) return;
+    }
+    projectStore->closeProject();
   }
   renderView(NoMesh);
   cleanup();
@@ -132,7 +141,7 @@ void MainWindow::newFile() {
 void MainWindow::load() {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open a TrackpointApp Project"), "", tr("TrackpointApp Projects (*.trackproj)"));
   std::string projectFile = fileName.toUtf8().constData();
-  MainWindow::getInstance()->getStore()->loadProject(projectFile);
+  projectStore->loadProject(projectFile);
 }
 
 bool MainWindow::save() {
@@ -153,10 +162,13 @@ bool MainWindow::saveAs() {
 }
 
 void MainWindow::close() {
-  if (MainWindow::getInstance()->getStore()->isModified()) {
+  if (projectStore->isModified()) {
     if (!saveChangesPopup()) return;
   }
-  MainWindow::getInstance()->getStore()->closeProject();
+  if (projectStore->isRendering()) {
+    if (!isRenderingPopup()) return;
+  }
+  projectStore->closeProject();
   renderView(NoMesh);
   cleanup();
 }
@@ -180,6 +192,23 @@ bool MainWindow::saveChangesPopup() {
     case QMessageBox::Discard:
       return true;
     case QMessageBox::Cancel:
+      return false;
+    default:
+      return false;
+  }
+}
+
+bool MainWindow::isRenderingPopup() {
+  QMessageBox msgBox;
+  msgBox.setText("A rendering is in progress.");
+  msgBox.setInformativeText("Do you really want to cancel the rendering?");
+  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+  msgBox.setDefaultButton(QMessageBox::No);
+  int ret = msgBox.exec();
+  switch(ret) {
+    case QMessageBox::Yes:
+      return true;
+    case QMessageBox::No:
       return false;
     default:
       return false;
