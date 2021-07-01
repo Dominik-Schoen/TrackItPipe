@@ -36,5 +36,5 @@ float MeshTools::compensationLength(osg::Vec3 a, osg::Vec3 b, float length) {
   osg::Vec3 newNormal = modifierRotation.preMult(a);
   newNormal.normalize();
   float angle = MeshTools::angleBetween(a, newNormal);
-  return tan(angle) * length;
+  return isnan(tan(angle) * length) ? 0.0f : tan(angle) * length;
 }
