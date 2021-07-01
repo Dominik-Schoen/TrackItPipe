@@ -147,11 +147,12 @@ void PointShape::setCompensation(bool compensation, float compensationLength) {
     }
     case EMFTrack: {
       float depth = static_cast<float>(_emfTrackSettings.depth);
+      float depthPosition = static_cast<float>(_emfTrackSettings.depth);
       if (_compensation) {
         depth += _compensationLength;
+        depthPosition -= _compensationLength;
       }
-      osg::Box* box = static_cast<osg::Box*>(_shape->getShape());
-      box->set(box->getCenter(), osg::Vec3(box->getHalfLengths().x(), box->getHalfLengths().y(), depth));
+      _shape->setShape(new osg::Box(osg::Vec3(0.0f, 0.0f, depthPosition / 2), static_cast<float>(_emfTrackSettings.width), static_cast<float>(_emfTrackSettings.height), depth));
       break;
     }
     case SteamVRTrack: {
