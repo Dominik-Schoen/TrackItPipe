@@ -26,6 +26,8 @@ public:
   void updateTrackpointCount();
   void resetActionPointSettings();
   void resetAllSettings();
+  void setExportAvailable(bool available);
+  void setExportStatus(int jobs, int done);
 
 protected:
   virtual void showEvent(QShowEvent* event);

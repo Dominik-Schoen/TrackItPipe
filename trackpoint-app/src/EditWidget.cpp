@@ -9,6 +9,7 @@
 #include "OpenScadRenderer.hpp"
 
 // Include dependencies
+#include <sstream>
 #include <QFileDialog>
 
 EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget) {
@@ -181,6 +182,19 @@ void EditWidget::resetAllSettings() {
   updateEMFTrackSettings(true);
   updateSteamVRTrackSettings(true);
   resetActionPointSettings();
+}
+
+void EditWidget::setExportAvailable(bool available) {
+  ui->exportButton->setVisible(available);
+  ui->exportProgress->setVisible(!available);
+  ui->exportLabel->setVisible(!available);
+}
+
+void EditWidget::setExportStatus(int jobs, int done) {
+  ui->exportProgress->setValue(done);
+  std::stringstream text;
+  text << "Export running: " << ++done << " of " << jobs << ".";
+  ui->exportLabel->setText(QString::fromUtf8(text.str().c_str()));
 }
 
 void EditWidget::selectTool(Tool tool) {
