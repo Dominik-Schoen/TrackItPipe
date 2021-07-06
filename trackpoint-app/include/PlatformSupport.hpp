@@ -7,7 +7,6 @@
   static std::string openScadPath = "openscad";
   static std::string fileDelimiter = "/";
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
-  // Currently unsupported
-  static std::string openScadPath = "";
+  static std::string openScadPath = "\"C:\\Program Files\\OpenSCAD\\openscad.exe\"";
   static std::string fileDelimiter = "\\";
 #endif
