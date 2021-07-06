@@ -133,6 +133,7 @@ bool ProjectStore::isProjectOpen() {
 
 void ProjectStore::closeProject() {
   _projectLoaded = false;
+  _projectModified = false;
   reset();
 }
 
