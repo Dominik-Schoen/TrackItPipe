@@ -12,7 +12,7 @@ Requirements:
 - CPU power ;)
 
 Windows instructions:
-- Use the MSYS2 environment and the mingw-w64 compiler environment`
+- Use the MSYS2 environment and the mingw-w64 compiler environment. A great tutorial: https://github.com/orlp/dev-on-windows/wiki/Installing-GCC--&-MSYS2
 - Compiler and CMake: `pacman -S base-devel cmake git`
 - Install qt6 with `pacman -S mingw-w64-x86_64-qt6`
 
