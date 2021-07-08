@@ -20,7 +20,7 @@ To create a development build, clone the repo and go to the `trackpoint-app` fol
 
 Create a new folder `build`.
 
-Then, go to the `build` folder and execute `cmake ..`. CMake will download all required dependencies automatically.
+Then, go to the `build` folder and execute `cmake ..` (or `cmake -G "Unix Makefiles" ..` if you are on windows). CMake will download all required dependencies automatically.
 
 When CMake is done, run `make`. For better performance, run `make -jX` and replace X by the thread count of your machine minus 1.
 
