@@ -11,7 +11,10 @@ Requirements:
 - Qt 6.1 or newer
 - CPU power ;)
 
-Note: Development on Windows is unsupported.
+Windows instructions:
+Use the MSYS2 environment and the mingw-w64 compiler environment`
+Compiler and CMake: `pacman -S base-devel cmake`
+Install qt6 with `pacman -S mingw-w64-x86_64-qt6`
 
 To create a development build, clone the repo and go to the `trackpoint-app` folder.
 
