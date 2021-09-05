@@ -1,7 +1,7 @@
 # Build lib3mf
 
 # The GitHub release (tag) we want to use
-SET(LIB3MF_TAG v2.1.1)
+SET(LIB3MF_TAG v2.2.0)
 
 SET(LIB3MF_PREFIX lib3mf)
 
