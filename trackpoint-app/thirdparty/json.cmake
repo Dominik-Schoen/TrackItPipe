@@ -1,7 +1,7 @@
 # Build Json
 
 # The GitHub release (tag) we want to use
-SET(JSON_TAG v3.9.1)
+SET(JSON_TAG v3.10.2)
 
 SET(JSON_PREFIX nlohmann_json)
 
