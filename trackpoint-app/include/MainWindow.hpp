@@ -30,6 +30,8 @@ public:
   void showOptiTrackSanityLineError();
   void showOptiTrackSanityPlaneError();
   void showOptiTrackSanitySuccess();
+  void showSteamVRTrackCollisionCheckError();
+  void showSteamVRTrackCollisionCheckSuccess();
 
 protected:
   virtual void closeEvent(QCloseEvent *event);

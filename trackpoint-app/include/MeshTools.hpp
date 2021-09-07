@@ -2,6 +2,7 @@
 
 // Include modules
 #include "OptiTrackPoint.hpp"
+#include "SteamVRTrackPoint.hpp"
 
 // Include dependencies
 #include "lib3mf_implicit.hpp"
@@ -13,4 +14,5 @@ public:
   static float angleBetween(osg::Vec3 a, osg::Vec3 b);
   static float compensationLength(osg::Vec3 a, osg::Vec3 b, float length);
   static bool optiTrackSanityCheck(const std::vector<OptiTrackPoint*> points, const bool showSuccessMessage);
+  static bool steamVrTrackCollisionCheck(std::vector<SteamVRTrackPoint*> points, const bool showSuccessMessage, osg::ref_ptr<osg::Group> verifyGroup);
 };

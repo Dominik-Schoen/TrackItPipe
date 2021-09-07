@@ -235,3 +235,17 @@ void MainWindow::showOptiTrackSanitySuccess() {
   msg.setWindowTitle(QString("OptiTrack Sanity Check Passed"));
   msg.exec();
 }
+
+void MainWindow::showSteamVRTrackCollisionCheckError() {
+  QMessageBox msg(this);
+  msg.setText(QString("There is at least one track point where the SteamVR tracking device might collide with the printed object."));
+  msg.setWindowTitle(QString("SteamVR Track Collition Check found a problem"));
+  msg.exec();
+}
+
+void MainWindow::showSteamVRTrackCollisionCheckSuccess() {
+  QMessageBox msg(this);
+  msg.setText(QString("All tracking points are free of collisions!"));
+  msg.setWindowTitle(QString("SteamVR Track Collision Check Passed"));
+  msg.exec();
+}

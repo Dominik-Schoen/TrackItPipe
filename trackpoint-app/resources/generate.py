@@ -2,7 +2,7 @@
 
 from stl import mesh
 
-files = ["steamvrthread.stl"]
+files = ["steamvrthread.stl", "steamvrtracker.stl"]
 scadFiles = ["threads.scad"]
 
 fileData = {}

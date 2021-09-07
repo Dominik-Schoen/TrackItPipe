@@ -28,6 +28,8 @@ public:
   void resetAllSettings();
   void setExportAvailable(bool available);
   void setExportStatus(int jobs, int done);
+  bool getOptiTrackSanityCheckStatus();
+  bool getSteamVRTrackCollisionCheckStatus();
 
 protected:
   virtual void showEvent(QShowEvent* event);
@@ -55,8 +57,13 @@ private slots:
   void changePositions();
   void setPositionEditing(bool mode);
   void manualOptiTrackSanityCheck();
+  void setOptiTrackSanityCheckStatus();
+  void manualSteamVRTrackCollisionCheck();
+  void setSteamVRTrackCollisionCheckStatus();
 
 private:
   Ui::EditWidget* ui;
   int selectedPoint = -1;
+  bool _optiTrackSanityCheck = true;
+  bool _steamVrTrackCollisionCheck = false;
 };

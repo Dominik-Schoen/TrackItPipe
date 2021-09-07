@@ -6,6 +6,7 @@
 
 // Include dependencies
 #include <math.h>
+#include <osg/ComputeBoundsVisitor>
 
 void MeshTools::calculateNormals(const std::vector<Lib3MF::sPosition> verticesBuffer, const std::vector<Lib3MF::sTriangle> triangleBuffer, osg::ref_ptr<osg::Vec3Array> vertices, osg::ref_ptr<osg::Vec3Array> normals) {
   for (const Lib3MF::sTriangle triangle: triangleBuffer) {
@@ -43,6 +44,9 @@ float MeshTools::compensationLength(osg::Vec3 a, osg::Vec3 b, float length) {
 }
 
 bool MeshTools::optiTrackSanityCheck(const std::vector<OptiTrackPoint*> points, const bool showSuccessMessage) {
+  if (!MainWindow::getInstance()->getEditWiget()->getOptiTrackSanityCheckStatus()) {
+    return false;
+  }
   // Check for three on a line
   bool foundLineProblem = false;
   if (points.size() >= 3) {
@@ -98,4 +102,55 @@ bool MeshTools::optiTrackSanityCheck(const std::vector<OptiTrackPoint*> points, 
     MainWindow::getInstance()->showOptiTrackSanitySuccess();
   }
   return foundLineProblem || foundPlaneProblem;
+}
+
+bool MeshTools::steamVrTrackCollisionCheck(std::vector<SteamVRTrackPoint*> points, const bool showSuccessMessage, osg::ref_ptr<osg::Group> verifyGroup) {
+  if (!MainWindow::getInstance()->getEditWiget()->getSteamVRTrackCollisionCheckStatus()) {
+    return false;
+  }
+  MainWindow::getInstance()->getOsgWidget()->loadSteamvrCollision();
+  bool foundProblem = false;
+  for (SteamVRTrackPoint* point: points) {
+    osg::ref_ptr<osg::MatrixTransform> move = new osg::MatrixTransform;
+    osg::Vec3f movementVector = osg::Vec3f(0.0f, 0.0f, 1.0f).operator*(point->getLength());
+    move->setMatrix(osg::Matrix::translate(movementVector));
+
+    osg::ref_ptr<osg::MatrixTransform> rotate = new osg::MatrixTransform;
+    rotate->addChild(move.get());
+    osg::Vec3f normalModifier = point->getNormalModifier();
+    osg::Vec3f normal = point->getNormal();
+    float normalRotation = point->getNormalRotation();
+    osg::Matrix modifierRotation = osg::Matrix::rotate(normalModifier.x() * M_PI / 180, osg::Vec3(1.0f, 0.0f, 0.0f), normalModifier.y() * M_PI / 180, osg::Vec3(0.0f, 1.0f, 0.0f), normalModifier.z() * M_PI / 180, osg::Vec3(0.0f, 0.0f, 1.0f));
+    normal = modifierRotation.preMult(normal);
+    normal.normalize();
+    osg::Matrix matrix = osg::Matrix::rotate(osg::Vec3f(0.0f, 0.0f, 1.0f), normal);
+    matrix = matrix.operator*(osg::Matrix::rotate(normalRotation * M_PI / 180, normal));
+    rotate->setMatrix(matrix);
+
+    osg::ref_ptr<osg::MatrixTransform> translate = new osg::MatrixTransform;
+    translate->addChild(rotate.get());
+    translate->setMatrix(osg::Matrix::translate(point->getTranslation()));
+    verifyGroup->addChild(translate.get());
+
+    osg::ref_ptr<osg::Geode> tracker = new osg::Geode;
+    tracker->addDrawable(MainWindow::getInstance()->getOsgWidget()->_steamvrTrackerMesh.get());
+    move->addChild(tracker.get());
+
+    osg::ComputeBoundsVisitor computeBoundsVisitor;
+    verifyGroup->accept(computeBoundsVisitor);
+    osg::BoundingBox trackerBox = computeBoundsVisitor.getBoundingBox();
+
+    if (trackerBox.intersects(MainWindow::getInstance()->getOsgWidget()->getMesh()->getBoundingBox())) {
+      foundProblem = true;
+    }
+
+    verifyGroup->removeChild(translate.get());
+  }
+  if (foundProblem) {
+    MainWindow::getInstance()->showSteamVRTrackCollisionCheckError();
+  }
+  if (!foundProblem && showSuccessMessage) {
+    MainWindow::getInstance()->showSteamVRTrackCollisionCheckSuccess();
+  }
+  return foundProblem;
 }

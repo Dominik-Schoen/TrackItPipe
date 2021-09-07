@@ -40,7 +40,7 @@
         <x>0</x>
         <y>0</y>
         <width>506</width>
-        <height>1035</height>
+        <height>1062</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -573,6 +573,16 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="optiTrackEnableSanityCheck">
+                <property name="text">
+                 <string>Perform automatic sanity check</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -749,9 +759,16 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_2">
+               <widget class="QPushButton" name="steamVrTrackCollisionCheck">
                 <property name="text">
                  <string>Perform collision check</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="steamVrTrackEnableCollisionCheck">
+                <property name="text">
+                 <string>Perform automatic collision check</string>
                 </property>
                </widget>
               </item>

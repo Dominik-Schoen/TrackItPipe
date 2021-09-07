@@ -180,6 +180,9 @@ OSGWidget::OSGWidget(QWidget* parent): QOpenGLWidget(parent),
   // graphics window switch viewports properly.
   this->setMouseTracking(true);
 
+  _verifyGroup = new osg::Group;
+  _root->addChild(_verifyGroup.get());
+
   _pointRoot = new osg::Group;
   _root->addChild(_pointRoot.get());
   _pointRenderer = new TrackPointRenderer(this, _pointRoot);
@@ -208,6 +211,10 @@ void OSGWidget::renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, cons
 
 osg::ref_ptr<osg::Geode> OSGWidget::getMesh() {
   return _mesh;
+}
+
+osg::ref_ptr<osg::Group> OSGWidget::getVerifyGroup() {
+  return _verifyGroup;
 }
 
 PickHandler* OSGWidget::getPicker() {
@@ -241,6 +248,32 @@ void OSGWidget::loadSteamvrThread() {
     osgUtil::optimizeMesh(_steamvrThreadMesh.get());
 
     _steamvrLoaded = true;
+  }
+}
+
+void OSGWidget::loadSteamvrCollision() {
+  if (!_steamvrCollisionLoaded) {
+    std::vector<Lib3MF::sPosition> verticesBuffer;
+    std::vector<Lib3MF::sTriangle> triangleBuffer;
+    for (unsigned int i = 0; i < sizeof(steamvrtracker_VERTICES) / sizeof(float); i += 3) {
+      Lib3MF::sPosition vertex = {steamvrtracker_VERTICES[i], steamvrtracker_VERTICES[i + 1], steamvrtracker_VERTICES[i + 2]};
+      verticesBuffer.push_back(vertex);
+    }
+    for (unsigned int i = 0; i < sizeof(steamvrtracker_TRIANGLES) / sizeof(unsigned int); i += 3) {
+      Lib3MF::sTriangle triangle = {steamvrtracker_TRIANGLES[i], steamvrtracker_TRIANGLES[i + 1], steamvrtracker_TRIANGLES[i + 2]};
+      triangleBuffer.push_back(triangle);
+    }
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
+    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+    MeshTools::calculateNormals(verticesBuffer, triangleBuffer, vertices, normals);
+
+    _steamvrTrackerMesh = new osg::Geometry;
+    _steamvrTrackerMesh->setVertexArray(vertices.get());
+    _steamvrTrackerMesh->setNormalArray(normals.get(), osg::Array::BIND_PER_VERTEX);
+    _steamvrTrackerMesh->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, vertices->getNumElements()));
+    osgUtil::optimizeMesh(_steamvrTrackerMesh.get());
+
+    _steamvrCollisionLoaded = true;
   }
 }
 

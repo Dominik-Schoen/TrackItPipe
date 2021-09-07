@@ -37,6 +37,7 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateOptiTrackSettings(false); });
   QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateOptiTrackSettings(true); });
   QObject::connect(ui->optiTrackSanityCheck, &QPushButton::clicked, this, &EditWidget::manualOptiTrackSanityCheck);
+  QObject::connect(ui->optiTrackEnableSanityCheck, &QCheckBox::stateChanged, this, &EditWidget::setOptiTrackSanityCheckStatus);
   // EMF Track settings
   QObject::connect(ui->emfTrackWidth, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
   QObject::connect(ui->emfTrackHeight, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
@@ -45,6 +46,8 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   // StramVRTrack settings
   QObject::connect(ui->steamVrTrackLength, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateSteamVRTrackSettings(false); });
   QObject::connect(ui->steamVrTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateSteamVRTrackSettings(true); });
+  QObject::connect(ui->steamVrTrackCollisionCheck, &QPushButton::clicked, this, &EditWidget::manualSteamVRTrackCollisionCheck);
+  QObject::connect(ui->steamVrTrackEnableCollisionCheck, &QCheckBox::stateChanged, this, &EditWidget::setSteamVRTrackCollisionCheckStatus);
   // Action point settings
   QObject::connect(ui->actionPointIdentifier, &QLineEdit::textChanged, this, &EditWidget::updateActionPointSettings);
   QObject::connect(ui->actionPointLoadDefaults, &QPushButton::clicked, this, &EditWidget::resetActionPointSettings);
@@ -199,6 +202,14 @@ void EditWidget::setExportStatus(int jobs, int done) {
   ui->exportLabel->setText(QString::fromUtf8(text.str().c_str()));
 }
 
+bool EditWidget::getOptiTrackSanityCheckStatus() {
+  return _optiTrackSanityCheck;
+}
+
+bool EditWidget::getSteamVRTrackCollisionCheckStatus() {
+  return _steamVrTrackCollisionCheck;
+}
+
 void EditWidget::selectTool(Tool tool) {
   switch(tool) {
     case InsertionTool: {
@@ -241,6 +252,8 @@ void EditWidget::updateNormalModifier() {
     MainWindow::getInstance()->getStore()->projectModified();
     if (activeTrackingSystem == OptiTrack) {
       MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
+    } else if (activeTrackingSystem == SteamVRTrack) {
+      MeshTools::steamVrTrackCollisionCheck(MainWindow::getInstance()->getStore()->getSteamVRTrackPoints(), false, MainWindow::getInstance()->getOsgWidget()->getVerifyGroup());
     }
   }
 }
@@ -260,6 +273,8 @@ void EditWidget::resetNormalModifier() {
     MainWindow::getInstance()->getStore()->projectModified();
     if (activeTrackingSystem == OptiTrack) {
       MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
+    } else if (activeTrackingSystem == SteamVRTrack) {
+      MeshTools::steamVrTrackCollisionCheck(MainWindow::getInstance()->getStore()->getSteamVRTrackPoints(), false, MainWindow::getInstance()->getOsgWidget()->getVerifyGroup());
     }
   }
 }
@@ -287,6 +302,8 @@ void EditWidget::updateNormalRotation(bool reset) {
     MainWindow::getInstance()->getStore()->projectModified();
     if (activeTrackingSystem == OptiTrack) {
       MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
+    } else if (activeTrackingSystem == SteamVRTrack) {
+      MeshTools::steamVrTrackCollisionCheck(MainWindow::getInstance()->getStore()->getSteamVRTrackPoints(), false, MainWindow::getInstance()->getOsgWidget()->getVerifyGroup());
     }
   }
 }
@@ -384,6 +401,7 @@ void EditWidget::updateSteamVRTrackSettings(bool reset) {
     MainWindow::getInstance()->getStore()->getSteamVRTrackPoints()[selectedPoint]->updateSteamVRTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(SteamVRTrack);
     MainWindow::getInstance()->getStore()->projectModified();
+    MeshTools::steamVrTrackCollisionCheck(MainWindow::getInstance()->getStore()->getSteamVRTrackPoints(), false, MainWindow::getInstance()->getOsgWidget()->getVerifyGroup());
   }
 }
 
@@ -495,4 +513,16 @@ void EditWidget::setPositionEditing(bool mode) {
 
 void EditWidget::manualOptiTrackSanityCheck() {
   MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), true);
+}
+
+void EditWidget::setOptiTrackSanityCheckStatus() {
+  _optiTrackSanityCheck = ui->compensation->checkState() == Qt::Checked ? true : false;
+}
+
+void EditWidget::manualSteamVRTrackCollisionCheck() {
+  MeshTools::steamVrTrackCollisionCheck(MainWindow::getInstance()->getStore()->getSteamVRTrackPoints(), true, MainWindow::getInstance()->getOsgWidget()->getVerifyGroup());
+}
+
+void EditWidget::setSteamVRTrackCollisionCheckStatus() {
+  _steamVrTrackCollisionCheck = ui->compensation->checkState() == Qt::Checked ? true : false;
 }

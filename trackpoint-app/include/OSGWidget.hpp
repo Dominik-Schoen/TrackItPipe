@@ -34,11 +34,14 @@ public:
   virtual ~OSGWidget();
   void renderBaseMesh(const osg::ref_ptr<osg::Vec3Array> vertices, const osg::ref_ptr<osg::Vec3Array> normals);
   osg::ref_ptr<osg::Geode> getMesh();
+  osg::ref_ptr<osg::Group> getVerifyGroup();
   PickHandler* getPicker();
   TrackPointRenderer* getPointRenderer();
   void loadSteamvrThread();
+  void loadSteamvrCollision();
   void clear();
   osg::ref_ptr<osg::Geometry> _steamvrThreadMesh;
+  osg::ref_ptr<osg::Geometry> _steamvrTrackerMesh;
 
 protected:
   virtual void paintEvent(QPaintEvent* paintEvent);
@@ -70,6 +73,7 @@ private:
   osgViewer::View* _view;
   osg::ref_ptr<osg::Group> _root;
   osg::ref_ptr<osg::Group> _pointRoot;
+  osg::ref_ptr<osg::Group> _verifyGroup;
   osg::ref_ptr<osg::Group> _coordinateAxes;
   osg::ref_ptr<osg::Geode> _mesh;
 
@@ -80,4 +84,5 @@ private:
   bool selectionFinished_;
 
   bool _steamvrLoaded = false;
+  bool _steamvrCollisionLoaded = false;
 };

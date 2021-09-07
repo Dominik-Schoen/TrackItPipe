@@ -183,6 +183,7 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
     case SteamVRTrack: {
       SteamVRTrackPoint* steamVrTrackPoint = new SteamVRTrackPoint(point, normal, _normalModifier, _normalRotation, _compensation, _steamVrTrackSettings.length);
       _steamVrTrackPoints.push_back(steamVrTrackPoint);
+      MeshTools::steamVrTrackCollisionCheck(_steamVrTrackPoints, false, MainWindow::getInstance()->getOsgWidget()->getVerifyGroup());
       break;
     }
     case ActionPoints: {
