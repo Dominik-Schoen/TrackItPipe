@@ -54,6 +54,7 @@ private slots:
   void exportProject();
   void changePositions();
   void setPositionEditing(bool mode);
+  void manualOptiTrackSanityCheck();
 
 private:
   Ui::EditWidget* ui;

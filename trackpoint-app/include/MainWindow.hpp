@@ -27,6 +27,9 @@ public:
   ProjectStore* getStore();
   EditWidget* getEditWiget();
   void showErrorMessage(std::string message, std::string title = "Error");
+  void showOptiTrackSanityLineError();
+  void showOptiTrackSanityPlaneError();
+  void showOptiTrackSanitySuccess();
 
 protected:
   virtual void closeEvent(QCloseEvent *event);

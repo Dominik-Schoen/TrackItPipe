@@ -214,3 +214,24 @@ bool MainWindow::isRenderingPopup() {
       return false;
   }
 }
+
+void MainWindow::showOptiTrackSanityLineError() {
+  QMessageBox msg(this);
+  msg.setText(QString("There is at least one track point in a line with two others, which should be avoided."));
+  msg.setWindowTitle(QString("OptiTrack Sanity Check found a problem"));
+  msg.exec();
+}
+
+void MainWindow::showOptiTrackSanityPlaneError() {
+  QMessageBox msg(this);
+  msg.setText(QString("There is at least one track point in a plane with three others, which should be avoided."));
+  msg.setWindowTitle(QString("OptiTrack Sanity Check found a problem"));
+  msg.exec();
+}
+
+void MainWindow::showOptiTrackSanitySuccess() {
+  QMessageBox msg(this);
+  msg.setText(QString("All tracking points are valid!"));
+  msg.setWindowTitle(QString("OptiTrack Sanity Check Passed"));
+  msg.exec();
+}

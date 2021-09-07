@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>508</width>
-    <height>1040</height>
+    <height>912</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
         <x>0</x>
         <y>0</y>
         <width>506</width>
-        <height>1038</height>
+        <height>1035</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -566,6 +566,13 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QPushButton" name="optiTrackSanityCheck">
+                <property name="text">
+                 <string>Perform sanity check</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -738,6 +745,13 @@
                <widget class="QPushButton" name="steamVrTrackLoadDefaults">
                 <property name="text">
                  <string>Load defaults</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_2">
+                <property name="text">
+                 <string>Perform collision check</string>
                 </property>
                </widget>
               </item>

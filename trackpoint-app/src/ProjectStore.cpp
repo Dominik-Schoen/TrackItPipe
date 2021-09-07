@@ -171,6 +171,7 @@ void ProjectStore::addTrackPoint(osg::Vec3 point, osg::Vec3 normal, ActiveTracki
     case OptiTrack: {
       OptiTrackPoint* optiTrackPoint = new OptiTrackPoint(point, normal, _normalModifier, _normalRotation, _compensation, _optiTrackSettings.length, _optiTrackSettings.radius);
       _optiTrackPoints.push_back(optiTrackPoint);
+      MeshTools::optiTrackSanityCheck(_optiTrackPoints, false);
       break;
     }
     case EMFTrack: {

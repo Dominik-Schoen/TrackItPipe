@@ -7,6 +7,7 @@
 #include "PickHandler.hpp"
 #include "TrackPointRenderer.hpp"
 #include "OpenScadRenderer.hpp"
+#include "MeshTools.hpp"
 
 // Include dependencies
 #include <sstream>
@@ -35,6 +36,7 @@ EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget)
   QObject::connect(ui->optiTrackLength, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateOptiTrackSettings(false); });
   QObject::connect(ui->optiTrackRadius, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateOptiTrackSettings(false); });
   QObject::connect(ui->optiTrackLoadDefaults, &QPushButton::clicked, this, [=](){ this->updateOptiTrackSettings(true); });
+  QObject::connect(ui->optiTrackSanityCheck, &QPushButton::clicked, this, &EditWidget::manualOptiTrackSanityCheck);
   // EMF Track settings
   QObject::connect(ui->emfTrackWidth, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
   QObject::connect(ui->emfTrackHeight, &QDoubleSpinBox::valueChanged, this, [=](){ this->updateEMFTrackSettings(false); });
@@ -237,6 +239,9 @@ void EditWidget::updateNormalModifier() {
     MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalModifier(modifier);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
     MainWindow::getInstance()->getStore()->projectModified();
+    if (activeTrackingSystem == OptiTrack) {
+      MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
+    }
   }
 }
 
@@ -253,6 +258,9 @@ void EditWidget::resetNormalModifier() {
     MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalModifier(modifier);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
     MainWindow::getInstance()->getStore()->projectModified();
+    if (activeTrackingSystem == OptiTrack) {
+      MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
+    }
   }
 }
 
@@ -277,6 +285,9 @@ void EditWidget::updateNormalRotation(bool reset) {
     MainWindow::getInstance()->getStore()->getTrackPointById(selectedPoint, activeTrackingSystem)->updateNormalRotation(normalRotation);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(activeTrackingSystem);
     MainWindow::getInstance()->getStore()->projectModified();
+    if (activeTrackingSystem == OptiTrack) {
+      MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
+    }
   }
 }
 
@@ -325,6 +336,7 @@ void EditWidget::updateOptiTrackSettings(bool reset) {
     MainWindow::getInstance()->getStore()->getOptiTrackPoints()[selectedPoint]->updateOptiTrackSettings(settings);
     MainWindow::getInstance()->getOsgWidget()->getPointRenderer()->render(OptiTrack);
     MainWindow::getInstance()->getStore()->projectModified();
+    MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), false);
   }
 }
 
@@ -479,4 +491,8 @@ void EditWidget::setPositionEditing(bool mode) {
   ui->anchorX->setReadOnly(mode);
   ui->anchorY->setReadOnly(mode);
   ui->anchorZ->setReadOnly(mode);
+}
+
+void EditWidget::manualOptiTrackSanityCheck() {
+  MeshTools::optiTrackSanityCheck(MainWindow::getInstance()->getStore()->getOptiTrackPoints(), true);
 }
