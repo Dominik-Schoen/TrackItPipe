@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
-    <height>912</height>
+    <width>553</width>
+    <height>1076</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,60 +39,14 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>506</width>
-        <height>1062</height>
+        <width>551</width>
+        <height>1090</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
-       <item>
-        <widget class="QGroupBox" name="toolSelection">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
-         <property name="title">
-          <string>SELECT TOOL</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="bottomMargin">
-           <number>12</number>
-          </property>
-          <item>
-           <widget class="QToolButton" name="insertionToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Insertion Tool</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="selectionToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Selection Tool</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
+       <property name="spacing">
+        <number>20</number>
+       </property>
        <item>
         <widget class="QGroupBox" name="positions">
          <property name="font">
@@ -324,6 +278,9 @@
           <string>MODIFIER</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
+          <property name="leftMargin">
+           <number>12</number>
+          </property>
           <item>
            <layout class="QGridLayout" name="gridLayout_3">
             <property name="spacing">
@@ -850,19 +807,77 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="deleteTrackPoint">
-         <property name="enabled">
-          <bool>false</bool>
+        <widget class="QGroupBox" name="toolSelection">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="text">
-          <string>Delete point</string>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>13</pointsize>
+          </font>
+         </property>
+         <property name="title">
+          <string>SELECT TOOL</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="leftMargin">
+           <number>12</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="insertionToolButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Insertion Tool</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="selectionToolButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Selection Tool</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="deleteTrackPoint">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Delete point</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="exportGroup">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
