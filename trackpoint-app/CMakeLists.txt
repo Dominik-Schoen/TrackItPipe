@@ -33,7 +33,7 @@ INCLUDE(thirdparty/openscenegraph.cmake)
 INCLUDE(thirdparty/lib3mf.cmake)
 
 # The executable we want to build
-QT_ADD_EXECUTABLE(TrackpointApp
+QT_ADD_EXECUTABLE(TrackpointApp MACOSX_BUNDLE
   src/main.cpp
   src/MainWindow.cpp
   include/MainWindow.hpp
@@ -82,6 +82,16 @@ TARGET_LINK_LIBRARIES(TrackpointApp PRIVATE
   Qt6::Gui
   Qt6::Widgets
   Qt6::OpenGLWidgets
+)
+
+# Configure macOS application bundle
+SET_TARGET_PROPERTIES(TrackpointApp PROPERTIES
+	BUNDLE True
+	MACOSX_BUNDLE_GUI_IDENTIFIER com.jkmsoftware.trackpointapp
+	MACOSX_BUNDLE_BUNDLE_NAME TrackpointApp
+	MACOSX_BUNDLE_BUNDLE_VERSION "1.0.0"
+	MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
+	MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/info.plist.in
 )
 
 # Header to have version number available in the code
