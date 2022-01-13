@@ -31,3 +31,7 @@ float SteamVRTrackPoint::getNormalCompensation() {
   float compensationLength = MeshTools::compensationLength(_normal, _normalModifier, STEAMVR_CONSTANT_RADIUS);
   return compensationLength > 0.0f ? compensationLength : 0.0f;
 }
+
+int SteamVRTrackPoint::getMinimumRequiredPoints() {
+    return _minimumPointsRequired;
+}

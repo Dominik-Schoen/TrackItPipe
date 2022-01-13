@@ -11,6 +11,7 @@
 
 // Include dependencies
 #include <sstream>
+#include <iostream>
 #include <QFileDialog>
 
 EditWidget::EditWidget(QWidget* parent): QWidget(parent), ui(new Ui::EditWidget) {
@@ -151,6 +152,7 @@ void EditWidget::updateTrackpointCount() {
     QString countString("TRACKPOINTS SET: ");
     countString.append(QString::number(count));
     ui->optiTrackCount->setText(countString);
+    setCountCheckString(OptiTrack);
   }
 
   count = MainWindow::getInstance()->getStore()->getCount(EMFTrack);
@@ -158,6 +160,7 @@ void EditWidget::updateTrackpointCount() {
     QString countString("TRACKPOINTS SET: ");
     countString.append(QString::number(count));
     ui->emfTrackCount->setText(countString);
+    setCountCheckString(EMFTrack);
   }
 
   count = MainWindow::getInstance()->getStore()->getCount(SteamVRTrack);
@@ -165,6 +168,7 @@ void EditWidget::updateTrackpointCount() {
     QString countString("TRACKPOINTS SET: ");
     countString.append(QString::number(count));
     ui->steamVrTrackCount->setText(countString);
+    setCountCheckString(SteamVRTrack);
   }
 
   count = MainWindow::getInstance()->getStore()->getCount(ActionPoints);
@@ -187,6 +191,7 @@ void EditWidget::resetAllSettings() {
   updateEMFTrackSettings(true);
   updateSteamVRTrackSettings(true);
   resetActionPointSettings();
+  updateTrackpointCount();
 }
 
 void EditWidget::setExportAvailable(bool available) {
@@ -525,4 +530,45 @@ void EditWidget::manualSteamVRTrackCollisionCheck() {
 
 void EditWidget::setSteamVRTrackCollisionCheckStatus() {
   _steamVrTrackCollisionCheck = ui->compensation->checkState() == Qt::Checked ? true : false;
+}
+
+void EditWidget::setCountCheckString(ActiveTrackingSystem activeTrackingSystem) {
+  int required = MainWindow::getInstance()->getStore()->getMinimumRequiredPoints(activeTrackingSystem);
+  int available = MainWindow::getInstance()->getStore()->getCount(activeTrackingSystem);
+  std::cout << available << " " << required << std::endl;
+  QString okString("Everything is fine.");
+  QString okStyle("color: lightgreen");
+  QString errorString = QStringLiteral("Insufficient trackpoint count: Placed %1 but needs at least %2").arg(available).arg(required);
+  QString errorStyle("color: yellow");
+  switch(activeTrackingSystem) {
+    case OptiTrack:
+      if (available >= required) {
+        ui->optiTrackCheck->setText(okString);
+        ui->optiTrackCheck->setStyleSheet(okStyle);
+      } else {
+        ui->optiTrackCheck->setText(errorString);
+        ui->optiTrackCheck->setStyleSheet(errorStyle);
+      }
+      break;
+    case EMFTrack:
+      if (available >= required) {
+        ui->emfTrackCheck->setText(okString);
+        ui->emfTrackCheck->setStyleSheet(okStyle);
+      } else {
+        ui->emfTrackCheck->setText(errorString);
+        ui->emfTrackCheck->setStyleSheet(errorStyle);
+      }
+      break;
+    case SteamVRTrack:
+      if (available >= required) {
+        ui->steamvrCheck->setText(okString);
+        ui->steamvrCheck->setStyleSheet(okStyle);
+      } else {
+        ui->steamvrCheck->setText(errorString);
+        ui->steamvrCheck->setStyleSheet(errorStyle);
+      }
+      break;
+    case ActionPoints:
+      break;
+  }
 }

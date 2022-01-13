@@ -67,6 +67,8 @@ public:
   void updateCompensation(bool compensation);
   // Return compensation
   bool getCompensation();
+  // Get the minimum required trackpoint count for a given tracking system
+  int getMinimumRequiredPoints(ActiveTrackingSystem activeTrackingSystem);
   // OPTITRACK
   // Get all OptiTrack points
   std::vector<OptiTrackPoint*> getOptiTrackPoints();

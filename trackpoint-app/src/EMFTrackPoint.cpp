@@ -36,3 +36,7 @@ float EMFTrackPoint::getNormalCompensation() {
   float compensationLength = MeshTools::compensationLength(_normal, _normalModifier, std::sqrt(std::pow(_width / 2, 2) + std::pow(_height / 2, 2)));
   return compensationLength > 0.0f ? compensationLength : 0.0f;
 }
+
+int EMFTrackPoint::getMinimumRequiredPoints() {
+    return _minimumPointsRequired;
+}

@@ -37,3 +37,7 @@ float OptiTrackPoint::getNormalCompensation() {
   float compensationLength = MeshTools::compensationLength(_normal, _normalModifier, _radius);
   return compensationLength > 0.0f ? compensationLength : 0.0f;
 }
+
+int OptiTrackPoint::getMinimumRequiredPoints() {
+    return _minimumPointsRequired;
+}

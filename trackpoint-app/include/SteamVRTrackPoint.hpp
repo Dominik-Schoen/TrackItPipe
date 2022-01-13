@@ -12,8 +12,10 @@ public:
   SteamVRTrackSettings getSteamVRTrackSettings();
   void updateSteamVRTrackSettings(SteamVRTrackSettings settings);
   float getNormalCompensation();
+  static int getMinimumRequiredPoints();
 
 private:
   void updateShift();
   double _length;
+  static const int _minimumPointsRequired = 1;
 };

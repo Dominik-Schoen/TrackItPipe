@@ -13,9 +13,11 @@ public:
   OptiTrackSettings getOptiTrackSettings();
   void updateOptiTrackSettings(OptiTrackSettings settings);
   float getNormalCompensation();
+  static int getMinimumRequiredPoints();
 
 private:
   void updateShift();
   double _length;
   double _radius;
+  static const int _minimumPointsRequired = 3;
 };

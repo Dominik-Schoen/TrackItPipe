@@ -14,9 +14,11 @@ public:
   EMFTrackSettings getEMFTrackSettings();
   void updateEMFTrackSettings(EMFTrackSettings settings);
   float getNormalCompensation();
+  static int getMinimumRequiredPoints();
 
 private:
   double _width;
   double _height;
   double _depth;
+  static const int _minimumPointsRequired = 1;
 };

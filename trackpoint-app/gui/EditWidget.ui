@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>553</width>
-    <height>1076</height>
+    <height>912</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
         <x>0</x>
         <y>0</y>
         <width>551</width>
-        <height>1090</height>
+        <height>1114</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -446,6 +446,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="currentIndex">
           <number>0</number>
          </property>
@@ -464,6 +467,22 @@
             <widget class="QLabel" name="optiTrackCount">
              <property name="text">
               <string>TRACKPOINTS SET: 0</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="optiTrackCheck">
+             <property name="styleSheet">
+              <string notr="true">color: lightgreen</string>
+             </property>
+             <property name="text">
+              <string>Everything is fine.</string>
+             </property>
+             <property name="margin">
+              <number>0</number>
+             </property>
+             <property name="indent">
+              <number>-1</number>
              </property>
             </widget>
            </item>
@@ -577,6 +596,16 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="emfTrackCheck">
+             <property name="styleSheet">
+              <string notr="true">color: lightgreen</string>
+             </property>
+             <property name="text">
+              <string>Everything is fine.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="emfTrackProperties">
              <property name="font">
               <font>
@@ -673,6 +702,16 @@
             <widget class="QLabel" name="steamVrTrackCount">
              <property name="text">
               <string>TRACKPOINTS SET: 0</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="steamvrCheck">
+             <property name="styleSheet">
+              <string notr="true">color: lightgreen</string>
+             </property>
+             <property name="text">
+              <string>Everything is fine.</string>
              </property>
             </widget>
            </item>

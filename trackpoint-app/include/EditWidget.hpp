@@ -60,6 +60,7 @@ private slots:
   void setOptiTrackSanityCheckStatus();
   void manualSteamVRTrackCollisionCheck();
   void setSteamVRTrackCollisionCheckStatus();
+  void setCountCheckString(ActiveTrackingSystem activeTrackingSystem);
 
 private:
   Ui::EditWidget* ui;

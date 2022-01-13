@@ -260,6 +260,19 @@ bool ProjectStore::getCompensation() {
   return _compensation;
 }
 
+int ProjectStore::getMinimumRequiredPoints(ActiveTrackingSystem activeTrackingSystem) {
+  switch(activeTrackingSystem) {
+    case OptiTrack:
+      return OptiTrackPoint::getMinimumRequiredPoints();
+    case EMFTrack:
+      return EMFTrackPoint::getMinimumRequiredPoints();
+    case SteamVRTrack:
+      return SteamVRTrackPoint::getMinimumRequiredPoints();
+    case ActionPoints:
+      return 0;
+  }
+}
+
 std::vector<OptiTrackPoint*> ProjectStore::getOptiTrackPoints() {
   return _optiTrackPoints;
 }
