@@ -27,12 +27,12 @@ You should now find the executable `TrackpointApp`.
 Below are the BibTex entries to cite TrackItPipe
 
 ```bibtex
-@misc{Funk:2016,
-  author = {Markus Funk, Thomas Kosch, Sven Mayer},
-  title = {motionEAP},
-  year = {2016},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/hcilab-org/motionEAP/}}
+@inproceedings{schoen2022tracktipipe,
+title = {TrackItPipe: A Fabrication Pipeline To Incorporate Location and Rotation Tracking Into 3D Printed Objects},
+author = {Schön, Dominik and Kosch, Thomas and Schmitz, Martin and Müller, Florian and Günther, Sebastian and Kreutz, Johannes and Mühlhäuser, Max},
+booktitle = {The 35rd Annual ACM Symposium on User Interface Software and Technology Adjunct Proceedings},
+year = {2022},
+doi = {10.1145/3526114.3558719},
+organization = {ACM}
 }
 ```
