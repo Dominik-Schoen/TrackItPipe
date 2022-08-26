@@ -1,8 +1,4 @@
-# Bachelorthesis
-
-Git project for my bachelor thesis
-
-# TrackpointApp
+# TrackItPipe
 ## Development
 
 Requirements:
