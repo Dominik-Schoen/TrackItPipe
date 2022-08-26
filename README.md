@@ -21,3 +21,18 @@ Then, go to the `build` folder and execute `cmake ..` (or `cmake -G "Unix Makefi
 When CMake is done, run `make`. For better performance, run `make -jX` and replace X by the thread count of your machine minus 1.
 
 You should now find the executable `TrackpointApp`.
+
+## How to cite TrackItPipe
+
+Below are the BibTex entries to cite TrackItPipe
+
+```bibtex
+@misc{Funk:2016,
+  author = {Markus Funk, Thomas Kosch, Sven Mayer},
+  title = {motionEAP},
+  year = {2016},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/hcilab-org/motionEAP/}}
+}
+```
